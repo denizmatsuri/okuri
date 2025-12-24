@@ -1,0 +1,82 @@
+---
+description: API 및 Supabase 상호작용 및 레이어 작성 규칙
+globs: ["src/api/**/*.ts"]
+alwaysApply: false
+---
+
+# API 레이어 규칙
+
+## 파일 구조
+
+각 도메인별로 파일 분리:
+
+- `src/api/auth.ts` - 인증 관련
+- `src/api/post.ts` - 게시글 관련
+- `src/api/profile.ts` - 프로필 관련
+- `src/api/comment.ts` - 댓글 관련
+- `src/api/image.ts` - 이미지 업로드
+
+## 함수 구조
+
+```typescript
+import supabase from "@/lib/supabase";
+
+export async function fetch[Feature](params: ParamType) {
+  const { data, error } = await supabase
+    .from("[table]")
+    .select("*")
+    // ... 쿼리 빌드
+
+  if (error) throw error;
+  return data;
+}
+
+export async function create[Feature](params: ParamType) {
+  const { data, error } = await supabase
+    .from("[table]")
+    .insert(params)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function update[Feature](params: Partial<EntityType> & { id: number }) {
+  const { data, error } = await supabase
+    .from("[table]")
+    .update(params)
+    .eq("id", params.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function delete[Feature](id: number) {
+  const { data, error } = await supabase
+    .from("[table]")
+    .delete()
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+```
+
+## 명명 규칙
+
+- 조회: `fetch[Feature]`, `fetch[Feature]ById`
+- 생성: `create[Feature]`
+- 수정: `update[Feature]`
+- 삭제: `delete[Feature]`
+- 토글: `toggle[Feature][Action]`
+
+## 에러 처리
+
+- 모든 Supabase 응답에서 에러 체크 필수
+- 에러 발생 시 throw로 상위 전달
+- 에러 변환/매핑은 hooks나 components에서 처리

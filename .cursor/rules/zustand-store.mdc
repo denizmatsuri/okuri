@@ -1,0 +1,68 @@
+---
+description: Zustand 스토어 작성 규칙
+globs: ["src/store/**/*.ts"]
+alwaysApply: false
+---
+
+# Zustand 스토어 규칙
+
+## 기본 구조
+
+모든 Zustand 스토어는 다음 패턴을 따릅니다:
+
+```typescript
+import { create } from "zustand";
+import { combine, devtools } from "zustand/middleware";
+
+type State = {
+  // 상태 타입 정의
+};
+
+const initialState: State = {
+  // 초기 상태
+};
+
+const use[Feature]Store = create(
+  devtools(
+    combine(initialState, (set) => ({
+      actions: {
+        // 액션들을 actions 객체 안에 그룹화
+      },
+    })),
+    { name: "[Feature]Store" },
+  ),
+);
+
+// 상태 접근용 커스텀 훅 (개별 export)
+export const use[State] = () => {
+  const [state] = use[Feature]Store((store) => store.[state]);
+  return [state];
+};
+
+// 액션 접근용 커스텀 훅 (개별 export)
+export const use[Action] = () => {
+  const [action] = use[Feature]Store((store) => store.actions.[action]);
+  return [action];
+};
+```
+
+## 필수 미들웨어
+
+1. **devtools**: 개발 도구 지원 (Redux DevTools)
+2. **combine**: 타입 추론 개선
+3. **persist** (선택): 로컬 스토리지 저장이 필요한 경우
+
+## 모달 스토어 패턴
+
+모달의 경우 discriminated union 타입 사용:
+
+```typescript
+type CloseState = { isOpen: false };
+type OpenState = { isOpen: true /* 추가 데이터 */ };
+type State = CloseState | OpenState;
+```
+
+## 금지 사항
+
+- 스토어 내부에서 직접 API 호출 금지
+- 컴포넌트에서 스토어 직접 접근 금지 (반드시 커스텀 훅 사용)

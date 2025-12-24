@@ -1,0 +1,45 @@
+---
+description: 프로젝트 폴더 구조 및 파일 생성 규칙
+globs: ["src/**/*"]
+alwaysApply: true
+---
+
+# 프로젝트 구조 규칙
+
+## 폴더 구조
+
+```
+src/
+├── api/             # Supabase API 호출 함수 (순수 함수)
+├── assets/          # 정적 파일 (이미지, 폰트)
+├── components/      # 재사용 가능한 UI 컴포넌트
+│   ├── ui/          # shadcn/ui 기본 컴포넌트 (절대 수정 지양, 확장하여 사용)
+│   ├── layout/      # Header, Sidebar 등 레이아웃 컴포넌트
+│   ├── common/      # 프로젝트 전반에 쓰이는 공통 컴포넌트
+│   ├── [feature]/   # 특정 기능에 종속된 컴포넌트
+├── hooks/           # Custom React Hooks
+│   ├── mutations/   # 데이터 변경 (TanStack Query useMutation)
+│   └── queries/     # 데이터 조회 (TanStack Query useQuery)
+├── lib/             # 유틸리티(utils.ts), 상수(constants.ts), 설정
+├── pages/           # 페이지 컴포넌트 (라우트 단위)
+├── provider/        # Context Provider
+├── store/           # Zustand 스토어 (전역 상태 관리)
+└── types.ts         # 공통 타입 정의
+└── database.types.ts # Supabase 자동 생성 타입
+```
+
+## 파일 명명 규칙
+
+- **파일명**: kebab-case 사용 (예: `post-item.tsx`, `use-create-post.ts`)
+- **컴포넌트명**: PascalCase 사용 (예: `PostItem`, `CreatePostButton`)
+- **훅 파일명**: `use-` 접두사 사용 (예: `use-profile-data.ts`)
+- **스토어 파일명**: 기능명 사용 (예: `session.ts`, `theme.ts`)
+
+## 새 파일 생성 시 위치
+
+- API 함수 → `src/api/[feature].ts`
+- Query 훅 → `src/hooks/queries/use-[feature]-data.ts`
+- Mutation 훅 → `src/hooks/mutations/[feature]/use-[action]-[feature].ts`
+- 스토어 → `src/store/[feature].ts`
+- 페이지 → `src/pages/[feature]-page.tsx`
+- 컴포넌트 → `src/components/[feature]/[component-name].tsx`

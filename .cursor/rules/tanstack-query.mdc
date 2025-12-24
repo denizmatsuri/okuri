@@ -1,0 +1,107 @@
+---
+description: TanStack Query 사용 규칙
+globs: ["src/hooks/**/*.ts"]
+alwaysApply: false
+---
+
+# TanStack Query 규칙
+
+## Query Key Factory 패턴
+
+모든 쿼리 키는 `src/lib/constants.ts`의 `QUERY_KEYS`에서 관리:
+
+```typescript
+export const QUERY_KEYS = {
+  [feature]: {
+    all: ["[feature]"],
+    list: ["[feature]", "list"],
+    byId: (id: string | number) => ["[feature]", "byId", id],
+  },
+};
+```
+
+## Query 훅 구조
+
+```typescript
+// src/hooks/queries/use-[feature]-data.ts
+import { QUERY_KEYS } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
+
+export function use[Feature]Data(id?: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.[feature].byId(id!),
+    queryFn: () => fetch[Feature](id!),
+    enabled: !!id,  // 조건부 실행
+  });
+}
+```
+
+## Mutation 훅 구조
+
+```typescript
+// src/hooks/mutations/[feature]/use-[action]-[feature].ts
+import { QUERY_KEYS } from "@/lib/constants";
+import type { UseMutationCallback } from "@/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function use[Action][Feature](callbacks?: UseMutationCallback) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: [apiFunction],
+    onSuccess: () => {
+      callbacks?.onSuccess?.();
+      // 캐시 무효화 또는 업데이트
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.[feature].list });
+    },
+    onError: (error) => {
+      console.error(error);
+      callbacks?.onError?.(error);
+    },
+  });
+}
+```
+
+## 낙관적 업데이트 패턴
+
+```typescript
+onMutate: async (variables) => {
+  // 1. 진행 중인 쿼리 취소
+  await queryClient.cancelQueries({ queryKey: QUERY_KEYS.[feature].byId(id) });
+
+  // 2. 이전 데이터 백업
+  const prevData = queryClient.getQueryData(QUERY_KEYS.[feature].byId(id));
+
+  // 3. UI 즉시 업데이트
+  queryClient.setQueryData(QUERY_KEYS.[feature].byId(id), (old) => ({
+    ...old,
+    // 업데이트 로직
+  }));
+
+  // 4. 롤백용 데이터 반환
+  return { prevData };
+},
+onError: (error, variables, context) => {
+  // 롤백
+  if (context?.prevData) {
+    queryClient.setQueryData(QUERY_KEYS.[feature].byId(id), context.prevData);
+  }
+},
+```
+
+## 캐시 정규화 패턴
+
+리스트 조회 시 개별 항목도 캐시에 저장:
+
+```typescript
+queryFn: async () => {
+  const items = await fetchItems();
+
+  // 개별 항목 캐시 저장
+  items.forEach((item) => {
+    queryClient.setQueryData(QUERY_KEYS.[feature].byId(item.id), item);
+  });
+
+  return items.map((item) => item.id);  // ID만 반환
+},
+```

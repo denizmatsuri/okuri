@@ -1,0 +1,70 @@
+---
+description: 프로젝트 일반 규칙 및 코딩 컨벤션
+globs: ["src/**/*"]
+alwaysApply: true
+---
+
+# 일반 규칙
+
+## 기술 스택
+
+- **프레임워크**: React 19 + TypeScript
+- **빌드 도구**: Vite
+- **스타일링**: Tailwind CSS v4
+- **UI 컴포넌트**: shadcn/ui (Radix UI 기반)
+- **상태 관리**: Zustand (전역), TanStack Query (서버)
+- **라우팅**: React Router v7
+- **백엔드**: Supabase
+- **아이콘**: Lucide React
+- **알림**: Sonner (Toast)
+
+## Import 순서
+
+```typescript
+// 1. React 관련
+import { useState, useEffect } from "react";
+
+// 2. 외부 라이브러리
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+// 3. 내부 컴포넌트 (@/ alias 사용)
+import { Button } from "@/components/ui/button";
+import PostItem from "@/components/post/post-item";
+
+// 4. 훅
+import { useSession } from "@/store/session";
+import { useCreatePost } from "@/hooks/mutations/post/use-create-post";
+
+// 5. 유틸리티, 상수, 타입
+import { QUERY_KEYS } from "@/lib/constants";
+import type { Post } from "@/types";
+
+// 6. 에셋
+import defaultAvatar from "@/assets/default-avatar.jpg";
+```
+
+## 경로 별칭
+
+**규칙**: 모든 import에서 `@/` alias를 사용하고, 상대 경로 사용을 금지합니다.
+
+## 금지 사항
+
+- `any` 타입 사용 금지
+- `var` 사용 금지 (`const`, `let` 사용)
+- 인라인 스타일 금지 (Tailwind 사용)
+- console.log 커밋 금지 (개발 중에만 사용)
+- 하드코딩된 문자열 금지 (상수 파일 사용)
+
+## 권장 사항
+
+- Early return 패턴 사용
+- 함수형 컴포넌트만 사용
+- 한국어 주석 사용 가능
+- JSDoc 주석으로 복잡한 로직 설명
+
+## 에러 처리
+
+- API 에러는 `src/lib/error-messages.ts`에서 사용자 친화적 메시지로 변환
+- Toast로 사용자에게 에러 알림
+- 개발 환경에서는 console.error로 상세 로그
