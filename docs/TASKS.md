@@ -19,17 +19,17 @@
 ## 🏁 현재 진행상황
 
 - [ ] **Milestone 1: 프로젝트 환경 세팅**
-
-  - [ ] Vite + React 19 + TypeScript 프로젝트 초기화
-  - [ ] 폴더 구조 설계 (api, components, hooks, lib, pages, provider, store)
-  - [ ] 경로 별칭(@/) 설정 (tsconfig, vite.config)
-  - [ ] ESLint + Prettier 설정 및 코드 컨벤션 구성
-  - [ ] 라이브러리 설치 (React Router, Zustand, TanStack Query)
-  - [ ] .gitignore 및 .env 환경변수 설정
+  - [x] Vite + React 19 + TypeScript 프로젝트 초기화
+  - [x] 프로젝트 가이드라인 설정 (.cursor/rules/)
+  - [x] 폴더 구조 설계 (api, components, hooks, lib, pages, provider, store)
+  - [x] 라이브러리 설치 (Tailwind CSS, React Router, Zustand, TanStack Query)
+  - [x] TanStack Query, React Router 설정 (main.tsx)
+  - [x] Prettier(+Tailwind CSS) 설정
+        `npm i -D prettier prettier-plugin-tailwindcss`
+  - [x] 경로 별칭(@/) 설정 (tsconfig, vite.config)
+  - [x] .gitignore 및 .env 환경변수 설정
 
 - [ ] **Milestone 2: 스타일링 환경 구축**
-
-  - [ ] Tailwind CSS v4 설치 및 설정
   - [ ] 글로벌 CSS 변수 및 다크모드 기본 설정 (index.css)
   - [ ] shadcn/ui 초기화 및 components.json 설정
   - [ ] 기본 UI 컴포넌트 추가 (Button, Input, Dialog, Textarea)
@@ -37,27 +37,23 @@
   - [ ] Sonner Toast 알림 설정
 
 - [ ] **Milestone 3: 라우팅 환경 구축**
-
   - [ ] 기본 페이지 컴포넌트 생성 (index-page, sign-in-page, sign-up-page)
   - [ ] RootRoute 컴포넌트 및 라우트 구조 설계
   - [ ] GlobalLayout 컴포넌트 구현 (Header, Main, Footer)
   - [ ] GuestOnlyLayout / MemberOnlyLayout 보호 라우트 구현
 
 - [ ] **Milestone 4: Supabase 연동**
-
   - [ ] Supabase 프로젝트 생성 및 환경변수 설정
   - [ ] Supabase Client 초기화 (lib/supabase.ts)
   - [ ] 타입 자동 생성 스크립트 설정 (npm run type-gen)
 
 - [ ] **Milestone 5: Auth(인증 시스템 구축)**
-
   - [ ] 로그인 / 회원가입 폼
   - [ ] 기본 테이블 스키마 설계 (profile, post 등) ⬅️ 추가
   - [ ] SessionProvider(Zustand) 컴포넌트 구현
   - [ ] 비밀번호 재설정 기능
 
 - [ ] **Milestone 6: CRUD 작업(커뮤니티 & 게시글)**
-
   - [ ] 게시글 CRUD
   - [ ] 게시글 정렬 / 검색
   - [ ] Pagination 추가
@@ -68,7 +64,6 @@
 ## 🧩 나중에 진행해야할 상황
 
 - [ ] **Milestone: 공통 컴포넌트 및 유틸리티**
-
   - [ ] Loader / GlobalLoader / Fallback 컴포넌트 구현
   - [ ] Fallback (에러 상태) 컴포넌트 구현
   - [ ] Sonner Toast 알림 설정
