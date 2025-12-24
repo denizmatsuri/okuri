@@ -7,9 +7,9 @@
 
 ## 📖 About
 
-**Okuri**는 SNS 피로도가 높아진 사용자들을 위해,  
-이미 신뢰가 형성된 가족 관계 안에서 진짜 소통과 생활 공유를 할 수 있는  
-**폐쇄형 커뮤니케이션 플랫폼**입니다.
+**Okuri**는 OK(오케이)와 Uri(우리)를 합친 단어로,  
+SNS 피로도가 높아진 사용자들을 위해 이미 신뢰가 형성된 가족 관계 안에서  
+진짜 소통과 생활 공유를 할 수 있는 **폐쇄형 커뮤니케이션 플랫폼**입니다.
 
 더 자세한 비전은 [VISION.md](./docs/VISION.md)를 참고하세요.
 
@@ -18,8 +18,6 @@
 **Frontend**: React 19 · TypeScript · Vite  
 **Styling**: Tailwind CSS · shadcn/ui  
 **Backend**: Supabase
-
----
 
 ## 👤 Author
 
