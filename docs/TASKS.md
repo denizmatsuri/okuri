@@ -10,35 +10,39 @@
 
 ## 📆 개발 타임라인
 
-| Phase   | 기간          | 주요 목표          |
-| ------- | ------------- | ------------------ |
-| Phase 1 | 12/24 ~ 12/24 | 프로젝트 환경 세팅 |
+| Phase   | 기간          | 주요 목표                                |
+| ------- | ------------- | ---------------------------------------- |
+| Phase 1 | 12/24 ~ 12/24 | 프로젝트 환경 세팅 (~ Milestone 2)       |
+| Phase 2 | 12/26 ~ 12/26 | 기초 디자인 및 프로젝트 페이지 설계      |
+| Phase 3 | / ~ /         | 가족 그룹 시스템 (Core), 수파베이스 연동 |
+| Phase 4 | / ~ /         | 피드 (Private SNS)                       |
+| Phase   | / ~ /         | 블로그형 카테고리 게시판                 |
+| Phase   | / ~ /         | 가족 공유 캘린더                         |
+| Phase   | / ~ /         | README 수정 및 배포                      |
+| Phase   | / ~ /         | 가족 관계도(Interactive Family Tree)     |
 
 ---
 
-## 🏁 현재 진행상황
+## 🏁 진행 현황
 
-- [ ] **Milestone 1: 프로젝트 환경 세팅**
+- [x] **Milestone 1: 프로젝트 환경 세팅**
   - [x] Vite + React 19 + TypeScript 프로젝트 초기화
   - [x] 프로젝트 가이드라인 설정 (.cursor/rules/)
   - [x] 폴더 구조 설계 (api, components, hooks, lib, pages, provider, store)
   - [x] 라이브러리 설치 (Tailwind CSS, React Router, Zustand, TanStack Query)
-  - [x] TanStack Query, React Router 설정 (main.tsx)
-  - [x] Prettier(+Tailwind CSS) 설정
+  - [x] main.tsx 파일 세팅 (TanStack Query, React Router)
+  - [x] Prettier(+Tailwind CSS) 세팅
         `npm i -D prettier prettier-plugin-tailwindcss`
-  - [x] 경로 별칭(@/) 설정 (tsconfig, vite.config)
   - [x] .gitignore 및 .env 환경변수 설정
 
-- [ ] **Milestone 2: 스타일링 환경 구축**
-  - [ ] 글로벌 CSS 변수 및 다크모드 기본 설정 (index.css)
-  - [ ] shadcn/ui 초기화 및 components.json 설정
-  - [ ] 기본 UI 컴포넌트 추가 (Button, Input, Dialog, Textarea)
-  - [ ] Lucide React 아이콘 라이브러리 설치
-  - [ ] Sonner Toast 알림 설정
+- [x] **Milestone 2: 스타일링 환경 구축**
+  - [x] shadcn/ui 세팅
+  - [x] 기본 UI 컴포넌트 추가 (button, input, dialog, textarea, alert-dialog, ...)
 
-- [ ] **Milestone 3: 라우팅 환경 구축**
-  - [ ] 기본 페이지 컴포넌트 생성 (index-page, sign-in-page, sign-up-page)
-  - [ ] RootRoute 컴포넌트 및 라우트 구조 설계
+- [ ] **Milestone 3: 앱 구조 및 라우팅 세팅**
+  - [x] 프로젝트 기본 구조 설계(MVP 수준)
+  - [ ] RootRoute 컴포넌트라우트 구조 설계(MVP 수준)
+  - [ ] 기본 페이지 컴포넌트 세팅 (ex: pages/index-page.tsx, pages/sign-in-page)
   - [ ] GlobalLayout 컴포넌트 구현 (Header, Main, Footer)
   - [ ] GuestOnlyLayout / MemberOnlyLayout 보호 라우트 구현
 
@@ -61,7 +65,7 @@
   - [ ] 캐시 최적화 작업(id[]에서 독립적인 id로 캐시관리)
     - 📝 직접 구현해보고 블로그로 기록하기
 
-## 🧩 나중에 진행해야할 상황
+## 🧩 Backlog (추후 진행 예정)
 
 - [ ] **Milestone: 공통 컴포넌트 및 유틸리티**
   - [ ] Loader / GlobalLoader / Fallback 컴포넌트 구현

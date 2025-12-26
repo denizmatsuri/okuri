@@ -1,4 +1,12 @@
 # ================================
+# Personal development notes (개인 개발 노트)
+# ================================
+# 프로젝트 완성 후 정리하여 추가 예정
+docs/DEVLOG.md
+docs/IDEAS.md
+docs/NOTES.md
+
+# ================================
 # Dependencies
 # ================================
 node_modules
