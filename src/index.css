@@ -79,6 +79,14 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* 커스텀 레이아웃 변수(Custom Layout Variables) */
+:root {
+  --layout-width: 640px;
+  --layout-narrow-width: 63px;
+  --mobile-header-height: 60px;
+  --mobile-nav-height: 64px;
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
