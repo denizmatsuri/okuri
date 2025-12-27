@@ -82,8 +82,8 @@ src/
 │   │   ├── pung-item.tsx
 │   │   ├── post-form.tsx
 │   │   └── category-filter.tsx # 전체글/공지사항/펑 필터
-│   ├── blog/             # 블로그 전용 컴포넌트
 │   └── calendar/         # 캘린더 전용 컴포넌트
+│   ├── gallery/          # 갤러리 전용 컴포넌트
 │
 ├── hooks/                # Custom React Hooks
 │   ├── queries/          # TanStack Query (useQuery)
