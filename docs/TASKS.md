@@ -48,10 +48,13 @@
   - [x] 반응형 디자인 적용 (모바일/태블릿/데스크톱)
   - [x] GlobalLayout 컴포넌트 구현 (Header, Main, Navigation)
 
-- [ ] **Milestone 4: Supabase 연동**
-  - [ ] Supabase 프로젝트 생성 및 환경변수 설정
-  - [ ] Supabase Client 초기화 (lib/supabase.ts)
-  - [ ] 타입 자동 생성 스크립트 설정 (npm run type-gen)
+- [x] **Milestone 4: Supabase 연동**
+  - [x] Supabase 프로젝트 생성 및 환경변수 설정
+  - [x] Supabase Client 초기화 (utils/supabase.ts)
+  - [x] 타입 자동 생성 스크립트 설정 (npm run type-gen)
+  - [x] Database 타입 정의 및 Entity 타입 추출 (types.ts)
+
+  > 📖 상세 가이드: [Supabase 설정 가이드](./guides/supabase-setup.md)
 
 - [ ] **Milestone 5: Auth(인증 시스템 구축)**
   - [ ] Supabase Auth 설정 및 환경변수 구성
