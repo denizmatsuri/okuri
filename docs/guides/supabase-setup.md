@@ -138,3 +138,49 @@ export type Post = PostEntity & {
 2. 터미널에서 `npm run type-gen` 실행
 3. `src/types.ts`에 필요한 Entity 타입 추가
 4. API 함수 및 컴포넌트에서 타입 활용
+
+---
+
+## 6. Database Triggers & Functions
+
+### 사용자 자동 생성 트리거
+
+회원가입 시 `auth.users`에 새 사용자가 생성되면 `public.users` 테이블에도 자동으로 행이 생성됩니다.
+
+#### SQL (Supabase SQL Editor에서 실행)
+
+```sql
+-- 작성일 2025-12-30
+-- =============================================
+-- 1. 새 사용자 생성 시 public.users 테이블에 자동 삽입하는 함수
+-- =============================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+  INSERT INTO public.users (id, email)
+  VALUES (NEW.id, NEW.email);
+  RETURN NEW;
+END;
+$$;
+
+-- =============================================
+-- 2. auth.users INSERT 시 트리거 실행
+-- =============================================
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+```
+
+> ⚠️ 이 트리거는 Supabase 대시보드에서 직접 설정해야 합니다.
+
+#### SQL 위치
+
+- 마이그레이션: `supabase/migrations/20251230083953_create_user_trigger.sql`
+
+#### 트리거 확인 방법
+
+Supabase 대시보드 > Database > Triggers 에서 확인 가능 (좌측상단 스미카 선택 드롭다운에서 auth로 변경)
