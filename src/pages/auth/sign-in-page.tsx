@@ -1,0 +1,87 @@
+import { useState } from "react";
+import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+export default function SignInPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    // TODO: 로그인 로직 구현
+    console.log("sign in", { email, password });
+    setLoading(false);
+  };
+
+  return (
+    <div className="flex h-full items-center justify-center">
+      <Card className="my-(--footer-height) flex w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl">로그인</CardTitle>
+          <CardDescription>
+            이메일과 비밀번호를 입력하여 로그인하세요
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSignIn}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="email">이메일</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">비밀번호</Label>
+                  <Link
+                    to="/forgot-password"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  >
+                    비밀번호를 잊으셨나요?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              {error && <p className="text-sm text-red-500">{error}</p>}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "로그인 중..." : "로그인"}
+              </Button>
+            </div>
+            <div className="mt-4 text-center text-sm">
+              계정이 없으신가요?{" "}
+              <Link to="/sign-up" className="underline underline-offset-4">
+                회원가입
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

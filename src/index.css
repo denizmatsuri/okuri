@@ -83,6 +83,7 @@
 :root {
   --layout-width: 640px;
   --layout-narrow-width: 63px;
+  --footer-height: 70px;
   --mobile-header-height: 60px;
   --mobile-nav-height: 64px;
 }
