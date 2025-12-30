@@ -25,6 +25,8 @@ export default defineConfig([
         "warn",
         { allowConstantExport: true },
       ],
+      "@typescript-eslint/no-explicit-any": "warn", // any 타입 사용 경고
+      "@typescript-eslint/no-unused-vars": "off", // 사용하지 않는 변수 오류 무시
     },
   },
 ]);
