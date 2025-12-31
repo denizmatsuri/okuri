@@ -10,19 +10,28 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSignInWithPassword } from "@/hooks/mutations/auth/use-sign-in-with-password";
+import { toast } from "sonner";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const { mutate: signInWithPassword, isPending: isSigningInPending } =
+    useSignInWithPassword({
+      onSuccess: () => {
+        toast.success("로그인 성공", { position: "top-center" });
+      },
+      onError: (error) => {
+        setError(error.message);
+        toast.error(error.message, { position: "top-center" });
+      },
+    });
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    // TODO: 로그인 로직 구현
-    console.log("sign in", { email, password });
-    setLoading(false);
+    signInWithPassword({ email, password });
   };
 
   return (
@@ -42,6 +51,7 @@ export default function SignInPage() {
                 <Input
                   id="email"
                   name="email"
+                  disabled={isSigningInPending}
                   type="email"
                   placeholder="example@email.com"
                   value={email}
@@ -61,6 +71,7 @@ export default function SignInPage() {
                 </div>
                 <Input
                   id="password"
+                  disabled={isSigningInPending}
                   type="password"
                   name="password"
                   value={password}
@@ -69,8 +80,12 @@ export default function SignInPage() {
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "로그인 중..." : "로그인"}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSigningInPending}
+              >
+                {isSigningInPending ? "로그인 중..." : "로그인"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
