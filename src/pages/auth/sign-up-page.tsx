@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useSignUp from "@/hooks/mutations/auth/use-sign-up";
+import { useSignUp } from "@/hooks/mutations/auth/use-sign-up";
 import { toast } from "sonner";
 
 export default function SignUpPage() {
