@@ -63,8 +63,8 @@ export default function SignInPage() {
                 <div className="flex items-center">
                   <Label htmlFor="password">비밀번호</Label>
                   <Link
-                    to="/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    to="/forget-password"
+                    className="text-muted-foreground ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     비밀번호를 잊으셨나요?
                   </Link>
