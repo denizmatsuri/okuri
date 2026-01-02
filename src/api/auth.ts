@@ -48,3 +48,15 @@ export async function signOut() {
     });
   }
 }
+
+export async function sendResetPasswordEmail({ email }: { email: string }) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${import.meta.env.VITE_PUBLIC_URL}/reset-password`,
+  });
+  if (error) throw error;
+}
+
+export async function updatePassword({ password }: { password: string }) {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
