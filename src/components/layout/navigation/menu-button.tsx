@@ -14,7 +14,7 @@ export default function MenuButton({ children }: Props) {
   return (
     <Popover>
       <PopoverTrigger>{children}</PopoverTrigger>
-      <PopoverContent className="flex w-40 flex-col p-0">
+      <PopoverContent className="m-2 flex w-40 flex-col p-0">
         <PopoverClose>
           <div
             onClick={signOut}
