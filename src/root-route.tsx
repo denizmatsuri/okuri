@@ -8,8 +8,8 @@ import AuthLayout from "@/components/layout/auth-layout";
 import SignUpPage from "@/pages/auth/sign-up-page";
 import SignInPage from "@/pages/auth/sign-in-page";
 import MemberOnlyLayout from "@/components/layout/member-only-layout";
-import ForgetPasswordPage from "@/pages/forget-password-page";
-import ResetPasswordPage from "@/pages/reset-password-page";
+import ForgetPasswordPage from "@/pages/auth/forget-password-page";
+import ResetPasswordPage from "@/pages/auth/reset-password-page";
 
 export default function RootRoute() {
   return (

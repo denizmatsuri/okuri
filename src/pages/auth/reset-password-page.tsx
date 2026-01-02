@@ -12,6 +12,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useUpdatePassword } from "@/hooks/mutations/auth/use-update-password";
 import { useNavigate } from "react-router";
+import { generateErrorMessage } from "@/lib/error-messages";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -27,7 +28,7 @@ export default function ResetPasswordPage() {
         navigate("/");
       },
       onError: (error) => {
-        toast.error(error.message, { position: "top-center" });
+        toast.error(generateErrorMessage(error), { position: "top-center" });
         setPassword("");
         setConfirmPassword("");
       },

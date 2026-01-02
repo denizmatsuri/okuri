@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSignInWithPassword } from "@/hooks/mutations/auth/use-sign-in-with-password";
 import { toast } from "sonner";
+import { generateErrorMessage } from "@/lib/error-messages";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -24,8 +25,8 @@ export default function SignInPage() {
         toast.success("로그인 성공", { position: "top-center" });
       },
       onError: (error) => {
-        setError(error.message);
-        toast.error(error.message, { position: "top-center" });
+        setError(generateErrorMessage(error));
+        toast.error(generateErrorMessage(error), { position: "top-center" });
       },
     });
 

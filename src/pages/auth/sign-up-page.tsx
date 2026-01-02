@@ -12,32 +12,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSignUp } from "@/hooks/mutations/auth/use-sign-up";
 import { toast } from "sonner";
+import { generateErrorMessage } from "@/lib/error-messages";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
 
-  // const { mutate: signUp, isPending: isSigningUpPending } = useSignUp({
-  //   onSuccess: () => {
-  //     toast.success("회원가입 성공");
-  //   },
-  //   onError: (error) => {
-  //     toast.error(error.message);
-  //   },
-  // });
-
   const { mutate: signUp, isPending: isSigningUpPending } = useSignUp({
     onSuccess: () => {
       toast.success("회원가입 성공", { position: "top-center" });
     },
     onError: (error) => {
-      toast.error(error.message, { position: "top-center" });
+      toast.error(generateErrorMessage(error), { position: "top-center" });
     },
   });
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (password !== repeatPassword) {
+      toast.error("비밀번호가 일치하지 않습니다.", { position: "top-center" });
+      return;
+    }
+
     signUp({ email, password });
   };
 

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useSendResetPasswordEmail } from "@/hooks/mutations/auth/use-send-reset-password-email";
+import { generateErrorMessage } from "@/lib/error-messages";
 import { useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -26,7 +27,7 @@ export default function ForgetPasswordPage() {
       setEmail("");
     },
     onError: (error) => {
-      toast.error(error.message, {
+      toast.error(generateErrorMessage(error), {
         position: "top-center",
       });
     },
