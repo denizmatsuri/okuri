@@ -4,6 +4,12 @@ export const QUERY_KEYS = {
     list: ["userProfile", "list"],
     byId: (userId: string) => ["userProfile", userId],
   },
+  family: {
+    all: ["family"],
+    list: ["family", "list"], // 내가 속한 가족 목록
+    byId: (familyId: string) => ["family", familyId], // 특정 가족 상세
+    members: (familyId: string) => ["family", familyId, "members"], // 가족 멤버 목록
+  },
 };
 
 export const BUCKET_NAME = "okuri-storage";

@@ -11,18 +11,26 @@ import MemberOnlyLayout from "@/components/layout/member-only-layout";
 import ForgetPasswordPage from "@/pages/auth/forget-password-page";
 import ResetPasswordPage from "@/pages/auth/reset-password-page";
 import ProfileEditPage from "@/pages/auth/profile-edit-page";
+import NoFamilyPage from "./pages/family/no-family-page";
+import FamilyRequiredLayout from "./components/layout/family-required-layout";
 
 export default function RootRoute() {
   return (
     <Routes>
       <Route element={<GlobalLayout />}>
         <Route element={<MemberOnlyLayout />}>
-          <Route path="/" element={<IndexPage />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
+          {/* 가족 없이도 접근 가능한 페이지 */}
+          <Route path="/no-family" element={<NoFamilyPage />} />
           <Route path="/profile/edit" element={<ProfileEditPage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+          {/* 가족이 필요한 페이지 */}
+          <Route element={<FamilyRequiredLayout />}>
+            <Route path="/" element={<IndexPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+          </Route>
         </Route>
       </Route>
 
