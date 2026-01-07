@@ -13,7 +13,7 @@ type Props = {
 export default function MenuButton({ children }: Props) {
   return (
     <Popover>
-      <PopoverTrigger>{children}</PopoverTrigger>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="m-2 flex w-40 flex-col p-0">
         <PopoverClose>
           <div
