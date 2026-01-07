@@ -88,33 +88,54 @@ export const STORAGE_PATHS = {
 
 ---
 
-### RLS 정책 (예시)
+### RLS 정책
+
+#### Users 관련
 
 ```sql
--- 사용자 본인 아바타 접근
-CREATE POLICY "Users can access own avatar"
-ON storage.objects FOR ALL
+-- SELECT (읽기)
+CREATE POLICY "Anyone can view user avatars"
+ON storage.objects FOR SELECT
+TO public
 USING (
   bucket_id = 'okuri-storage'
-  AND (storage.foldername(name))[1] = 'avatars'
+  AND (storage.foldername(name))[1] = 'users'
+);
+
+-- INSERT (업로드)
+CREATE POLICY "Users can upload own avatar"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'okuri-storage'
+  AND (storage.foldername(name))[1] = 'users'
   AND (storage.foldername(name))[2] = auth.uid()::text
 );
 
--- 가족 멤버만 가족 파일 접근
-CREATE POLICY "Family members can access family files"
-ON storage.objects FOR ALL
+-- UPDATE (수정)
+CREATE POLICY "Users can update own avatar"
+ON storage.objects FOR UPDATE
 USING (
   bucket_id = 'okuri-storage'
-  AND (storage.foldername(name))[1] = 'families'
-  AND EXISTS (
-    SELECT 1 FROM family_members
-    WHERE family_id = (storage.foldername(name))[2]::uuid
-    AND user_id = auth.uid()
-  )
+  AND (storage.foldername(name))[1] = 'users'
+  AND (storage.foldername(name))[2] = auth.uid()::text
+)
+WITH CHECK (
+  bucket_id = 'okuri-storage'
+  AND (storage.foldername(name))[1] = 'users'
+  AND (storage.foldername(name))[2] = auth.uid()::text
+);
+
+-- DELETE (삭제)
+CREATE POLICY "Users can delete own avatar"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'okuri-storage'
+  AND (storage.foldername(name))[1] = 'users'
+  AND (storage.foldername(name))[2] = auth.uid()::text
 );
 ```
 
-> ⚠️ **주의**: RLS 정책은 프로젝트 요구사항에 맞게 조정이 필요합니다.
+#### families 관련
 
 ---
 
