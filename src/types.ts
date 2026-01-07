@@ -1,7 +1,40 @@
 import { type Database } from "@/database.types";
 
+// ============================================
+// Entity 타입 (DB 테이블 직접 매핑)
+// ============================================
 export type TodoEntity = Database["public"]["Tables"]["todos"]["Row"];
 export type UserEntity = Database["public"]["Tables"]["users"]["Row"];
+export type FamilyEntity = Database["public"]["Tables"]["families"]["Row"];
+export type FamilyMemberEntity =
+  Database["public"]["Tables"]["family_members"]["Row"];
+
+// ============================================
+// 조인/확장 타입 (헬퍼 타입)
+// ============================================
+
+// 가족 멤버 + 유저 정보
+export type FamilyMember = FamilyMemberEntity & {
+  user: UserEntity;
+};
+
+// 가족 + 멤버 리스트(가족 멤버 + 유저 정보)
+export type FamilyWithMembers = FamilyEntity & {
+  members: FamilyMember[];
+};
+
+// 현재 활성 가족 컨텍스트
+export type ActiveFamilyContext = {
+  family: FamilyEntity;
+  membership: FamilyMemberEntity;
+};
+
+// 프로필 표시용 (간소화된 버전)
+export type DisplayProfile = {
+  displayName: string;
+  avatarUrl: string;
+  familyRole?: string;
+};
 
 /**
  * React Query useMutation 훅의 콜백 타입
