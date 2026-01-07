@@ -1,5 +1,8 @@
+import { STORAGE_PATHS } from "@/lib/constants";
 import supabase from "@/utils/supabase";
+import { deleteImagesInPath, uploadImage } from "./image";
 
+// FIXME: fetchProfile 함수명으로 변경
 export async function getUserProfileData(userId: string) {
   const { data, error } = await supabase
     .from("users")
@@ -11,23 +14,50 @@ export async function getUserProfileData(userId: string) {
   return data;
 }
 
-// 현재 Supabase trigger 함수를 사용하여 프로필 생성 로직 사용안함
-// export async function createUserData(userId: string) {
-//   // FIXME: 프로필 생성 시 필요한 필드 추가
-//   const { data, error } = await supabase
-//     .from("users")
-//     .insert({
-//       id: userId,
-//       email: "test@test.com",
-//       display_name: "test",
-//       avatar_url: "https://example.com/avatar.png",
-//       birth_date: "2000-01-01",
-//       phone_number: "",
-//       notification_enabled: true,
-//     })
-//     .select()
-//     .single();
+// 프로필 업데이트
+export async function updateUserProfile({
+  userId,
+  display_name,
+  phone_number,
+  birth_date,
+  avatarImageFile,
+}: {
+  userId: string;
+  display_name: string;
+  phone_number?: string;
+  birth_date?: string;
+  avatarImageFile?: File | null;
+}) {
+  // 1. 새 프로필 이미지 업로드 (파일이 있을 때만)
+  let newAvatarImageUrl: string | undefined;
+  if (avatarImageFile) {
+    // 기존 프로필 이미지 삭제
+    const basePath = STORAGE_PATHS.userAvatar(userId);
+    await deleteImagesInPath(basePath);
 
-//   if (error) throw error;
-//   return data;
-// }
+    // 새 이미지 업로드
+    const fileExtension = avatarImageFile.name.split(".").pop() || "webp";
+    const filePath = `${basePath}/${new Date().getTime()}-${crypto.randomUUID()}.${fileExtension}`;
+
+    newAvatarImageUrl = await uploadImage({
+      file: avatarImageFile,
+      filePath,
+    });
+  }
+
+  // 2. 유저 프로필 데이터 업데이트
+  const { data, error } = await supabase
+    .from("users")
+    .update({
+      display_name,
+      phone_number,
+      birth_date,
+      avatar_url: newAvatarImageUrl,
+    })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}

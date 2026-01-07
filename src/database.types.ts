@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      families: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          invite_code: string | null
+          invite_code_expires_at: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          invite_code?: string | null
+          invite_code_expires_at?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          invite_code?: string | null
+          invite_code_expires_at?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "families_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_members: {
+        Row: {
+          avatar_url: string | null
+          display_name: string | null
+          family_id: string
+          family_role: string | null
+          id: string
+          is_admin: boolean | null
+          joined_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          display_name?: string | null
+          family_id: string
+          family_role?: string | null
+          id?: string
+          is_admin?: boolean | null
+          joined_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          display_name?: string | null
+          family_id?: string
+          family_role?: string | null
+          id?: string
+          is_admin?: boolean | null
+          joined_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       todos: {
         Row: {
           content: string | null
@@ -37,6 +126,7 @@ export type Database = {
           avatar_url: string | null
           birth_date: string | null
           created_at: string
+          display_name: string | null
           email: string
           id: string
           notification: boolean
@@ -46,6 +136,7 @@ export type Database = {
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
+          display_name?: string | null
           email: string
           id?: string
           notification?: boolean
@@ -55,6 +146,7 @@ export type Database = {
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string
           id?: string
           notification?: boolean

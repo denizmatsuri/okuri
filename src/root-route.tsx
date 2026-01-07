@@ -3,13 +3,14 @@ import GlobalLayout from "@/components/layout/global-layout";
 import CalendarPage from "@/pages/calendar-page";
 import IndexPage from "@/pages/index-page";
 import GalleryPage from "@/pages/gallery-page";
-import ProfilePage from "@/pages/profile-page";
+import ProfilePage from "@/pages/auth/profile-page";
 import AuthLayout from "@/components/layout/auth-layout";
 import SignUpPage from "@/pages/auth/sign-up-page";
 import SignInPage from "@/pages/auth/sign-in-page";
 import MemberOnlyLayout from "@/components/layout/member-only-layout";
 import ForgetPasswordPage from "@/pages/auth/forget-password-page";
 import ResetPasswordPage from "@/pages/auth/reset-password-page";
+import ProfileEditPage from "@/pages/auth/profile-edit-page";
 
 export default function RootRoute() {
   return (
@@ -19,7 +20,8 @@ export default function RootRoute() {
           <Route path="/" element={<IndexPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/edit" element={<ProfileEditPage />} />
+          <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
       </Route>

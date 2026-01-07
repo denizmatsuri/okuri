@@ -1,10 +1,22 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Home, Calendar, Image, Moon, User, Plus, Menu } from "lucide-react";
 
 import logo from "@/assets/react.svg";
 import MenuButton from "./menu-button";
+import { useSession } from "@/store/session";
 
 export default function DesktopNav() {
+  const session = useSession();
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    if (session?.user.id) {
+      navigate(`/profile/${session.user.id}`);
+    } else {
+      alert("로그인 후 이용해주세요.");
+    }
+  };
+
   return (
     <nav className="bg-background fixed top-0 left-0 z-50 hidden h-full w-(--layout-narrow-width) flex-col justify-center gap-4 border-r md:flex">
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -37,12 +49,12 @@ export default function DesktopNav() {
           >
             <Image className="text-muted-foreground h-7 w-7" />
           </Link>
-          <Link
-            to="/profile"
-            className="hover:bg-muted flex h-14 w-12 items-center justify-center rounded-xl"
+          <button
+            onClick={handleProfileClick}
+            className="hover:bg-muted flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl"
           >
             <User className="text-muted-foreground h-7 w-7" />
-          </Link>
+          </button>
         </div>
 
         {/* 설정 영역 */}
