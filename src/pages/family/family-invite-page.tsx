@@ -24,6 +24,7 @@ import {
 import { useFamilyById, useMyFamilies } from "@/hooks/queries/use-family-data";
 import { useSession } from "@/store/session";
 import { useRegenerateInviteCode } from "@/hooks/mutations/family/use-regenerate-invite-code";
+import Loader from "@/components/loader";
 
 export default function FamilyInvitePage() {
   const { familyId } = useParams();
@@ -105,11 +106,7 @@ export default function FamilyInvitePage() {
 
   // 로딩 상태
   if (isFamilyLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-muted-foreground">로딩 중...</div>
-      </div>
-    );
+    return <Loader />;
   }
 
   // 가족 정보 없음

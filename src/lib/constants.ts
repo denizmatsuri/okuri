@@ -8,7 +8,8 @@ export const QUERY_KEYS = {
     all: ["family"],
     list: ["family", "list"], // 내가 속한 가족 목록
     byId: (familyId: string) => ["family", familyId], // 특정 가족 상세 정보
-    members: (familyId: string) => ["family", familyId, "members"], // 가족 멤버 목록
+    // members: (familyId: string) => ["family", familyId, "members"], // 가족 멤버 목록
+    members: (userId: string) => ["family", "members", userId], // 내 가족 목록과 멤버 목록 조회
   },
 };
 

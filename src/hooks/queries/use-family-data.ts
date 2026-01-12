@@ -1,7 +1,7 @@
 import {
   fetchMyFamilies,
   fetchFamilyById,
-  fetchFamilyMembers,
+  fetchFamiliesWithMembers,
 } from "@/api/family";
 import { QUERY_KEYS } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
@@ -30,12 +30,13 @@ export function useFamilyById(familyId?: string) {
 }
 
 /**
- * 특정 가족의 멤버 목록 조회
+ * 특정 사용자가 속한 가족 목록 + 멤버 조회
+ * 프로필 페이지에서 사용
  */
-export function useFamilyMembers(familyId?: string) {
+export function useFamiliesWithMembers(userId?: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.family.members(familyId!),
-    queryFn: () => fetchFamilyMembers(familyId!),
-    enabled: !!familyId,
+    queryKey: QUERY_KEYS.family.members(userId!),
+    queryFn: () => fetchFamiliesWithMembers(userId!),
+    enabled: !!userId,
   });
 }
