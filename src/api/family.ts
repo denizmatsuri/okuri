@@ -182,3 +182,76 @@ export async function regenerateInviteCode(familyId: string) {
   if (error) throw error;
   return data;
 }
+
+/**
+ * 초대 코드로 가족 조회
+ * 가입 전 가족 정보 확인용
+ */
+export async function fetchFamilyByInviteCode(inviteCode: string) {
+  const { data, error } = await supabase
+    .from("families")
+    .select("*")
+    .eq("invite_code", inviteCode)
+    .single();
+
+  if (error) throw error;
+  return data as FamilyEntity;
+}
+
+/**
+ * 초대 코드로 가족 가입
+ * 1. 초대 코드로 가족 조회
+ * 2. 이미 가입된 멤버인지 확인
+ * 3. 가족 멤버로 등록
+ */
+export async function joinFamilyByInviteCode({
+  inviteCode,
+  userId,
+  displayName,
+  familyRole,
+}: {
+  inviteCode: string;
+  userId: string;
+  displayName: string;
+  familyRole?: string;
+}) {
+  // 1. 초대 코드로 가족 조회
+  const { data: family, error: familyError } = await supabase
+    .from("families")
+    .select("id, name")
+    .eq("invite_code", inviteCode)
+    .single();
+
+  if (familyError) {
+    throw new Error("유효하지 않은 초대 코드입니다");
+  }
+
+  // 2. 이미 가입된 멤버인지 확인
+  const { data: existingMember } = await supabase
+    .from("family_members")
+    .select("id")
+    .eq("family_id", family.id)
+    .eq("user_id", userId)
+    .single();
+
+  if (existingMember) {
+    throw new Error("이미 가입된 가족입니다");
+  }
+
+  // 3. 가족 멤버로 등록
+  const { data: member, error: memberError } = await supabase
+    .from("family_members")
+    .insert({
+      family_id: family.id,
+      user_id: userId,
+      display_name: displayName,
+      family_role: familyRole,
+      is_admin: false,
+    })
+    .select()
+    .single();
+
+  if (memberError) throw memberError;
+
+  return { family, member };
+}
