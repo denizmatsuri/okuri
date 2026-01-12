@@ -124,3 +124,25 @@ export async function createFamilyWithMember({
 
   return { family, member };
 }
+
+/**
+ * 초대 코드 재생성 (관리자 전용)
+ * 새로운 6자리 코드 생성 후 DB 업데이트
+ */
+export async function regenerateInviteCode(familyId: string) {
+  const newCode = generateInviteCode();
+
+  const { data, error } = await supabase
+    .from("families")
+    .update({
+      invite_code: newCode,
+      // 필요시 만료 시간 설정
+      // invite_code_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    })
+    .eq("id", familyId)
+    .select("invite_code")
+    .single();
+
+  if (error) throw error;
+  return data;
+}

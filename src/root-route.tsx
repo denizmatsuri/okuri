@@ -15,6 +15,7 @@ import NoFamilyPage from "@/pages/family/no-family-page";
 import FamilyRequiredLayout from "@/components/layout/family-required-layout";
 import CreateFamilyPage from "@/pages/family/create-family-page";
 import NoFamilyOnlyLayout from "@/components/layout/no-family-only-layout";
+import FamilyInvitePage from "@/pages/family/family-invite-page";
 
 export default function RootRoute() {
   return (
@@ -37,6 +38,10 @@ export default function RootRoute() {
             <Route path="/" element={<IndexPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
+            <Route
+              path="/family/:familyId/invite"
+              element={<FamilyInvitePage />}
+            />
           </Route>
         </Route>
       </Route>
