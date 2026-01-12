@@ -1,10 +1,13 @@
+import FamilyProvider from "./provider/family-provider";
 import SessionProvider from "./provider/session-provider";
 import RootRoute from "./root-route";
 
 function App() {
   return (
     <SessionProvider>
-      <RootRoute />
+      <FamilyProvider>
+        <RootRoute />
+      </FamilyProvider>
     </SessionProvider>
   );
 }

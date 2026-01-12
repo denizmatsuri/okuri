@@ -1,5 +1,6 @@
 import supabase from "@/utils/supabase";
 import type { FamilyEntity } from "@/types";
+import { generateInviteCode } from "@/lib/utils";
 
 /**
  * 현재 로그인한 사용자가 속한 가족 목록 조회
@@ -68,4 +69,58 @@ export async function fetchFamilyMembers(familyId: string) {
 
   if (error) throw error;
   return data;
+}
+
+/**
+ * 가족 생성 및 어드민 권한 생성자 프로필 등록
+ */
+export async function createFamilyWithMember({
+  name,
+  description,
+  userId,
+  displayName,
+  familyRole,
+}: {
+  // 가족 정보
+  name: string;
+  description?: string;
+  // 생성자 프로필
+  userId: string;
+  displayName: string;
+  familyRole?: string;
+}) {
+  // 1. 가족 생성
+  const { data: family, error: familyError } = await supabase
+    .from("families")
+    .insert({
+      name,
+      description,
+      created_by: userId,
+      invite_code: generateInviteCode(),
+    })
+    .select()
+    .single();
+
+  if (familyError) throw familyError;
+
+  // 2. 생성자를 admin으로 등록
+  const { data: member, error: memberError } = await supabase
+    .from("family_members")
+    .insert({
+      family_id: family.id,
+      user_id: userId,
+      display_name: displayName,
+      family_role: familyRole,
+      is_admin: true,
+    })
+    .select()
+    .single();
+
+  if (memberError) {
+    // 롤백 시도 (완벽하지 않음)
+    await supabase.from("families").delete().eq("id", family.id);
+    throw memberError;
+  }
+
+  return { family, member };
 }
