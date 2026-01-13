@@ -17,6 +17,7 @@ import CreateFamilyPage from "@/pages/family/create-family-page";
 import NoFamilyOnlyLayout from "@/components/layout/no-family-only-layout";
 import FamilyInvitePage from "@/pages/family/family-invite-page";
 import JoinFamilyPage from "@/pages/family/join-family-page";
+import FamilySettingPage from "@/pages/family/family-setting-page";
 
 export default function RootRoute() {
   return (
@@ -26,6 +27,10 @@ export default function RootRoute() {
           {/* 가족 없이도 접근 가능한 페이지 */}
           <Route path="/family/create" element={<CreateFamilyPage />} />
           <Route path="/family/join" element={<JoinFamilyPage />} />
+          <Route
+            path="/family/:familyId/setting"
+            element={<FamilySettingPage />}
+          />
           <Route path="/profile/edit" element={<ProfileEditPage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

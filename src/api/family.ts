@@ -255,3 +255,30 @@ export async function joinFamilyByInviteCode({
 
   return { family, member };
 }
+
+/**
+ * 가족 정보 수정 (Admin 전용)
+ * name, description 수정 가능
+ */
+export async function updateFamily({
+  familyId,
+  name,
+  description,
+}: {
+  familyId: string;
+  name?: string;
+  description?: string | null;
+}) {
+  const { data, error } = await supabase
+    .from("families")
+    .update({
+      name,
+      description,
+    })
+    .eq("id", familyId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as FamilyEntity;
+}
