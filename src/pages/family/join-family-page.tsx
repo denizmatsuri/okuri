@@ -40,7 +40,9 @@ export default function JoinFamilyPage() {
       toast.success("가족에 가입되었습니다!", { position: "top-center" });
     },
     onError: (error) => {
-      toast.error(error.message || "가입에 실패했습니다");
+      toast.error(error.message || "가입에 실패했습니다", {
+        position: "top-center",
+      });
     },
   });
 
