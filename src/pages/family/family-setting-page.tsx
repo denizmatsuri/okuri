@@ -229,7 +229,7 @@ export default function FamilySettingPage() {
               >
                 <div className="flex items-center gap-3">
                   <img
-                    src={member.avatar_url ?? defaultAvatar}
+                    src={member.user.avatar_url ?? defaultAvatar}
                     alt={member.display_name ?? "멤버"}
                     className="h-10 w-10 rounded-full object-cover"
                   />

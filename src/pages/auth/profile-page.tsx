@@ -179,7 +179,7 @@ export default function ProfilePage() {
                           className="group flex shrink-0 flex-col items-center gap-1"
                         >
                           <img
-                            src={member.avatar_url ?? defaultAvatar}
+                            src={member.user.avatar_url ?? defaultAvatar}
                             alt={member.display_name ?? "멤버"}
                             className="group-hover:border-accent-foreground h-12 w-12 rounded-full border object-cover transition-colors"
                           />
