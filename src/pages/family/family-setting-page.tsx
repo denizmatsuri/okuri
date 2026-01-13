@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useSession } from "@/store/session";
 import { useFamiliesWithMembers } from "@/hooks/queries/use-family-data";
 import { useUpdateFamily } from "@/hooks/mutations/family/use-update-family";
-// import { useRemoveFamilyMember } from "@/hooks/mutations/family/use-remove-family-member";
+import { useRemoveFamilyMember } from "@/hooks/mutations/family/use-remove-family-member";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import Loader from "@/components/loader";
 import {
@@ -51,14 +51,14 @@ export default function FamilySettingPage() {
   });
 
   // TODO: 멤버 추방 기능 구현
-  // const removeMemberMutation = useRemoveFamilyMember(userId ?? "", {
-  //   onSuccess: () => {
-  //     toast.success("멤버가 추방되었습니다");
-  //   },
-  //   onError: () => {
-  //     toast.error("멤버 추방에 실패했습니다");
-  //   },
-  // });
+  const removeMemberMutation = useRemoveFamilyMember(userId ?? "", {
+    onSuccess: () => {
+      toast.success("멤버가 추방되었습니다");
+    },
+    onError: () => {
+      toast.error("멤버 추방에 실패했습니다");
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,11 +75,10 @@ export default function FamilySettingPage() {
     if (!familyId) return;
 
     // TODO: 멤버 추방 기능 구현
-    alert("멤버 추방!");
-    // removeMemberMutation.mutate({
-    //   memberId: member.id,
-    //   familyId,
-    // });
+    removeMemberMutation.mutate({
+      memberId: member.id,
+      familyId,
+    });
   };
 
   if (isLoading) {

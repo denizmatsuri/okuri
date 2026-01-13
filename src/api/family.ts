@@ -282,3 +282,24 @@ export async function updateFamily({
   if (error) throw error;
   return data as FamilyEntity;
 }
+
+/**
+ * 가족 멤버 추방 (Admin 전용)
+ * 자기 자신은 추방 불가
+ */
+export async function removeFamilyMember({
+  memberId,
+  familyId,
+}: {
+  memberId: string;
+  familyId: string;
+}) {
+  const { error } = await supabase
+    .from("family_members")
+    .delete()
+    .eq("id", memberId)
+    .eq("family_id", familyId);
+
+  if (error) throw error;
+  return { success: true };
+}
