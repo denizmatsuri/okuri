@@ -21,8 +21,7 @@ export async function fetchMyFamilies(userId: string) {
         id,
         name,
         description,
-        created_at,
-        created_by
+        created_at
       )
     `,
     )
@@ -70,7 +69,6 @@ export async function createFamilyWithMember({
     .insert({
       name,
       description,
-      created_by: userId,
       invite_code: generateInviteCode(),
     })
     .select()

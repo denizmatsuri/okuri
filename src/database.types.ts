@@ -17,7 +17,6 @@ export type Database = {
       families: {
         Row: {
           created_at: string
-          created_by: string | null
           description: string | null
           id: string
           invite_code: string | null
@@ -27,7 +26,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
           description?: string | null
           id?: string
           invite_code?: string | null
@@ -37,7 +35,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
           description?: string | null
           id?: string
           invite_code?: string | null
@@ -45,15 +42,7 @@ export type Database = {
           name?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "families_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       family_members: {
         Row: {
