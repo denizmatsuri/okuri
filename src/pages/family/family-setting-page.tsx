@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, UserMinus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/store/session";
 import { useFamiliesWithMembers } from "@/hooks/queries/use-family-data";
@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import type { FamilyMember } from "@/types";
+import { useGrantAdmin } from "@/hooks/mutations/family/use-grant-admin";
 
 export default function FamilySettingPage() {
   const { familyId } = useParams();
@@ -41,6 +42,7 @@ export default function FamilySettingPage() {
   const [name, setName] = useState(family?.name ?? "");
   const [description, setDescription] = useState(family?.description ?? "");
 
+  // 가족 정보 수정
   const updateFamilyMutation = useUpdateFamily({
     onSuccess: () => {
       toast.success("가족 정보가 수정되었습니다");
@@ -50,13 +52,23 @@ export default function FamilySettingPage() {
     },
   });
 
-  // TODO: 멤버 추방 기능 구현
+  // 멤버 추방
   const removeMemberMutation = useRemoveFamilyMember(userId ?? "", {
     onSuccess: () => {
       toast.success("멤버가 추방되었습니다");
     },
     onError: () => {
       toast.error("멤버 추방에 실패했습니다");
+    },
+  });
+
+  // 관리자 권한 부여
+  const grantAdminMutation = useGrantAdmin(userId as string, {
+    onSuccess: () => {
+      toast.success("관리자 권한이 부여되었습니다");
+    },
+    onError: () => {
+      toast.error("관리자 권한 부여에 실패했습니다");
     },
   });
 
@@ -74,8 +86,14 @@ export default function FamilySettingPage() {
   const handleRemoveMember = (member: FamilyMember) => {
     if (!familyId) return;
 
-    // TODO: 멤버 추방 기능 구현
     removeMemberMutation.mutate({
+      memberId: member.id,
+      familyId,
+    });
+  };
+  const handleGrantAdmin = (member: FamilyMember) => {
+    if (!familyId) return;
+    grantAdminMutation.mutate({
       memberId: member.id,
       familyId,
     });
@@ -181,38 +199,71 @@ export default function FamilySettingPage() {
                   </div>
                 </div>
 
-                {/* 자기 자신 제외, Admin이 아닌 멤버만 추방 가능 */}
+                {/* 자기 자신 제외, Admin이 아닌 멤버만 액션 가능 */}
                 {member.user_id !== userId && !member.is_admin && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <UserMinus className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>멤버 추방</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {member.display_name ?? member.user.display_name}님을
-                          가족에서 내보내시겠습니까? 이 작업은 되돌릴 수
-                          없습니다.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>취소</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleRemoveMember(member)}
-                          className="bg-destructive hover:bg-destructive/90"
+                  <div className="flex items-center gap-2">
+                    {/* 관리자 권한 부여 */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          관리자 지정
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>관리자 권한 부여</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {member.display_name ?? member.user.display_name}
+                            님에게 관리자 권한을 부여하시겠습니까?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>취소</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleGrantAdmin(member)}
+                            disabled={grantAdminMutation.isPending}
+                          >
+                            {grantAdminMutation.isPending
+                              ? "처리 중..."
+                              : "권한 부여"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+
+                    {/* 멤버 추방 */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
                         >
-                          추방
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          내보내기
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>멤버 내보내기</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {member.display_name ?? member.user.display_name}
+                            님을 가족에서 내보내시겠습니까? 이 작업은 되돌릴 수
+                            없습니다.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>취소</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleRemoveMember(member)}
+                            className="bg-destructive hover:bg-destructive/90"
+                            disabled={removeMemberMutation.isPending}
+                          >
+                            내보내기
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 )}
               </div>
             ))}

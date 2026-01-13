@@ -362,3 +362,26 @@ export async function leaveFamily({
   if (deleteError) throw deleteError;
   return { deleted: false };
 }
+
+/**
+ * 멤버에게 관리자 권한 부여 (Admin 전용)
+ * is_admin을 true로 업데이트
+ */
+export async function grantAdminRole({
+  memberId,
+  familyId,
+}: {
+  memberId: string;
+  familyId: string;
+}) {
+  const { data, error } = await supabase
+    .from("family_members")
+    .update({ is_admin: true })
+    .eq("id", memberId)
+    .eq("family_id", familyId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
