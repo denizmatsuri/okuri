@@ -34,7 +34,7 @@ export default function CreateFamilyPage() {
 
   const { mutate: createFamily, isPending: isCreating } = useCreateFamily({
     onSuccess: () => {
-      navigate("/");
+      navigate(`/profile/${session!.user.id}`);
       toast.success("가족 생성 성공", { position: "top-center" });
     },
     onError: (error) => {

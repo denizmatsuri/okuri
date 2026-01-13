@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { FamilyMember } from "@/types";
 import { useGrantAdmin } from "@/hooks/mutations/family/use-grant-admin";
+import { useDeleteFamily } from "@/hooks/mutations/family/use-delete-family";
 
 export default function FamilySettingPage() {
   const { familyId } = useParams();
@@ -42,7 +43,7 @@ export default function FamilySettingPage() {
   const [name, setName] = useState(family?.name ?? "");
   const [description, setDescription] = useState(family?.description ?? "");
 
-  // 가족 정보 수정
+  // 가족 정보 수정 mutation
   const updateFamilyMutation = useUpdateFamily({
     onSuccess: () => {
       toast.success("가족 정보가 수정되었습니다");
@@ -52,7 +53,7 @@ export default function FamilySettingPage() {
     },
   });
 
-  // 멤버 추방
+  // 멤버 추방 mutation
   const removeMemberMutation = useRemoveFamilyMember(userId ?? "", {
     onSuccess: () => {
       toast.success("멤버가 추방되었습니다");
@@ -62,7 +63,7 @@ export default function FamilySettingPage() {
     },
   });
 
-  // 관리자 권한 부여
+  // 관리자 권한 부여 mutation
   const grantAdminMutation = useGrantAdmin(userId as string, {
     onSuccess: () => {
       toast.success("관리자 권한이 부여되었습니다");
@@ -72,6 +73,19 @@ export default function FamilySettingPage() {
     },
   });
 
+  // 가족 삭제 mutation
+  const deleteFamilyMutation = useDeleteFamily({
+    onSuccess: () => {
+      toast.success("가족이 삭제되었습니다", { position: "top-center" });
+    },
+    onError: (error) => {
+      toast.error(error.message || "가족 삭제에 실패했습니다", {
+        position: "top-center",
+      });
+    },
+  });
+
+  // 가족 정보 수정
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!familyId) return;
@@ -83,6 +97,7 @@ export default function FamilySettingPage() {
     });
   };
 
+  // 멤버 추방
   const handleRemoveMember = (member: FamilyMember) => {
     if (!familyId) return;
 
@@ -91,12 +106,19 @@ export default function FamilySettingPage() {
       familyId,
     });
   };
+
+  // 관리자 권한 부여
   const handleGrantAdmin = (member: FamilyMember) => {
     if (!familyId) return;
     grantAdminMutation.mutate({
       memberId: member.id,
       familyId,
     });
+  };
+
+  const handleDeleteFamily = () => {
+    if (!familyId || !userId) return;
+    deleteFamilyMutation.mutate({ familyId, userId });
   };
 
   if (isLoading) {
@@ -268,6 +290,48 @@ export default function FamilySettingPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* 구분선 */}
+        <hr />
+
+        {/* 위험 영역 - 가족 삭제 */}
+        <div className="flex flex-col gap-4">
+          <h2 className="text-destructive font-medium">위험 영역</h2>
+          <p className="text-muted-foreground text-sm">
+            가족을 삭제하면 모든 멤버가 가족에서 제거되고, 관련된 모든 데이터가
+            영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+          </p>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="w-full">
+                가족 삭제
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  정말 가족을 삭제하시겠습니까?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  <strong>{family.name}</strong>을(를) 삭제하면 모든 멤버가
+                  자동으로 제거되고, 관련된 모든 데이터(게시물, 사진 등)가
+                  영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>취소</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteFamily}
+                  className="bg-destructive hover:bg-destructive/90"
+                  disabled={deleteFamilyMutation.isPending}
+                >
+                  {deleteFamilyMutation.isPending ? "삭제 중..." : "삭제"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </main>

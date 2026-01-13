@@ -348,7 +348,7 @@ export async function leaveFamily({
 
     if (adminCount === 1) {
       throw new Error(
-        "관리자가 한 명뿐입니다. 다른 멤버에게 관리자 권한을 넘긴 후 탈퇴해주세요",
+        "관리자가 한 명뿐입니다.\n다른 멤버에게 관리자 권한을 넘긴 후 탈퇴해주세요",
       );
     }
   }
@@ -361,6 +361,43 @@ export async function leaveFamily({
 
   if (deleteError) throw deleteError;
   return { deleted: false };
+}
+
+/**
+ * 가족 삭제 (Admin 전용)
+ * families 테이블에서 삭제하면 FK CASCADE로 family_members도 자동 삭제됨
+ */
+export async function deleteFamily({
+  familyId,
+  userId,
+}: {
+  familyId: string;
+  userId: string;
+}) {
+  // 1. 요청자가 해당 가족의 Admin인지 확인
+  const { data: member, error: memberError } = await supabase
+    .from("family_members")
+    .select("is_admin")
+    .eq("family_id", familyId)
+    .eq("user_id", userId)
+    .single();
+
+  if (memberError || !member) {
+    throw new Error("가족 멤버 정보를 찾을 수 없습니다");
+  }
+
+  if (!member.is_admin) {
+    throw new Error("관리자만 가족을 삭제할 수 있습니다");
+  }
+
+  // 2. 가족 삭제 (CASCADE로 멤버 자동 삭제)
+  const { error: deleteError } = await supabase
+    .from("families")
+    .delete()
+    .eq("id", familyId);
+
+  if (deleteError) throw deleteError;
+  return { success: true };
 }
 
 /**
