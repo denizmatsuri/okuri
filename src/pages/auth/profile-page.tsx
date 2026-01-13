@@ -33,10 +33,10 @@ export default function ProfilePage() {
   const isMine = userId === session?.user.id;
 
   // 현재 사용자가 해당 가족의 어드민인지 확인
-  const isAdminOf = (family: FamilyWithMembers) =>
-    family.members.some(
-      (member) => member.user_id === session?.user.id && member.is_admin,
-    );
+  // const isAdminOf = (family: FamilyWithMembers) =>
+  //   family.members.some(
+  //     (member) => member.user_id === session?.user.id && member.is_admin,
+  //   );
 
   // 페이지 접속시 페이지 최상단으로 이동
   useEffect(() => {
@@ -132,7 +132,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex items-center gap-1">
                         {/* 가족 탈퇴 버튼 */}
-                        <AlertDialog>
+                        {/* <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               variant="ghost"
@@ -160,17 +160,15 @@ export default function ProfilePage() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog> */}
 
                         {/* 내 가족 프로필 수정 기능(Admin만) */}
-                        {isAdminOf(family) && (
-                          <Link
-                            to={`/family/${family.id}/setting`}
-                            className="text-muted-foreground hover:text-foreground p-1 transition-colors"
-                          >
-                            <Settings className="h-4 w-4" />
-                          </Link>
-                        )}
+                        <Link
+                          to={`/family/${family.id}/setting`}
+                          className="text-muted-foreground hover:text-foreground p-1 transition-colors"
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Link>
                       </div>
                     </div>
                     <div className="flex gap-4 overflow-x-auto pb-1">

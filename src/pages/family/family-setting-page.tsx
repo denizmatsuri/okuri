@@ -25,6 +25,7 @@ import {
 import type { FamilyMember } from "@/types";
 import { useGrantAdmin } from "@/hooks/mutations/family/use-grant-admin";
 import { useDeleteFamily } from "@/hooks/mutations/family/use-delete-family";
+import { useLeaveFamily } from "@/hooks/mutations/family/use-leave-family";
 
 export default function FamilySettingPage() {
   const { familyId } = useParams();
@@ -85,6 +86,17 @@ export default function FamilySettingPage() {
     },
   });
 
+  // 가족 나가기 mutation
+  const leaveFamilyMutation = useLeaveFamily({
+    onSuccess: () => {
+      toast.success("가족을 나갔습니다", { position: "top-center" });
+      navigate("/");
+    },
+    onError: () => {
+      toast.error("가족 나가기에 실패했습니다", { position: "top-center" });
+    },
+  });
+
   // 가족 정보 수정
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,16 +128,23 @@ export default function FamilySettingPage() {
     });
   };
 
+  // 가족 삭제
   const handleDeleteFamily = () => {
     if (!familyId || !userId) return;
     deleteFamilyMutation.mutate({ familyId, userId });
+  };
+
+  // 가족 나가기 핸들러 추가
+  const handleLeaveFamily = () => {
+    if (!familyId || !userId) return;
+    leaveFamilyMutation.mutate({ familyId, userId });
   };
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (!family || !isAdmin) {
+  if (!family) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
         <p className="text-muted-foreground">접근 권한이 없습니다</p>
@@ -166,6 +185,7 @@ export default function FamilySettingPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="가족 이름을 입력하세요"
               required
+              disabled={!isAdmin}
             />
           </div>
 
@@ -179,16 +199,19 @@ export default function FamilySettingPage() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="가족에 대한 설명을 입력하세요"
               rows={3}
+              disabled={!isAdmin}
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={updateFamilyMutation.isPending || !name.trim()}
-            className="w-full"
-          >
-            {updateFamilyMutation.isPending ? "저장 중..." : "저장"}
-          </Button>
+          {isAdmin && (
+            <Button
+              type="submit"
+              disabled={updateFamilyMutation.isPending || !name.trim()}
+              className="w-full"
+            >
+              {updateFamilyMutation.isPending ? "저장 중..." : "저장"}
+            </Button>
+          )}
         </form>
 
         {/* 구분선 */}
@@ -295,44 +318,84 @@ export default function FamilySettingPage() {
         {/* 구분선 */}
         <hr />
 
-        {/* 위험 영역 - 가족 삭제 */}
+        {/* 가족 나가기 섹션 - 새로 추가 (관리자가 아닌 경우에만 표시) */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-destructive font-medium">위험 영역</h2>
+          <h2 className="text-destructive font-medium">가족 나가기</h2>
           <p className="text-muted-foreground text-sm">
-            가족을 삭제하면 모든 멤버가 가족에서 제거되고, 관련된 모든 데이터가
-            영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+            가족을 나가면 더 이상 이 가족의 게시물과 사진에 접근할 수 없습니다.
+            다시 참여하려면 초대 코드가 필요합니다.
           </p>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="w-full">
-                가족 삭제
+                가족 나가기
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>
-                  정말 가족을 삭제하시겠습니까?
-                </AlertDialogTitle>
+                <AlertDialogTitle>정말 가족을 나가시겠습니까?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  <strong>{family.name}</strong>을(를) 삭제하면 모든 멤버가
-                  자동으로 제거되고, 관련된 모든 데이터(게시물, 사진 등)가
-                  영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+                  <strong>{family.name}</strong>을(를) 나가면 더 이상 이 가족의
+                  게시물과 사진에 접근할 수 없습니다. 다시 참여하려면 초대
+                  코드가 필요합니다.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>취소</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={handleDeleteFamily}
+                  onClick={handleLeaveFamily}
                   className="bg-destructive hover:bg-destructive/90"
-                  disabled={deleteFamilyMutation.isPending}
+                  disabled={leaveFamilyMutation.isPending}
                 >
-                  {deleteFamilyMutation.isPending ? "삭제 중..." : "삭제"}
+                  {leaveFamilyMutation.isPending ? "나가는 중..." : "나가기"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
+        <hr />
+
+        {/* 위험 영역 - 가족 삭제 */}
+        {isAdmin && (
+          <div className="flex flex-col gap-4">
+            <h2 className="text-destructive font-medium">가족 삭제</h2>
+            <p className="text-muted-foreground text-sm">
+              가족을 삭제하면 모든 멤버가 가족에서 제거되고, 관련된 모든
+              데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+            </p>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full">
+                  가족 삭제
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    정말 가족을 삭제하시겠습니까?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    <strong>{family.name}</strong>을(를) 삭제하면 모든 멤버가
+                    자동으로 제거되고, 관련된 모든 데이터(게시물, 사진 등)가
+                    영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteFamily}
+                    className="bg-destructive hover:bg-destructive/90"
+                    disabled={deleteFamilyMutation.isPending}
+                  >
+                    {deleteFamilyMutation.isPending ? "삭제 중..." : "삭제"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
     </main>
   );
