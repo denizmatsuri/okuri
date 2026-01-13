@@ -301,3 +301,64 @@ export async function removeFamilyMember({
   if (error) throw error;
   return { success: true };
 }
+
+/**
+ * 가족에서 본인 탈퇴
+ * - Admin이 탈퇴할 경우 다른 Admin이 있어야 함
+ * - 마지막 멤버(본인)가 탈퇴하면 가족도 삭제
+ */
+export async function leaveFamily({
+  familyId,
+  userId,
+}: {
+  familyId: string;
+  userId: string;
+}) {
+  // 1. 현재 멤버 정보 조회 및 admin 체크
+  const { data: currentMember, error: memberError } = await supabase
+    .from("family_members")
+    .select("id, is_admin")
+    .eq("family_id", familyId)
+    .eq("user_id", userId)
+    .single();
+
+  if (memberError || !currentMember) {
+    throw new Error("가족 멤버 정보를 찾을 수 없습니다");
+  }
+
+  // 2. 전체 멤버 수 확인
+  const { count: memberCount } = await supabase
+    .from("family_members")
+    .select("*", { count: "exact", head: true })
+    .eq("family_id", familyId);
+
+  // 3. 마지막 멤버인 경우 가족 삭제 (FK CASCADE로 멤버 자동 삭제됨)
+  if (memberCount === 1) {
+    await supabase.from("families").delete().eq("id", familyId);
+    return { deleted: true };
+  }
+
+  // 4. Admin이 탈퇴하는 경우 다른 Admin 존재 여부 확인
+  if (currentMember.is_admin) {
+    const { count: adminCount } = await supabase
+      .from("family_members")
+      .select("*", { count: "exact", head: true })
+      .eq("family_id", familyId)
+      .eq("is_admin", true);
+
+    if (adminCount === 1) {
+      throw new Error(
+        "관리자가 한 명뿐입니다. 다른 멤버에게 관리자 권한을 넘긴 후 탈퇴해주세요",
+      );
+    }
+  }
+
+  // 5. 멤버 삭제
+  const { error: deleteError } = await supabase
+    .from("family_members")
+    .delete()
+    .eq("id", currentMember.id);
+
+  if (deleteError) throw deleteError;
+  return { deleted: false };
+}
