@@ -282,6 +282,37 @@ export async function updateFamily({
 }
 
 /**
+ * 가족 멤버 프로필 수정
+ * display_name, family_role 수정 가능
+ * // TODO: avatar_url 수정 가능하도록 수정
+ */
+export async function updateFamilyMember({
+  memberId,
+  familyId,
+  displayName,
+  familyRole,
+}: {
+  memberId: string;
+  familyId: string;
+  displayName?: string;
+  familyRole?: string | null;
+}) {
+  const { data, error } = await supabase
+    .from("family_members")
+    .update({
+      display_name: displayName,
+      family_role: familyRole,
+    })
+    .eq("id", memberId)
+    .eq("family_id", familyId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
  * 가족 멤버 추방 (Admin 전용)
  * 자기 자신은 추방 불가
  */

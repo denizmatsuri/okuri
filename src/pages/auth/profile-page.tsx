@@ -3,25 +3,13 @@ import { useUserProfileData } from "@/hooks/queries/use-profile-data";
 import PostItem from "@/components/post/post-item";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { LogOut, Plus, Settings } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import Loader from "@/components/loader";
 import { useFamiliesWithMembers } from "@/hooks/queries/use-family-data";
-import type { FamilyWithMembers } from "@/types";
-import {
-  AlertDialog,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogTrigger,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogFooter,
-} from "@/components/ui/alert-dialog";
-import { useLeaveFamily } from "@/hooks/mutations/family/use-leave-family";
-import { toast } from "sonner";
+import type { FamilyMember } from "@/types";
+import FamilyMemberProfileModal from "@/components/modal/family-member-profile-modal";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -32,11 +20,10 @@ export default function ProfilePage() {
   const session = useSession();
   const isMine = userId === session?.user.id;
 
-  // 현재 사용자가 해당 가족의 어드민인지 확인
-  // const isAdminOf = (family: FamilyWithMembers) =>
-  //   family.members.some(
-  //     (member) => member.user_id === session?.user.id && member.is_admin,
-  //   );
+  // 선택된 가족 멤버 상태 (모달용)
+  const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(
+    null,
+  );
 
   // 페이지 접속시 페이지 최상단으로 이동
   useEffect(() => {
@@ -45,19 +32,6 @@ export default function ProfilePage() {
 
   const { data: families = [], isLoading: isLoadingFamilies } =
     useFamiliesWithMembers(userId);
-
-  const leaveFamilyMutation = useLeaveFamily({
-    onSuccess: () => {
-      toast.success("가족에서 탈퇴했습니다", { position: "top-center" });
-    },
-    onError: (error) => {
-      toast.error(error.message, { position: "top-center" });
-    },
-  });
-
-  const handleLeaveFamily = (familyId: string) => {
-    leaveFamilyMutation.mutate({ familyId, userId: session!.user.id });
-  };
 
   return (
     <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) w-full flex-1 border-x md:m-0">
@@ -131,37 +105,6 @@ export default function ProfilePage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        {/* 가족 탈퇴 버튼 */}
-                        {/* <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <LogOut className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>가족 탈퇴</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                가족 탈퇴하시겠습니까?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>취소</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleLeaveFamily(family.id)}
-                                className="bg-destructive hover:bg-destructive/90"
-                                disabled={leaveFamilyMutation.isPending}
-                              >
-                                탈퇴
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog> */}
-
                         {/* 내 가족 프로필 수정 기능(Admin만) */}
                         <Link
                           to={`/family/${family.id}/setting`}
@@ -171,12 +114,15 @@ export default function ProfilePage() {
                         </Link>
                       </div>
                     </div>
+
+                    {/* 가족 멤버 리스트 - 가족 멤버 클릭시 프로필 모달 */}
                     <div className="flex gap-4 overflow-x-auto pb-1">
                       {family.members.map((member) => (
-                        <Link
+                        <button
                           key={member.id}
-                          to={`/profile/${member.user_id}`}
-                          className="group flex shrink-0 flex-col items-center gap-1"
+                          type="button"
+                          onClick={() => setSelectedMember(member)}
+                          className="group flex shrink-0 cursor-pointer flex-col items-center gap-1 focus:outline-none"
                         >
                           <img
                             src={member.user.avatar_url ?? defaultAvatar}
@@ -191,7 +137,7 @@ export default function ProfilePage() {
                               {member.family_role}
                             </span>
                           )}
-                        </Link>
+                        </button>
                       ))}
 
                       {/* 가족 초대 버튼 */}
@@ -249,6 +195,15 @@ export default function ProfilePage() {
           ))}
         </div>
       </div>
+
+      {/* 가족 멤버 프로필 모달 */}
+      <FamilyMemberProfileModal
+        member={selectedMember}
+        open={selectedMember !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedMember(null);
+        }}
+      />
     </main>
   );
 }
