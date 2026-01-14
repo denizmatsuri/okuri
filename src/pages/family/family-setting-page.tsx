@@ -94,8 +94,10 @@ export default function FamilySettingPage() {
       toast.success("가족을 나갔습니다", { position: "top-center" });
       navigate("/");
     },
-    onError: () => {
-      toast.error("가족 나가기에 실패했습니다", { position: "top-center" });
+    onError: (error) => {
+      toast.error(error.message, {
+        position: "top-center",
+      });
     },
   });
 

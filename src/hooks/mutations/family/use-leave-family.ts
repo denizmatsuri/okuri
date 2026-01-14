@@ -16,7 +16,7 @@ export function useLeaveFamily(callbacks?: MutationCallbacks) {
       callbacks?.onSuccess?.();
     },
     onError: (error) => {
-      console.error("가족 탈퇴 실패:", error);
+      console.error(error);
       callbacks?.onError?.(error);
     },
   });
