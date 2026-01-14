@@ -39,6 +39,9 @@ export default function CreateFamilyPage() {
     },
     onError: (error) => {
       console.error(error);
+      toast.error(error.message || "가족 생성 실패", {
+        position: "top-center",
+      });
     },
   });
 
