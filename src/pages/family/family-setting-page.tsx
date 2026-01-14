@@ -47,30 +47,32 @@ export default function FamilySettingPage() {
   // 가족 정보 수정 mutation
   const updateFamilyMutation = useUpdateFamily({
     onSuccess: () => {
-      toast.success("가족 정보가 수정되었습니다");
+      toast.success("가족 정보가 수정되었습니다", { position: "top-center" });
     },
     onError: () => {
-      toast.error("가족 정보 수정에 실패했습니다");
+      toast.error("가족 정보 수정에 실패했습니다", { position: "top-center" });
     },
   });
 
   // 멤버 추방 mutation
   const removeMemberMutation = useRemoveFamilyMember(userId ?? "", {
     onSuccess: () => {
-      toast.success("멤버가 추방되었습니다");
+      toast.success("멤버가 추방되었습니다", { position: "top-center" });
     },
     onError: () => {
-      toast.error("멤버 추방에 실패했습니다");
+      toast.error("멤버 추방에 실패했습니다", { position: "top-center" });
     },
   });
 
   // 관리자 권한 부여 mutation
   const grantAdminMutation = useGrantAdmin(userId as string, {
     onSuccess: () => {
-      toast.success("관리자 권한이 부여되었습니다");
+      toast.success("관리자 권한이 부여되었습니다", { position: "top-center" });
     },
     onError: () => {
-      toast.error("관리자 권한 부여에 실패했습니다");
+      toast.error("관리자 권한 부여에 실패했습니다", {
+        position: "top-center",
+      });
     },
   });
 
