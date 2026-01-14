@@ -3,7 +3,7 @@
 ## Status
 
 - 상태: 설계 확정 / DB 완료 / UI 구현 중
-- 최종 수정: 2026-01-05
+- 최종 수정: 2026-01-14
 - 관련 코드: `src/types.ts`, `src/pages/family/`, `src/api/`, `src/hooks/`
 
 ---
@@ -54,70 +54,22 @@
 
 ## Routes
 
-```
-/                           → IndexPage (리다이렉트 허브)
-/no-family                  → NoFamilyPage (온보딩)
-/family/create              → CreateFamilyPage
-/family/join                → JoinFamilyPage
-/family/:familyId           → FamilyHomePage (피드)
-/family/:familyId/settings  → FamilySettingsPage
-/family/:familyId/members   → FamilyMembersPage (관리자)
-/family/:familyId/invite    → FamilyInvitePage
-/family/:familyId/calendar  → CalendarPage
-/family/:familyId/gallery   → GalleryPage
-```
+### 온보딩
 
----
+- `/no-family` → `no-family-page.tsx`
+  - 가족이 없는 사용자의 시작점
 
-## API Spec
+### 가족 생성/가입
 
-### 가족 생성
+- `/family/create` → `create-family-page.tsx`
+  - Step 1: 가족 정보 입력, Step 2: 내 프로필 설정
+- `/family/join` → `join-family-page.tsx`
+  - 초대 코드 입력 → 가족 정보 확인 → 프로필 설정
 
-```
-POST /families
-Body: { name, description }
-Response: { family, inviteCode }
-→ 자동으로 family_members에 생성자를 admin으로 등록
-```
+### 가족 관리
 
-### 초대 코드로 가입
-
-```
-POST /families/join
-Body: { inviteCode, displayName, familyRole }
-Response: { family, membership }
-```
-
-### 가족 목록 조회 (내가 속한)
-
-```
-GET /families
-Response: { families: FamilyWithMembership[] }
-```
-
-### 초대 코드 재생성 (관리자)
-
-```
-POST /families/:familyId/invite-code/refresh
-Response: { inviteCode, expiresAt }
-```
-
-### 멤버 관리 (관리자)
-
-```
-PATCH /families/:familyId/members/:memberId
-Body: { isAdmin: boolean }
-
-DELETE /families/:familyId/members/:memberId
-→ 멤버 내보내기
-```
-
-### 가족 나가기
-
-```
-DELETE /families/:familyId/leave
-→ 마지막 관리자는 나갈 수 없음
-```
+- `/family/:familyId/setting` → `family-setting-page.tsx`
+- `/family/:familyId/invite` → `family-invite-page.tsx`
 
 ---
 
@@ -134,9 +86,9 @@ DELETE /families/:familyId/leave
 │ ...             │     │ birth_date      │     │ description     │
 └─────────────────┘     │ phone_number    │     │ invite_code     │
                         │ avatar_url      │     │ invite_code_    │
-                        │ display_name    │     │   expires_at    │
-                        │ notification    │     │ created_by (FK) │
-                        │ created_at      │     │ created_at      │
+                        │ display_name    │     │ expires_at      │
+                        │ notification    │     │ created_at      │
+                        │ created_at      │     │ updated_at      │
                         └────────┬────────┘     └────────┬────────┘
                                  │                       │
                                  └───────────┬───────────┘
@@ -158,83 +110,154 @@ DELETE /families/:familyId/leave
                                 └─────────────────────┘
 ```
 
+---
+
 ### 테이블 요약
 
 | 테이블           | 역할                       | 핵심 필드                           |
 | ---------------- | -------------------------- | ----------------------------------- |
 | `users`          | 계정 정보 (auth.users 1:1) | email, birth_date, avatar_url       |
-| `families`       | 가족 그룹                  | name, invite_code, created_by       |
+| `families`       | 가족 그룹                  | name, invite_code                   |
 | `family_members` | 가족별 프로필 (다대다)     | display_name, family_role, is_admin |
 
 ---
 
-## Types
+### RLS(Row Level Security)
 
-> 타입 정의는 `src/types.ts` 참조  
-> DB 타입은 `src/database.types.ts` (`npm run type-gen` 자동 생성)
+### 헬퍼 함수
 
-주요 타입:
+```sql
+-- =============================================
+-- 헬퍼 함수 (SECURITY DEFINER로 RLS 우회)
+-- =============================================
 
-- `FamilyEntity` - 가족 그룹
-- `FamilyMemberEntity` - 가족 멤버십
-- `FamilyMember` - 멤버 + 유저 정보 조인
-- `ActiveFamilyContext` - 현재 활성 가족 컨텍스트
-- `DisplayProfile` - 프로필 표시용 헬퍼
+-- ✅ 특정 가족의 멤버인지 확인
+CREATE OR REPLACE FUNCTION public.is_family_member(check_family_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.family_members
+    WHERE family_id = check_family_id
+      AND user_id = auth.uid()
+  );
+$$;
 
----
+-- ✅ 특정 가족의 Admin인지 확인
+CREATE OR REPLACE FUNCTION public.is_family_admin(check_family_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.family_members
+    WHERE family_id = check_family_id
+      AND user_id = auth.uid()
+      AND is_admin = true
+  );
+$$;
+```
 
-## Error Cases
+### users 테이블 정책
 
-| 에러                    | 메시지                             | 처리                    |
-| ----------------------- | ---------------------------------- | ----------------------- |
-| 유효하지 않은 초대 코드 | "유효하지 않은 초대 코드입니다"    | 코드 재확인 안내        |
-| 만료된 초대 코드        | "만료된 초대 코드입니다"           | 새 코드 요청 안내       |
-| 이미 가입된 가족        | "이미 가입된 가족입니다"           | 해당 가족으로 이동 버튼 |
-| 마지막 관리자 탈퇴 시도 | "마지막 관리자는 나갈 수 없습니다" | 관리자 위임 안내        |
+```sql
+-- =============================================
+-- users 테이블 정책
+-- =============================================
 
----
+-- ✅ 모든 프로필 조회 가능
+CREATE POLICY "users_select_all"
+ON public.users FOR SELECT TO authenticated
+USING (true);
 
-## Test Scenarios
+-- ✅ 본인만 수정 가능
+CREATE POLICY "users_update_own"
+ON public.users FOR UPDATE TO authenticated
+USING (id = auth.uid())
+WITH CHECK (id = auth.uid());
 
-### 가족 생성
+-- INSERT: 정책 없음 (트리거가 SECURITY DEFINER로 처리)
+-- DELETE: 정책 없음 (auth.users CASCADE로 처리, 직접 삭제 차단)
+```
 
-- [ ] 가족 생성 → `families` 레코드 생성 확인
-- [ ] 생성자가 `family_members`에 `is_admin: true`로 등록
-- [ ] 초대 코드 6자리 생성 확인
+### families 테이블 정책
 
-### 초대 코드 가입
+```sql
+-- =============================================
+-- families 테이블 정책
+-- =============================================
 
-- [ ] 유효한 코드 → 가입 성공, 가족 홈으로 이동
-- [ ] 만료된 코드 → 에러 메시지
-- [ ] 이미 가입된 가족 → 중복 가입 방지
+-- ✅ 자신이 속한 가족 조회
+CREATE POLICY "families_select_member"
+ON public.families FOR SELECT TO authenticated
+USING (public.is_family_member(id));
 
-### 가족 전환
+-- ✅ 초대 코드로 가족 조회 (가입 전 정보 확인)
+CREATE POLICY "families_select_by_invite_code"
+ON public.families FOR SELECT TO authenticated
+USING (invite_code IS NOT NULL);
 
-- [ ] 2개 이상 가족 소속 시 드롭다운 표시
-- [ ] 전환 시 프로필(display_name, avatar) 변경 확인
-- [ ] 전환 시 피드/갤러리 내용 변경 확인
+-- ✅ 가족 생성
+CREATE POLICY "families_insert"
+ON public.families FOR INSERT TO authenticated
+WITH CHECK (true);
 
-### 권한
+-- ✅ Admin만 가족 정보 수정
+CREATE POLICY "families_update_admin"
+ON public.families FOR UPDATE TO authenticated
+USING (public.is_family_admin(id))
+WITH CHECK (public.is_family_admin(id));
 
-- [ ] 관리자만 멤버 내보내기 가능
-- [ ] 관리자만 초대 코드 재생성 가능
-- [ ] 일반 멤버는 자신의 프로필만 수정 가능
+-- ✅ Admin만 가족 삭제
+CREATE POLICY "families_delete_admin"
+ON public.families FOR DELETE TO authenticated
+USING (public.is_family_admin(id));
+```
 
----
+### family_members 테이블 정책
 
-## Implementation Checklist
+```sql
+-- =============================================
+-- family_members 테이블 정책
+-- =============================================
 
-- [x] DB 마이그레이션 (`users`, `families`, `family_members`)
-- [x] TypeScript 타입 정의 (`src/types.ts`)
-- [ ] API 함수 (`src/api/family.ts`)
-- [ ] Query 훅 (`src/hooks/queries/use-family-data.ts`)
-- [ ] Mutation 훅 (`src/hooks/mutations/family/`)
-- [ ] 가족 스토어 (`src/store/family.ts`)
-- [ ] NoFamilyPage
-- [ ] CreateFamilyPage
-- [ ] JoinFamilyPage
-- [ ] FamilyHomePage
-- [ ] FamilySettingsPage
-- [ ] FamilyMembersPage (관리자)
-- [ ] FamilyInvitePage
-- [ ] 헤더 가족 전환 드롭다운
+-- ✅ 본인 멤버십 조회
+CREATE POLICY "family_members_select_own"
+ON public.family_members FOR SELECT TO authenticated
+USING (user_id = auth.uid());
+
+-- ✅ 같은 가족의 다른 멤버 조회
+CREATE POLICY "family_members_select_same_family"
+ON public.family_members FOR SELECT TO authenticated
+USING (public.is_family_member(family_id));
+
+-- ✅ 본인을 가족 멤버로 등록 (가족 생성 또는 가입)
+CREATE POLICY "family_members_insert_self"
+ON public.family_members FOR INSERT TO authenticated
+WITH CHECK (user_id = auth.uid());
+
+-- ✅ 본인 프로필 수정
+CREATE POLICY "family_members_update_own_profile"
+ON public.family_members FOR UPDATE TO authenticated
+USING (user_id = auth.uid())
+WITH CHECK (user_id = auth.uid());
+
+-- ✅ Admin이 다른 멤버 권한 수정
+CREATE POLICY "family_members_update_admin_grant"
+ON public.family_members FOR UPDATE TO authenticated
+USING (public.is_family_admin(family_id) AND user_id != auth.uid())
+WITH CHECK (public.is_family_admin(family_id));
+
+-- ✅ 본인 탈퇴
+CREATE POLICY "family_members_delete_self"
+ON public.family_members FOR DELETE TO authenticated
+USING (user_id = auth.uid());
+
+-- ✅ Admin이 다른 멤버 추방
+CREATE POLICY "family_members_delete_admin"
+ON public.family_members FOR DELETE TO authenticated
+USING (public.is_family_admin(family_id) AND user_id != auth.uid());
+```
