@@ -18,6 +18,7 @@ import NoFamilyOnlyLayout from "@/components/layout/no-family-only-layout";
 import FamilyInvitePage from "@/pages/family/family-invite-page";
 import JoinFamilyPage from "@/pages/family/join-family-page";
 import FamilySettingPage from "@/pages/family/family-setting-page";
+import PostDetailPage from "./pages/post/post-detail-page";
 
 export default function RootRoute() {
   return (
@@ -43,6 +44,7 @@ export default function RootRoute() {
           {/* 가족이 필요한 페이지 */}
           <Route element={<FamilyRequiredLayout />}>
             <Route path="/" element={<IndexPage />} />
+            <Route path="/post/:postId" element={<PostDetailPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route

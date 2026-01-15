@@ -92,23 +92,46 @@ export type Database = {
           },
         ]
       }
-      todos: {
+      posts: {
         Row: {
-          content: string | null
+          author_id: string
+          content: string
           created_at: string
+          family_id: string
           id: number
+          image_urls: string[] | null
+          is_notice: boolean
+          like_count: number
         }
         Insert: {
-          content?: string | null
+          author_id?: string
+          content: string
           created_at?: string
+          family_id: string
           id?: number
+          image_urls?: string[] | null
+          is_notice?: boolean
+          like_count?: number
         }
         Update: {
-          content?: string | null
+          author_id?: string
+          content?: string
           created_at?: string
+          family_id?: string
           id?: number
+          image_urls?: string[] | null
+          is_notice?: boolean
+          like_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {

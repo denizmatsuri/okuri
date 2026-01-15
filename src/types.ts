@@ -3,11 +3,11 @@ import { type Database } from "@/database.types";
 // ============================================
 // Entity 타입 (DB 테이블 직접 매핑)
 // ============================================
-export type TodoEntity = Database["public"]["Tables"]["todos"]["Row"];
 export type UserEntity = Database["public"]["Tables"]["users"]["Row"];
 export type FamilyEntity = Database["public"]["Tables"]["families"]["Row"];
 export type FamilyMemberEntity =
   Database["public"]["Tables"]["family_members"]["Row"];
+export type PostEntity = Database["public"]["Tables"]["posts"]["Row"];
 
 // ============================================
 // 조인/확장 타입 (헬퍼 타입)
@@ -35,6 +35,14 @@ export type DisplayProfile = {
   avatarUrl: string;
   familyRole?: string;
 };
+
+// 게시글 타입
+export type Post = PostEntity & {
+  author: FamilyMember;
+};
+
+// 게시글 카테고리
+export type PostCategory = "all" | "general" | "notice";
 
 /**
  * React Query useMutation 훅의 콜백 타입
