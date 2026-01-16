@@ -1,6 +1,6 @@
 import { useSession } from "@/store/session";
 import { useUserProfileData } from "@/hooks/queries/use-profile-data";
-import PostItem from "@/components/post/post-item";
+// import PostItem from "@/components/post/post-item";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -185,16 +185,16 @@ export default function ProfilePage() {
       </div>
 
       {/* 내가 작성한 포스트 리스트 */}
-      <div className="border-t border-t-black">
+      {/* <div className="border-t border-t-black">
         <div className="border-b p-4">
           <h2 className="font-medium">내 게시글</h2>
         </div>
         <div className="flex flex-col">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <PostItem key={index} />
+          {mockPosts.map((post, index) => (
+            <PostItem key={post.id} post={post} />
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* 가족 멤버 프로필 모달 */}
       <FamilyMemberProfileModal
