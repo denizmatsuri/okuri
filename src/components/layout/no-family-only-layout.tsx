@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 import { useSession } from "@/store/session";
-import { useMyFamilies } from "@/hooks/queries/use-family-data";
+import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
 import GlobalLoader from "@/components/global-loader";
 
 /**
@@ -9,7 +9,9 @@ import GlobalLoader from "@/components/global-loader";
  */
 export default function NoFamilyOnlyLayout() {
   const session = useSession();
-  const { data: families, isLoading } = useMyFamilies(session?.user.id);
+  const { data: families, isLoading } = useMyFamiliesWithMembers(
+    session?.user.id,
+  );
 
   // 로딩 중일 때는 대기
   if (isLoading) {

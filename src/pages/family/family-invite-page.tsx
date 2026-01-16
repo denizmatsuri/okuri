@@ -21,7 +21,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useFamilyById, useMyFamilies } from "@/hooks/queries/use-family-data";
+import {
+  useFamilyById,
+  useMyFamiliesWithMembers,
+} from "@/hooks/queries/use-family-data";
 import { useSession } from "@/store/session";
 import { useRegenerateInviteCode } from "@/hooks/mutations/family/use-regenerate-invite-code";
 import Loader from "@/components/loader";
@@ -34,7 +37,7 @@ export default function FamilyInvitePage() {
   const { data: family, isLoading: isFamilyLoading } = useFamilyById(familyId);
 
   // 현재 사용자의 멤버십 정보 (관리자 여부 확인용)
-  const { data: families } = useMyFamilies(session?.user.id);
+  const { data: families } = useMyFamiliesWithMembers(session?.user.id);
   const membership = families?.find((f) => f.family?.id === familyId);
   const isAdmin = membership?.is_admin ?? false;
 

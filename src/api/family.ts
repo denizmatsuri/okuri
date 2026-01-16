@@ -6,7 +6,7 @@ import { generateInviteCode } from "@/lib/utils";
  * 현재 로그인한 사용자가 속한 가족 목록 조회
  * family_members 테이블에서 user_id로 필터링 후 families 조인
  */
-export async function fetchMyFamilies(userId: string) {
+export async function fetchMyFamiliesWithMembers(userId: string) {
   const { data, error } = await supabase
     .from("family_members")
     .select(

@@ -1,5 +1,5 @@
 import { useSession } from "@/store/session";
-import { useMyFamilies } from "@/hooks/queries/use-family-data";
+import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
 import GlobalLoader from "@/components/global-loader";
 import { useEffect } from "react";
 import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
@@ -19,7 +19,9 @@ export default function FamilyProvider({
    * 로그인한 사용자의 가족 목록을 앱 시작 시 미리 로드합니다.
    * React Query 캐시에 저장되어 다른 컴포넌트에서 재사용 가능.
    */
-  const { data: families, isLoading } = useMyFamilies(session?.user.id);
+  const { data: families, isLoading } = useMyFamiliesWithMembers(
+    session?.user.id,
+  );
 
   /**
    * 🎯 currentFamilyId 자동 설정

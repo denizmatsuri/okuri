@@ -1,5 +1,5 @@
 import {
-  fetchMyFamilies,
+  fetchMyFamiliesWithMembers,
   fetchFamilyById,
   fetchFamiliesWithMembers,
 } from "@/api/family";
@@ -10,10 +10,10 @@ import { useQuery } from "@tanstack/react-query";
  * 현재 사용자가 속한 가족 목록 조회
  * FamilyRequiredLayout에서 가족 유무 판단에 사용
  */
-export function useMyFamilies(userId?: string) {
+export function useMyFamiliesWithMembers(userId?: string) {
   return useQuery({
     queryKey: QUERY_KEYS.family.list,
-    queryFn: () => fetchMyFamilies(userId!),
+    queryFn: () => fetchMyFamiliesWithMembers(userId!),
     enabled: !!userId,
   });
 }
