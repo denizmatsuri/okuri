@@ -31,6 +31,8 @@ export default function FamilyProvider({
    * → 첫 번째 가족을 자동 선택
    */
   useEffect(() => {
+    if (isLoading) return;
+
     if (!families || families.length === 0) {
       // 가족이 없으면 null로 초기화 후 return
       if (currentFamilyId !== null) {
@@ -48,7 +50,7 @@ export default function FamilyProvider({
     if (!currentFamilyId || !isValidSelection) {
       setCurrentFamilyId(families[0].family?.id ?? null);
     }
-  }, [families, currentFamilyId, setCurrentFamilyId]);
+  }, [families, currentFamilyId, setCurrentFamilyId, isLoading]);
 
   if (session && isLoading) {
     return <GlobalLoader />;

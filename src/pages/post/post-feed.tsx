@@ -5,25 +5,28 @@ import PostItem from "@/components/post/post-item";
 import FamilyTabs from "@/components/post/family-tabs";
 import CategoryFilter from "@/components/post/category-filter";
 import { Button } from "@/components/ui/button";
-import type { FamilyEntity, PostCategory } from "@/types";
+import type { PostCategory } from "@/types";
 import PostEditorModal from "@/components/modal/post-editor-modal";
-import { useCurrentFamilyId } from "@/store/family";
+import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
 import { usePostsData } from "@/hooks/queries/use-post-data";
-import { useMyFamilies } from "@/hooks/queries/use-family-data";
+import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
 
 export default function PostFeed() {
   const currentFamilyId = useCurrentFamilyId();
-  // const [currentFamilyId, setCurrentFamilyId] = useState("1");
+  const setCurrentFamilyId = useSetCurrentFamilyId();
+
   const [category, setCategory] = useState<PostCategory>("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const { data: families = [] } = useMyFamilies();
+  // 가족 타입 가져오기
+  const { data: familiesWithMembers = [] } = useMyFamiliesWithMembers();
 
-  console.log(families);
+  // FamilyTabs에서 필요한 형태로 변환
+  const familyTabs = familiesWithMembers
+    .map((m) => m.family)
+    .filter(Boolean) as Array<{ id: string; name: string }>;
 
   const { data: posts = [] } = usePostsData(currentFamilyId!);
-
-  console.log(posts);
 
   // 카테고리 필터링
   const filteredPosts = posts.filter((post) => {
@@ -33,21 +36,16 @@ export default function PostFeed() {
     return true;
   });
 
-  const setCurrentFamilyId = (familyId: string) => {
-    // setCurrentFamilyId(familyId);
-    console.log(familyId);
-  };
-
   const noticeCount = posts.filter((p) => p.is_notice).length;
 
   return (
     <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) flex w-full flex-1 flex-col border-x md:m-0">
       {/* 가족 탭 */}
-      {/* <FamilyTabs
-        families={families}
-        currentFamilyId={currentFamilyId}
+      <FamilyTabs
+        families={familyTabs}
+        currentFamilyId={currentFamilyId!}
         onFamilyChange={setCurrentFamilyId}
-      /> */}
+      />
 
       {/* 카테고리 필터 */}
       <CategoryFilter
