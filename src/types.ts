@@ -38,7 +38,7 @@ export type DisplayProfile = {
 
 // 게시글 타입
 export type Post = PostEntity & {
-  author: FamilyMember;
+  familyMember: FamilyMember;
 };
 
 // 게시글 카테고리

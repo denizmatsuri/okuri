@@ -1,30 +1,26 @@
-import { MoreHorizontal } from "lucide-react";
-
 import defaultAvatar from "@/assets/default-avatar.jpg";
-import { Button } from "@/components/ui/button";
 import { formatRelativeTime } from "@/lib/utils";
-import { mockPosts, type MockPost } from "@/lib/mock-data";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Link } from "react-router";
+import type { Post } from "@/types";
 
-// type PostItemProps = {
-//   post: MockPost;
-//   isMine?: boolean;
-// };
+export default function PostItem({ post }: { post: Post }) {
+  if (!post) return null;
 
-export default function PostItem({ postId }: { postId: string }) {
-  // const { data: post } = usePost(postId);
-
-  // mock data
-  const post = mockPosts.find((post: MockPost) => post.id === postId);
-
-  if (!post) {
-    return <div>게시글을 찾을 수 없습니다.</div>;
-  }
+  // author 정보 추출
+  const authorName =
+    post.familyMember?.display_name ??
+    post.familyMember?.user?.display_name ??
+    "알 수 없음";
+  const authorRole = post.familyMember?.family_role ?? "";
+  const authorAvatar =
+    post.familyMember?.avatar_url ??
+    post.familyMember?.user?.avatar_url ??
+    defaultAvatar;
 
   return (
     <article className="relative flex flex-col gap-3 border-b p-4">
@@ -32,28 +28,22 @@ export default function PostItem({ postId }: { postId: string }) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <img
-            src={post.authorAvatar || defaultAvatar}
+            src={authorAvatar || defaultAvatar}
             alt="프로필"
             className="h-12 w-12 rounded-full border object-cover"
           />
           <div className="flex flex-col">
-            <span className="font-medium">{post.authorName}</span>
+            <span className="font-medium">{authorName}</span>
             <div className="text-muted-foreground flex items-center gap-1 text-sm">
-              <span>{post.authorRole}</span>
+              <span>{authorRole}</span>
               <span>·</span>
-              <span>{formatRelativeTime(post.createdAt)}</span>
+              <span>{formatRelativeTime(post.created_at)}</span>
             </div>
           </div>
         </div>
-
-        {/* {isMine && (
-          <Button variant="ghost" size="icon" className="relative z-10 h-8 w-8">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        )} */}
       </div>
 
-      {/* 게시글 내용 - 링크 + 전체 영역 커버 */}
+      {/* 게시글 내용 */}
       <Link
         to={`/post/${post.id}`}
         className="whitespace-pre-wrap after:absolute after:inset-0"
@@ -61,21 +51,23 @@ export default function PostItem({ postId }: { postId: string }) {
         {post.content}
       </Link>
 
-      {/* 이미지 캐러셀 - 링크 위에 올림 */}
-      <Carousel className="relative z-10">
-        <CarouselContent>
-          {post.imageUrls?.map((url, index) => (
-            <CarouselItem className="basis-3/5" key={index}>
-              <div className="overflow-hidden rounded-xl">
-                <img
-                  src={url}
-                  className="h-full max-h-[350px] w-full object-cover"
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+      {/* 이미지 캐러셀 */}
+      {post.image_urls && post.image_urls.length > 0 && (
+        <Carousel className="relative z-10">
+          <CarouselContent>
+            {post.image_urls.map((url, index) => (
+              <CarouselItem className="basis-3/5" key={index}>
+                <div className="overflow-hidden rounded-xl">
+                  <img
+                    src={url}
+                    className="h-full max-h-[350px] w-full object-cover"
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      )}
     </article>
   );
 }
