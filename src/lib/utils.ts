@@ -44,3 +44,15 @@ export function formatRelativeTime(dateString: string): string {
     day: "numeric",
   });
 }
+
+/**
+ * 내 가족 멤버십 데이터에서 가족 탭용 데이터 추출
+ */
+export function extractFamilyMemberships<
+  T extends { family: { id: string; name: string } | null },
+>(familiesWithMembers: T[]): Array<{ id: string; name: string }> {
+  return familiesWithMembers.map((m) => m.family).filter(Boolean) as Array<{
+    id: string;
+    name: string;
+  }>;
+}

@@ -3,6 +3,7 @@ import PostForm from "../post/post-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { toast } from "sonner";
 import { useSession } from "@/store/session";
+import { useFamilyById } from "@/hooks/queries/use-family-data";
 
 export default function PostEditorModal({
   isOpen,
@@ -14,6 +15,8 @@ export default function PostEditorModal({
   familyId: string;
 }) {
   const session = useSession();
+  const { data: family } = useFamilyById(familyId);
+
   const { mutate: createPost } = useCreatePost({
     onSuccess: () => {
       onOpenChange(false);
@@ -48,6 +51,9 @@ export default function PostEditorModal({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>새 게시글 작성</DialogTitle>
+          {family && (
+            <p className="text-muted-foreground text-sm">{family.name}</p>
+          )}
         </DialogHeader>
         <PostForm
           onSubmit={handlePostSubmit}

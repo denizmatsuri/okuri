@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 
 type FamilyTabsProps = {
-  families: Array<{ id: string; name: string }>; // 필요한 필드만!
-  currentFamilyId: string | null; // null 가능하도록
+  families: Array<{ id: string; name: string }>;
+  currentFamilyId: string | null;
   onFamilyChange: (familyId: string) => void;
 };
 
@@ -21,7 +21,7 @@ export default function FamilyTabs({
             key={family.id}
             onClick={() => onFamilyChange(family.id)}
             className={cn(
-              "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors",
+              "shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-colors",
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80",

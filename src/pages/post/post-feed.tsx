@@ -10,6 +10,7 @@ import PostEditorModal from "@/components/modal/post-editor-modal";
 import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
 import { usePostsData } from "@/hooks/queries/use-post-data";
 import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
+import { extractFamilyMemberships } from "@/lib/utils";
 
 export default function PostFeed() {
   const currentFamilyId = useCurrentFamilyId();
@@ -22,9 +23,7 @@ export default function PostFeed() {
   const { data: familiesWithMembers = [] } = useMyFamiliesWithMembers();
 
   // FamilyTabs에서 필요한 형태로 변환
-  const familyTabs = familiesWithMembers
-    .map((m) => m.family)
-    .filter(Boolean) as Array<{ id: string; name: string }>;
+  const familyTabs = extractFamilyMemberships(familiesWithMembers);
 
   const { data: posts = [] } = usePostsData(currentFamilyId!);
 
