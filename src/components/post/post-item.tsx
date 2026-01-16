@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
+
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import { formatRelativeTime } from "@/lib/utils";
 import {
@@ -5,11 +8,24 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
+import { useSession } from "@/store/session";
 import type { Post } from "@/types";
 
 export default function PostItem({ post }: { post: Post }) {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const session = useSession();
+
   if (!post) return null;
+
+  // 현재 사용자가 작성자인지 확인
+  const isMine = session?.user.id === post.author_id;
 
   // author 정보 추출
   const authorName =
@@ -21,6 +37,20 @@ export default function PostItem({ post }: { post: Post }) {
     post.familyMember?.avatar_url ??
     post.familyMember?.user?.avatar_url ??
     defaultAvatar;
+
+  // 수정 핸들러
+  const handleEdit = () => {
+    setIsPopoverOpen(false);
+    // TODO: 수정 모달 열기
+    console.log("수정:", post.id);
+  };
+
+  // 삭제 핸들러
+  const handleDelete = () => {
+    setIsPopoverOpen(false);
+    // TODO: 삭제 확인 다이얼로그 열기
+    console.log("삭제:", post.id);
+  };
 
   return (
     <article className="relative flex flex-col gap-3 border-b p-4">
@@ -41,6 +71,43 @@ export default function PostItem({ post }: { post: Post }) {
             </div>
           </div>
         </div>
+
+        {/* 본인 게시물인 경우에만 표시 */}
+        {isMine && (
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="relative z-10 -mt-1 -mr-2"
+              >
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1" align="end">
+              <div className="flex flex-col gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start"
+                  onClick={handleEdit}
+                >
+                  <Pencil className="h-4 w-4" />
+                  수정
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive justify-start"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  삭제
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       {/* 게시글 내용 */}

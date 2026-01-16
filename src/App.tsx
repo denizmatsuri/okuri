@@ -1,13 +1,16 @@
-import FamilyProvider from "./provider/family-provider";
-import SessionProvider from "./provider/session-provider";
-import RootRoute from "./root-route";
+import FamilyProvider from "@/provider/family-provider";
+import ModalProvider from "@/provider/modal-provider";
+import SessionProvider from "@/provider/session-provider";
+import RootRoute from "@/root-route";
 
 function App() {
   return (
     <SessionProvider>
-      <FamilyProvider>
-        <RootRoute />
-      </FamilyProvider>
+      <ModalProvider>
+        <FamilyProvider>
+          <RootRoute />
+        </FamilyProvider>
+      </ModalProvider>
     </SessionProvider>
   );
 }

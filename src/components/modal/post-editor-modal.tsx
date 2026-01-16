@@ -4,22 +4,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { toast } from "sonner";
 import { useSession } from "@/store/session";
 import { useFamilyById } from "@/hooks/queries/use-family-data";
+import { useCurrentFamilyId } from "@/store/family";
+import { usePostEditorModal } from "@/store/post-editor-modal";
 
-export default function PostEditorModal({
-  isOpen,
-  onOpenChange,
-  familyId,
-}: {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  familyId: string;
-}) {
+export default function PostEditorModal() {
   const session = useSession();
-  const { data: family } = useFamilyById(familyId);
+  const currentFamilyId = useCurrentFamilyId();
+  const { data: family } = useFamilyById(currentFamilyId!);
+
+  const postEditorModal = usePostEditorModal();
 
   const { mutate: createPost } = useCreatePost({
     onSuccess: () => {
-      onOpenChange(false);
+      postEditorModal.actions.close();
     },
     onError: () => {
       toast.error("게시글 작성에 실패했습니다", { position: "top-center" });
@@ -35,10 +32,10 @@ export default function PostEditorModal({
     images: File[];
     isNotice?: boolean;
   }) => {
-    if (!familyId || !session?.user?.id) return;
+    if (!currentFamilyId || !session?.user?.id) return;
 
     createPost({
-      familyId,
+      familyId: currentFamilyId,
       userId: session.user.id,
       content,
       images,
@@ -47,7 +44,10 @@ export default function PostEditorModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={postEditorModal.isOpen}
+      onOpenChange={postEditorModal.actions.close}
+    >
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>새 게시글 작성</DialogTitle>
@@ -57,7 +57,7 @@ export default function PostEditorModal({
         </DialogHeader>
         <PostForm
           onSubmit={handlePostSubmit}
-          onCancel={() => onOpenChange(false)}
+          onCancel={postEditorModal.actions.close}
         />
       </DialogContent>
     </Dialog>

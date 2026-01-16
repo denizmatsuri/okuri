@@ -1,12 +1,8 @@
 import { useState } from "react";
-import { PenSquare } from "lucide-react";
-
 import PostItem from "@/components/post/post-item";
 import FamilyTabs from "@/components/post/family-tabs";
 import CategoryFilter from "@/components/post/category-filter";
-import { Button } from "@/components/ui/button";
 import type { PostCategory } from "@/types";
-import PostEditorModal from "@/components/modal/post-editor-modal";
 import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
 import { usePostsData } from "@/hooks/queries/use-post-data";
 import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
@@ -17,7 +13,6 @@ export default function PostFeed() {
   const setCurrentFamilyId = useSetCurrentFamilyId();
 
   const [category, setCategory] = useState<PostCategory>("all");
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // 가족 타입 가져오기
   const { data: familiesWithMembers = [] } = useMyFamiliesWithMembers();
@@ -63,21 +58,6 @@ export default function PostFeed() {
           filteredPosts.map((post) => <PostItem key={post.id} post={post} />)
         )}
       </div>
-      {/* 글쓰기 FAB */}
-      <Button
-        size="icon"
-        className="fixed right-4 bottom-24 h-14 w-14 rounded-full shadow-lg md:right-8 md:bottom-8"
-        onClick={() => setIsFormOpen(true)}
-      >
-        <PenSquare className="h-6 w-6" />
-      </Button>
-
-      {/* 글쓰기 모달 */}
-      <PostEditorModal
-        isOpen={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        familyId={currentFamilyId!}
-      />
     </main>
   );
 }
