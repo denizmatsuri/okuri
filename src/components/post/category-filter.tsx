@@ -4,7 +4,7 @@ import type { PostCategory } from "@/types";
 type CategoryFilterProps = {
   category: PostCategory;
   onCategoryChange: (category: PostCategory) => void;
-  noticeCount: number;
+  // noticeCount: number;
 };
 
 const categories: { value: PostCategory; label: string }[] = [
@@ -16,13 +16,13 @@ const categories: { value: PostCategory; label: string }[] = [
 export default function CategoryFilter({
   category,
   onCategoryChange,
-  noticeCount,
+  // noticeCount,
 }: CategoryFilterProps) {
   return (
     <div className="flex items-center gap-4 border-b px-4 py-2">
       {categories.map(({ value, label }) => {
         const isActive = category === value;
-        const showBadge = value === "notice" && noticeCount > 0;
+        // const showBadge = value === "notice" && noticeCount > 0;
 
         return (
           <button
@@ -36,11 +36,11 @@ export default function CategoryFilter({
             )}
           >
             {label}
-            {showBadge && (
+            {/* {showBadge && (
               <span className="bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5 text-xs">
                 {noticeCount}
               </span>
-            )}
+            )} */}
           </button>
         );
       })}
