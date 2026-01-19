@@ -16,12 +16,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import { useSession } from "@/store/session";
-import type { Post } from "@/types";
+// import type { Post } from "@/types";
+import { useOpenEditPostEditorModal } from "@/store/post-editor-modal";
+import { usePostById } from "@/hooks/queries/use-post-by-id-data";
 
-export default function PostItem({ post }: { post: Post }) {
+type PostItemProps = {
+  postId: number;
+};
+export default function PostItem({ postId }: PostItemProps) {
+  const { data: post, isLoading: isLoadingPost } = usePostById(postId);
+  
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const openEditPostEditorModal = useOpenEditPostEditorModal(); 
   const session = useSession();
 
+  // 로딩 상태 (스켈레톤 또는 null)
+  // FIXME: 스켈레톤 추가
+  // if (isLoadingPost) return <PostItemSkeleton className="h-20 w-full" />;
   if (!post) return null;
 
   // 현재 사용자가 작성자인지 확인
@@ -41,8 +52,12 @@ export default function PostItem({ post }: { post: Post }) {
   // 수정 핸들러
   const handleEdit = () => {
     setIsPopoverOpen(false);
-    // TODO: 수정 모달 열기
-    console.log("수정:", post.id);
+    openEditPostEditorModal({
+      postId: post.id,
+      content: post.content,
+      imageUrls: post.image_urls,
+      isNotice: post.is_notice,
+    });
   };
 
   // 삭제 핸들러

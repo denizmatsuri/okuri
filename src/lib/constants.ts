@@ -1,3 +1,5 @@
+import type { PostCategory } from "@/types";
+
 export const QUERY_KEYS = {
   userProfile: {
     all: ["userProfile"],
@@ -13,14 +15,17 @@ export const QUERY_KEYS = {
   },
   post: {
     all: ["post"],
-    list: (familyId: string) => ["post", "list", familyId],
+    // list: (familyId: string) => ["post", "list", familyId],
+    // 리스트: ID 배열만 반환 (무한스크롤용 캐시 정규화 작업)
+    list: (familyId: string, category?: PostCategory) => 
+      ["post", "list", familyId, { category }],
     byId: (postId: number) => ["post", postId],
   },
 };
 
 export const BUCKET_NAME = "okuri-storage";
 
-// FIXME: 삭제해도 될듯
+// FIXME: 삭제해도 될듯 오버테크일지도?..
 export const STORAGE_PATHS = {
   userAvatar: (userId: string) => `users/${userId}/avatars`,
   familyCover: (familyId: string) => `families/${familyId}/cover`,

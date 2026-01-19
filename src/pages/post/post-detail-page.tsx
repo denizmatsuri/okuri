@@ -1,6 +1,6 @@
 import PostItem from "@/components/post/post-item";
 import { Button } from "@/components/ui/button";
-import { usePostById } from "@/hooks/queries/use-post-data";
+import { usePostById } from "@/hooks/queries/use-post-by-id-data";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 
@@ -24,7 +24,7 @@ export default function PostDetailPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
-      {post && <PostItem post={post} />}
+      {post && <PostItem postId={post.id} />}
     </div>
   );
 }

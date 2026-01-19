@@ -1,6 +1,7 @@
 import { uploadImage } from "@/api/image";
-import type { FamilyMember, Post, PostEntity } from "@/types";
+import type { FamilyMember, Post, PostCategory, PostEntity } from "@/types";
 import supabase from "@/utils/supabase";
+import { PAGE_SIZE } from "@/hooks/queries/use-infinite-posts";
 
 /**
  * 가족 게시글 목록 조회
@@ -9,26 +10,51 @@ import supabase from "@/utils/supabase";
  * - posts → family_members FK 조인 불가 (unique 제약 미충족)
  * - Batch 쿼리 2회로 해결 (N+1 방지)
  * - 확장 필요 시 DB View 또는 RPC 함수로 전환 가능(현재 MVP 수준에서는 충분함)
+ * - cursor 기반 페이지네이션으로 데이터 일관성 보장
  */
-export async function fetchPosts(familyId: string) {
+export async function fetchPosts({
+  familyId,
+  category,
+  cursor,
+  limit = PAGE_SIZE,
+}: {
+  familyId: string;
+  category?: PostCategory;
+  cursor?: number;
+  limit?: number;
+}) {
   // 1. 게시글 목록 조회
-  const { data: posts, error } = await supabase
+  let query = supabase
     .from("posts")
     .select("*")
     .eq("family_id", familyId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  // 카테고리 필터
+  if (category === "notice") {
+    query = query.eq("is_notice", true);
+  } else if (category === "general") {
+    query = query.eq("is_notice", false);
+  }
+  // category가 "all" 또는 undefined면 필터 없음
+
+  // 커서 기반 페이지네이션
+  if (cursor) {
+    query = query.lt("id", cursor);
+  }
+
+  const { data: posts, error } = await query;
 
   if (error) throw error;
   if (!posts?.length) return [];
 
   // 2. 작성자들의 가족 내 프로필(family_members) 조회
-  // - posts.author_id는 users.id를 참조
-  // - 해당 유저의 family_members 정보를 별도로 가져옴
   const authorIds = [...new Set(posts.map((p) => p.author_id))];
 
   const { data: members, error: memberError } = await supabase
     .from("family_members")
-    .select("*")
+    .select("*, user:users(*)")
     .eq("family_id", familyId)
     .in("user_id", authorIds);
 
@@ -42,6 +68,7 @@ export async function fetchPosts(familyId: string) {
     familyMember: memberMap.get(post.author_id) as FamilyMember,
   })) as Post[];
 }
+
 
 /**
  * 단일 게시글 상세 조회

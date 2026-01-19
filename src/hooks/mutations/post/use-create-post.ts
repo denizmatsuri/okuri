@@ -8,11 +8,22 @@ export function useCreatePost(callbacks?: MutationCallbacks) {
 
   return useMutation({
     mutationFn: createPostWithImages,
-    onSuccess: async (_, variables) => {
-      // 해당 가족의 게시글 목록 캐시 무효화
+    onSuccess: async (newPost, variables) => {
+      // 1. 정규화 캐시에 추가 (선택적 - fetchPostById로 채워도 됨)
+      // queryClient.setQueryData(QUERY_KEYS.post.byId(newPost.id), newPost);
+    
+      // 2. 해당 카테고리 리스트 invalidate
+      const category = variables.isNotice ? "notice" : "general";
+      
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.post.list(variables.familyId),
+        queryKey: QUERY_KEYS.post.list(variables.familyId, category),
       });
+      
+      // "all" 카테고리도 invalidate
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.post.list(variables.familyId, "all"),
+      });
+    
       callbacks?.onSuccess?.();
     },
     onError: (error) => {

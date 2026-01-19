@@ -4,9 +4,12 @@ import FamilyTabs from "@/components/post/family-tabs";
 import CategoryFilter from "@/components/post/category-filter";
 import type { PostCategory } from "@/types";
 import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
-import { usePostsData } from "@/hooks/queries/use-post-data";
+// import { usePostsData } from "@/hooks/queries/use-post-data";
 import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
 import { extractFamilyMemberships } from "@/lib/utils";
+import { useInfinitePosts } from "@/hooks/queries/use-infinite-posts";
+import { useInView } from "react-intersection-observer"; 
+import { LoaderCircleIcon } from "lucide-react";
 
 export default function PostFeed() {
   const currentFamilyId = useCurrentFamilyId();
@@ -20,17 +23,26 @@ export default function PostFeed() {
   // FamilyTabs에서 필요한 형태로 변환
   const familyTabs = extractFamilyMemberships(familiesWithMembers);
 
-  const { data: posts = [] } = usePostsData(currentFamilyId!);
+  // const { data: posts = [] } = usePostsData(currentFamilyId!);
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage,
+    isLoading,
+  } = useInfinitePosts(currentFamilyId!, category);
 
-  // 카테고리 필터링
-  const filteredPosts = posts.filter((post) => {
-    if (category === "all") return true;
-    if (category === "notice") return post.is_notice;
-    if (category === "general") return !post.is_notice;
-    return true;
+  // ID 배열 평탄화
+  const postIds = data?.pages.flatMap((page) => page.ids) ?? [];
+
+  // 무한스크롤 트리거
+  const { ref: loadMoreRef } = useInView({
+    onChange: (inView) => {
+      if (inView && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
   });
-
-  const noticeCount = posts.filter((p) => p.is_notice).length;
 
   return (
     <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) flex w-full flex-1 flex-col border-x md:m-0">
@@ -45,17 +57,28 @@ export default function PostFeed() {
       <CategoryFilter
         category={category}
         onCategoryChange={setCategory}
-        noticeCount={noticeCount}
+        // noticeCount={noticeCount}
       />
 
       {/* 게시글 목록 */}
       <div className="flex flex-1 flex-col">
-        {filteredPosts.length === 0 ? (
-          <div className="text-muted-foreground flex flex-1 items-center justify-center">
-            아직 게시글이 없어요
-          </div>
+        {isLoading ? (
+          // FIXME: 스켈레톤 추가
+          // <PostListSkeleton />
+          <LoaderCircleIcon className="animate-spin" />
+        ) : postIds.length === 0 ? (
+          <div className="...">아직 게시글이 없어요</div>
         ) : (
-          filteredPosts.map((post) => <PostItem key={post.id} post={post} />)
+          <>
+            {postIds.map((id) => (
+              <PostItem key={id} postId={id} />
+            ))}
+            
+            {/* 무한스크롤 트리거 */}
+            <div ref={loadMoreRef} className="h-10">
+              {isFetchingNextPage && <LoaderCircleIcon className="animate-spin" />}
+            </div>
+          </>
         )}
       </div>
     </main>
