@@ -4,13 +4,13 @@ import { Home, Calendar, Image, Moon, User, Plus, Menu } from "lucide-react";
 import logo from "@/assets/react.svg";
 import MenuButton from "./menu-button";
 import { useSession } from "@/store/session";
-import { useOpenPostEditorModal } from "@/store/post-editor-modal";
+import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
 
 export default function DesktopNav() {
   const session = useSession();
   const navigate = useNavigate();
 
-  const openPostEditorModal = useOpenPostEditorModal();
+  const openCreatePostEditorModal = useOpenCreatePostEditorModal();
 
   const handleProfileClick = () => {
     if (session?.user.id) {
@@ -44,7 +44,7 @@ export default function DesktopNav() {
           </Link>
           {/* 피드 추가 버튼 */}
           <button
-            onClick={openPostEditorModal}
+            onClick={openCreatePostEditorModal}
             className="bg-muted group flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl"
           >
             <Plus className="text-muted-foreground group-hover:text-foreground h-7 w-7" />

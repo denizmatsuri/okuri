@@ -1,13 +1,13 @@
 import { Home, Calendar, Image, User, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useSession } from "@/store/session";
-import { useOpenPostEditorModal } from "@/store/post-editor-modal";
+import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
 
 export default function MobileNav() {
   const session = useSession();
   const navigate = useNavigate();
 
-  const openPostEditorModal = useOpenPostEditorModal();
+  const openCreatePostEditorModal = useOpenCreatePostEditorModal();
 
   const handleProfileClick = () => {
     if (session?.user.id) {
@@ -29,7 +29,7 @@ export default function MobileNav() {
         <Calendar className="text-muted-foreground h-5 w-5" />
       </Link>
       <button
-        onClick={openPostEditorModal}
+        onClick={openCreatePostEditorModal}
         className="bg-muted flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl"
       >
         <Plus className="text-muted-foreground h-5 w-5" />

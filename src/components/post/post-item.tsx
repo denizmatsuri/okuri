@@ -25,9 +25,9 @@ type PostItemProps = {
 };
 export default function PostItem({ postId }: PostItemProps) {
   const { data: post, isLoading: isLoadingPost } = usePostById(postId);
-  
+
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const openEditPostEditorModal = useOpenEditPostEditorModal(); 
+  const openEditPostEditorModal = useOpenEditPostEditorModal();
   const session = useSession();
 
   // 로딩 상태 (스켈레톤 또는 null)
