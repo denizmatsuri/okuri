@@ -304,6 +304,10 @@ export async function togglePostLike({
   postId: number;
   userId: string;
 }) {
+  // 롤백 테스트 2초 딜레이 후 에러 발생 (낙관적 업데이트 확인용)
+  // await new Promise((resolve) => setTimeout(resolve, 2000));
+  // throw new Error("테스트용 강제 에러");
+
   const { data, error } = await supabase.rpc("toggle_post_like", {
     p_post_id: postId,
     p_user_id: userId,
