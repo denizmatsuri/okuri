@@ -27,7 +27,7 @@ export async function fetchPosts({
   // 1. 게시글 목록 조회
   let query = supabase
     .from("posts")
-    .select("*")
+    .select("*, myLiked: post_likes!post_id (*)")
     .eq("family_id", familyId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -66,7 +66,8 @@ export async function fetchPosts({
 
   return posts.map((post) => ({
     ...post,
-    familyMember: memberMap.get(post.author_id) as FamilyMember,
+    familyMember: memberMap.get(post.author_id),
+    isLiked: post.myLiked && post.myLiked.length > 0,
   })) as Post[];
 }
 
@@ -267,4 +268,36 @@ export async function updatePostWithImages({
   });
 
   return updatedPost;
+}
+
+/**
+ * 게시글 좋아요 토글
+ *
+ * RPC 함수를 통해 동시성 제어와 함께 좋아요를 추가/제거합니다.
+ *
+ * **동작 과정:**
+ * 1. FOR UPDATE로 posts 테이블의 행 잠금 (동시성 제어)
+ * 2. post_likes 테이블에서 기존 좋아요 확인
+ * 3. 없으면: like 추가, like_count 증가 → true 반환
+ * 4. 있으면: like 삭제, like_count 감소 → false 반환
+ *
+ * @param postId - 좋아요할 게시글 ID
+ * @param userId - 좋아요를 누르는 사용자 ID
+ * @returns true: 좋아요 추가됨, false: 좋아요 제거됨
+ * @throws 게시글이 존재하지 않을 경우 예외 발생
+ */
+export async function togglePostLike({
+  postId,
+  userId,
+}: {
+  postId: number;
+  userId: string;
+}) {
+  const { data, error } = await supabase.rpc("toggle_post_like", {
+    p_post_id: postId,
+    p_user_id: userId,
+  });
+
+  if (error) throw error;
+  return data;
 }

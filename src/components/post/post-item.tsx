@@ -20,6 +20,7 @@ import { useOpenEditPostEditorModal } from "@/store/post-editor-modal";
 import { usePostById } from "@/hooks/queries/use-post-by-id-data";
 import { toast } from "sonner";
 import { useDeletePost } from "@/hooks/mutations/post/use-delete-post";
+import LikePostButton from "@/components/post/like-post-button";
 
 export default function PostItem({
   postId,
@@ -172,6 +173,18 @@ export default function PostItem({
           </CarouselContent>
         </Carousel>
       )}
+
+      {/* 3. 좋아요, 댓글 버튼 */}
+      <div className="flex gap-2">
+        {/* 3-1. 좋아요 버튼 */}
+        {
+          <LikePostButton
+            id={postId}
+            likeCount={post.like_count}
+            isLiked={post.isLiked}
+          />
+        }
+      </div>
     </article>
   );
 }
