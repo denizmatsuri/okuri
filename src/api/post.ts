@@ -87,7 +87,7 @@ export async function fetchPostById(postId: number) {
   // 2. 작성자의 가족 내 프로필 조회
   const { data: familyMember, error: memberError } = await supabase
     .from("family_members")
-    .select("*")
+    .select("*, user:users(*)")
     .eq("family_id", post.family_id)
     .eq("user_id", post.author_id)
     .single();
