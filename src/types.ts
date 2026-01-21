@@ -8,6 +8,7 @@ export type FamilyEntity = Database["public"]["Tables"]["families"]["Row"];
 export type FamilyMemberEntity =
   Database["public"]["Tables"]["family_members"]["Row"];
 export type PostEntity = Database["public"]["Tables"]["posts"]["Row"];
+export type PostLikeEntity = Database["public"]["Tables"]["post_likes"]["Row"];
 
 // ============================================
 // 조인/확장 타입 (헬퍼 타입)
@@ -39,6 +40,7 @@ export type DisplayProfile = {
 // 게시글 타입
 export type Post = PostEntity & {
   familyMember: FamilyMember;
+  isLiked: boolean;
 };
 
 // 게시글 카테고리
