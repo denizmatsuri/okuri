@@ -1,6 +1,6 @@
 import { STORAGE_PATHS } from "@/lib/constants";
 import supabase from "@/utils/supabase";
-import { deleteImagesInPath, uploadImage } from "./image";
+import { deleteAllImagesInFolder, uploadImage } from "./image";
 
 // FIXME: fetchProfile 함수명으로 변경
 export async function getUserProfileData(userId: string) {
@@ -33,7 +33,7 @@ export async function updateUserProfile({
   if (avatarImageFile) {
     // 기존 프로필 이미지 삭제
     const basePath = STORAGE_PATHS.userAvatar(userId);
-    await deleteImagesInPath(basePath);
+    await deleteAllImagesInFolder(basePath);
 
     // 새 이미지 업로드
     const fileExtension = avatarImageFile.name.split(".").pop() || "webp";

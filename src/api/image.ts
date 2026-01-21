@@ -1,4 +1,4 @@
-import { BUCKET_NAME } from "@/lib/constants";
+import { BUCKET_NAME, STORAGE_PATHS } from "@/lib/constants";
 import supabase from "@/utils/supabase";
 
 export async function uploadImage({
@@ -24,7 +24,7 @@ export async function uploadImage({
 }
 
 // 특정 경로의 모든 이미지 삭제
-export async function deleteImagesInPath(path: string) {
+export async function deleteAllImagesInFolder(path: string) {
   const { data: files, error: fetchFilesError } = await supabase.storage
     .from(BUCKET_NAME)
     .list(path);
