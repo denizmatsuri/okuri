@@ -17,21 +17,25 @@ export const QUERY_KEYS = {
     all: ["post"],
     // list: (familyId: string) => ["post", "list", familyId],
     // 리스트: ID 배열만 반환 (무한스크롤용 캐시 정규화 작업)
-    list: (familyId: string, category?: PostCategory) => 
-      ["post", "list", familyId, { category }],
+    list: (familyId: string, category?: PostCategory) => [
+      "post",
+      "list",
+      familyId,
+      { category },
+    ],
     byId: (postId: number) => ["post", postId],
   },
 };
 
 export const BUCKET_NAME = "okuri-storage";
 
-// FIXME: 삭제해도 될듯 오버테크일지도?..
 export const STORAGE_PATHS = {
   userAvatar: (userId: string) => `users/${userId}/avatars`,
   familyCover: (familyId: string) => `families/${familyId}/cover`,
   familyMemberAvatar: (familyId: string, userId: string) =>
     `families/${familyId}/members/${userId}`,
-  // postImages: (familyId: string) => `families/${familyId}/posts`,
+  postImages: (familyId: string, userId: string, postId: string) =>
+    `families/${familyId}/posts/${userId}/${postId}`,
   galleryAlbum: (familyId: string, albumId: string) =>
     `families/${familyId}/gallery/${albumId}`,
 } as const;

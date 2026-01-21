@@ -23,6 +23,13 @@ export async function uploadImage({
   return publicUrl;
 }
 
+// 개별 이미지 삭제
+export async function deleteImage(filePath: string) {
+  const { error } = await supabase.storage.from(BUCKET_NAME).remove([filePath]);
+
+  if (error) throw error;
+}
+
 // 특정 경로의 모든 이미지 삭제
 export async function deleteAllImagesInFolder(path: string) {
   const { data: files, error: fetchFilesError } = await supabase.storage

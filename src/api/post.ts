@@ -1,7 +1,8 @@
-import { uploadImage } from "@/api/image";
+import { deleteImage, uploadImage } from "@/api/image";
 import type { FamilyMember, Post, PostCategory, PostEntity } from "@/types";
 import supabase from "@/utils/supabase";
 import { PAGE_SIZE } from "@/hooks/queries/use-infinite-posts";
+import { STORAGE_PATHS } from "@/lib/constants";
 
 /**
  * 가족 게시글 목록 조회
@@ -68,7 +69,6 @@ export async function fetchPosts({
     familyMember: memberMap.get(post.author_id) as FamilyMember,
   })) as Post[];
 }
-
 
 /**
  * 단일 게시글 상세 조회
@@ -164,7 +164,7 @@ export async function createPostWithImages({
       images.map((image) => {
         const fileExtension = image.name.split(".").pop() || "webp";
         const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
-        const filePath = `families/${familyId}/posts/${userId}/${post.id}/${fileName}`;
+        const filePath = `${STORAGE_PATHS.postImages(familyId, userId, post.id.toString())}/${fileName}`;
 
         return uploadImage({ file: image, filePath });
       }),
@@ -193,4 +193,69 @@ export async function deletePost(postId: number) {
 
   if (error) throw error;
   return data;
+}
+
+/**
+ * 이미지 포함 게시글 수정
+ * 1. 삭제된 이미지 스토리지에서 삭제
+ * 2. 새 이미지 업로드
+ * 3. 게시글 업데이트 (기존 URL + 새 URL)
+ */
+export async function updatePostWithImages({
+  postId,
+  familyId,
+  userId,
+  content,
+  isNotice,
+  existingImageUrls,
+  deletedImageUrls,
+  newImages,
+}: {
+  postId: number;
+  familyId: string;
+  userId: string;
+  content: string;
+  isNotice: boolean;
+  existingImageUrls: string[];
+  deletedImageUrls: string[];
+  newImages: File[];
+}) {
+  const basePath = STORAGE_PATHS.postImages(
+    familyId,
+    userId,
+    postId.toString(),
+  );
+
+  // 1. 삭제된 이미지 스토리지에서 삭제 (실패해도 계속 진행)
+  await Promise.allSettled(
+    deletedImageUrls.map((url) => {
+      const fileName = url.split("/").pop();
+      const filePath = `${basePath}/${fileName}`;
+      return deleteImage(filePath);
+    }),
+  );
+
+  // 2. 새 이미지 업로드
+  let newImageUrls: string[] = [];
+  if (newImages.length > 0) {
+    newImageUrls = await Promise.all(
+      newImages.map((image) => {
+        const fileExtension = image.name.split(".").pop() || "webp";
+        const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+        const filePath = `${basePath}/${fileName}`;
+        return uploadImage({ file: image, filePath });
+      }),
+    );
+  }
+
+  // 3. 게시글 업데이트 (기존 URL + 새 URL)
+  const finalImageUrls = [...existingImageUrls, ...newImageUrls];
+  const updatedPost = await updatePost({
+    id: postId,
+    content,
+    is_notice: isNotice,
+    image_urls: finalImageUrls.length > 0 ? finalImageUrls : null,
+  });
+
+  return updatedPost;
 }

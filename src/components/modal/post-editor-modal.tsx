@@ -26,17 +26,25 @@ export default function PostEditorModal() {
 
   // 폼 상태
   const [content, setContent] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
   const [isNotice, setIsNotice] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  // 이미지 상태 (수정 모드용)
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [deletedImageUrls, setDeletedImageUrls] = useState<string[]>([]);
+
+  // 이미지 상태 (공통 - 새 이미지)
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
   // 폼 초기화 함수
   const resetForm = () => {
     setContent("");
-    setImages([]);
-    setPreviews([]);
     setIsNotice(false);
+    setExistingImageUrls([]);
+    setDeletedImageUrls([]);
+    setNewImages([]);
+    setNewImagePreviews([]);
   };
 
   // 포스트 생성 훅
@@ -44,7 +52,6 @@ export default function PostEditorModal() {
     useCreatePost({
       onSuccess: () => {
         postEditorModal.actions.close();
-        // 폼 초기화
         resetForm();
       },
       onError: () => {
@@ -65,34 +72,29 @@ export default function PostEditorModal() {
       },
     });
 
-  // // 모달이 열릴 때 폼 초기화
-  // useEffect(() => {
-  //   if (postEditorModal.isOpen) {
-  //     resetForm();
-  //   }
-  // }, [postEditorModal.isOpen]);
-
   // 모달이 열릴 때
   useEffect(() => {
     if (isEditMode && postEditorModal.postData) {
-      // EDIT 모드시
       const { content, imageUrls, isNotice } = postEditorModal.postData!;
       setContent(content);
-      // setImages(imageUrls?.map((url) => new File([], url)) ?? []);
-      setPreviews(imageUrls ?? []);
+      setExistingImageUrls(imageUrls ?? []);
+      setNewImages([]);
+      setNewImagePreviews([]);
+      setDeletedImageUrls([]);
       setIsNotice(isNotice);
     } else {
-      // CREATE 모드시 폼 초기화
       resetForm();
     }
   }, [isEditMode, postEditorModal.postData, postEditorModal.isOpen]);
 
+  // 이미지 선택 핸들러
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // 최대 4장 제한 (기존 이미지 개수 고려)
-    const remainingSlots = 4 - images.length;
+    // 최대 4장 제한 (기존 + 새 이미지 합산)
+    const currentTotal = existingImageUrls.length + newImages.length;
+    const remainingSlots = 4 - currentTotal;
     const filesToProcess = files.slice(0, remainingSlots);
 
     if (filesToProcess.length === 0) return;
@@ -100,19 +102,16 @@ export default function PostEditorModal() {
     try {
       setIsCompressing(true);
 
-      // 모든 이미지 압축 처리
       const compressedFiles = await Promise.all(
         filesToProcess.map((file) => compressImageIfNeeded(file, "post")),
       );
 
-      const newImages = [...images, ...compressedFiles];
-      setImages(newImages);
+      setNewImages((prev) => [...prev, ...compressedFiles]);
 
-      // 미리보기 URL 생성
       const newPreviewUrls = compressedFiles.map((file) =>
         URL.createObjectURL(file),
       );
-      setPreviews([...previews, ...newPreviewUrls]);
+      setNewImagePreviews((prev) => [...prev, ...newPreviewUrls]);
     } catch (error) {
       toast.error("이미지 처리에 실패했습니다.", { position: "top-center" });
     } finally {
@@ -120,15 +119,18 @@ export default function PostEditorModal() {
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    const newPreviews = previews.filter((_, i) => i !== index);
+  // 기존 이미지 삭제 (URL)
+  const handleRemoveExistingImage = (index: number) => {
+    const urlToDelete = existingImageUrls[index];
+    setDeletedImageUrls((prev) => [...prev, urlToDelete]);
+    setExistingImageUrls((prev) => prev.filter((_, i) => i !== index));
+  };
 
-    // 이전 preview URL 해제
-    URL.revokeObjectURL(previews[index]);
-
-    setImages(newImages);
-    setPreviews(newPreviews);
+  // 새 이미지 삭제 (File)
+  const handleRemoveNewImage = (index: number) => {
+    URL.revokeObjectURL(newImagePreviews[index]);
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
+    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -138,10 +140,14 @@ export default function PostEditorModal() {
     if (isEditMode) {
       // 수정 모드
       updatePost({
-        id: postEditorModal.postData!.postId,
+        postId: postEditorModal.postData!.postId,
+        familyId: currentFamilyId,
+        userId: session.user.id,
         content: content.trim(),
-        is_notice: isNotice,
-        // TODO: 이미지 업데이트 로직 필요 시 추가
+        isNotice,
+        existingImageUrls,
+        deletedImageUrls,
+        newImages,
       });
     } else {
       // 생성 모드
@@ -149,14 +155,15 @@ export default function PostEditorModal() {
         familyId: currentFamilyId,
         userId: session.user.id,
         content: content.trim(),
-        images,
+        images: newImages,
         isNotice,
       });
     }
   };
 
+  // 전체 이미지 개수
+  const totalImageCount = existingImageUrls.length + newImages.length;
   const isValid = content.trim().length > 0;
-
   const isPending = isCreatingPostPending || isUpdatingPostPending;
 
   return (
@@ -166,7 +173,9 @@ export default function PostEditorModal() {
     >
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>새 게시글 작성</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "게시글 수정" : "새 게시글 작성"}
+          </DialogTitle>
           {family && (
             <p className="text-muted-foreground text-sm">{family.name}</p>
           )}
@@ -190,18 +199,36 @@ export default function PostEditorModal() {
           </div>
 
           {/* 이미지 미리보기 */}
-          {previews.length > 0 && (
+          {(existingImageUrls.length > 0 || newImagePreviews.length > 0) && (
             <div className="flex gap-2 overflow-x-auto py-2">
-              {previews.map((preview, index) => (
-                <div key={index} className="relative shrink-0">
+              {/* 기존 이미지 */}
+              {existingImageUrls.map((url, index) => (
+                <div key={`existing-${index}`} className="relative shrink-0">
                   <img
-                    src={preview}
-                    alt={`첨부 이미지 ${index + 1}`}
+                    src={url}
+                    alt={`기존 이미지 ${index + 1}`}
                     className="h-24 w-24 rounded-lg object-cover"
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveImage(index)}
+                    onClick={() => handleRemoveExistingImage(index)}
+                    className="bg-destructive text-destructive-foreground absolute -top-2 -right-2 rounded-full p-1"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {/* 새 이미지 */}
+              {newImagePreviews.map((preview, index) => (
+                <div key={`new-${index}`} className="relative shrink-0">
+                  <img
+                    src={preview}
+                    alt={`새 이미지 ${index + 1}`}
+                    className="h-24 w-24 rounded-lg object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveNewImage(index)}
                     className="bg-destructive text-destructive-foreground absolute -top-2 -right-2 rounded-full p-1"
                   >
                     <X className="h-3 w-3" />
@@ -222,7 +249,7 @@ export default function PostEditorModal() {
                   multiple
                   onChange={handleImageSelect}
                   className="hidden"
-                  disabled={images.length >= 4 || isCompressing}
+                  disabled={totalImageCount >= 4 || isCompressing}
                 />
                 <div className="text-muted-foreground hover:bg-muted flex items-center gap-1 rounded-md px-3 py-2 text-sm">
                   {isCompressing ? (
@@ -230,7 +257,7 @@ export default function PostEditorModal() {
                   ) : (
                     <>
                       <ImagePlus className="h-5 w-5" />
-                      <span>{`${images.length}/4`}</span>
+                      <span>{`${totalImageCount}/4`}</span>
                     </>
                   )}
                 </div>

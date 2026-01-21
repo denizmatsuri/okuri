@@ -1,18 +1,30 @@
-import { updatePost } from "@/api/post";
+import { updatePostWithImages } from "@/api/post";
 import { QUERY_KEYS } from "@/lib/constants";
 import type { MutationCallbacks, Post } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+type UpdatePostWithImagesParams = {
+  postId: number;
+  familyId: string;
+  userId: string;
+  content: string;
+  isNotice: boolean;
+  existingImageUrls: string[];
+  deletedImageUrls: string[];
+  newImages: File[];
+};
 
 export function useUpdatePost(callbacks?: MutationCallbacks) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updatePost,
+    mutationFn: (params: UpdatePostWithImagesParams) =>
+      updatePostWithImages(params),
 
     // mutation 시작 전 이전 상태 저장 (context로 전달)
     onMutate: async (variables) => {
       const prevPost = queryClient.getQueryData<Post>(
-        QUERY_KEYS.post.byId(variables.id),
+        QUERY_KEYS.post.byId(variables.postId),
       );
       return { prevIsNotice: prevPost?.is_notice };
     },
