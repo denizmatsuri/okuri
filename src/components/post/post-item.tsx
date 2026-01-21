@@ -14,21 +14,39 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useSession } from "@/store/session";
-// import type { Post } from "@/types";
 import { useOpenEditPostEditorModal } from "@/store/post-editor-modal";
 import { usePostById } from "@/hooks/queries/use-post-by-id-data";
+import { toast } from "sonner";
+import { useDeletePost } from "@/hooks/mutations/post/use-delete-post";
 
 type PostItemProps = {
   postId: number;
 };
+
 export default function PostItem({ postId }: PostItemProps) {
+  const navigate = useNavigate();
   const { data: post, isLoading: isLoadingPost } = usePostById(postId);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const openEditPostEditorModal = useOpenEditPostEditorModal();
   const session = useSession();
+
+  const { mutate: deletePost } = useDeletePost({
+    onSuccess: () => {
+      toast.success("게시글이 삭제되었습니다", { position: "top-center" });
+
+      // 삭제 성공시, 현재 페이지가 게시글 상세 페이지인 경우 메인 페이지로 이동
+      const pathName = window.location.pathname;
+      if (pathName.includes(`/post/${postId}`)) {
+        navigate("/", { replace: true });
+      }
+    },
+    onError: () => {
+      toast.error("게시글 삭제에 실패했습니다", { position: "top-center" });
+    },
+  });
 
   // 로딩 상태 (스켈레톤 또는 null)
   // FIXME: 스켈레톤 추가
@@ -63,8 +81,7 @@ export default function PostItem({ postId }: PostItemProps) {
   // 삭제 핸들러
   const handleDelete = () => {
     setIsPopoverOpen(false);
-    // TODO: 삭제 확인 다이얼로그 열기
-    console.log("삭제:", post.id);
+    deletePost(post);
   };
 
   return (

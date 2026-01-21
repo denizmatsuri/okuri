@@ -1,4 +1,4 @@
-import { deleteImage, uploadImage } from "@/api/image";
+import { deleteAllImagesInFolder, deleteImage, uploadImage } from "@/api/image";
 import type { FamilyMember, Post, PostCategory, PostEntity } from "@/types";
 import supabase from "@/utils/supabase";
 import { PAGE_SIZE } from "@/hooks/queries/use-infinite-posts";
@@ -178,18 +178,27 @@ export async function createPostWithImages({
     return updatedPost;
   } catch (error) {
     // 에러시 게시글 삭제
-    await deletePost(post.id);
+    await deletePost(post);
     throw error;
   }
 }
 
-export async function deletePost(postId: number) {
+export async function deletePost(post: PostEntity) {
+  // 1. 게시글 삭제
   const { data, error } = await supabase
     .from("posts")
     .delete()
-    .eq("id", postId)
+    .eq("id", post.id)
     .select()
     .single();
+
+  // 2. 이미지 삭제
+  const basePath = STORAGE_PATHS.postImages(
+    post.family_id,
+    post.author_id,
+    post.id.toString(),
+  );
+  await deleteAllImagesInFolder(basePath);
 
   if (error) throw error;
   return data;
