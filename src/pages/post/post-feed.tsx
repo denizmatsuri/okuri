@@ -8,7 +8,7 @@ import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
 import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
 import { extractFamilyMemberships } from "@/lib/utils";
 import { useInfinitePosts } from "@/hooks/queries/use-infinite-posts";
-import { useInView } from "react-intersection-observer"; 
+import { useInView } from "react-intersection-observer";
 import { LoaderCircleIcon } from "lucide-react";
 
 export default function PostFeed() {
@@ -24,13 +24,8 @@ export default function PostFeed() {
   const familyTabs = extractFamilyMemberships(familiesWithMembers);
 
   // const { data: posts = [] } = usePostsData(currentFamilyId!);
-  const { 
-    data, 
-    fetchNextPage, 
-    hasNextPage, 
-    isFetchingNextPage,
-    isLoading,
-  } = useInfinitePosts(currentFamilyId!, category);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfinitePosts(currentFamilyId!, category);
 
   // ID 배열 평탄화
   const postIds = data?.pages.flatMap((page) => page.ids) ?? [];
@@ -71,12 +66,14 @@ export default function PostFeed() {
         ) : (
           <>
             {postIds.map((id) => (
-              <PostItem key={id} postId={id} />
+              <PostItem key={id} postId={id} type="FEED" />
             ))}
-            
+
             {/* 무한스크롤 트리거 */}
             <div ref={loadMoreRef} className="h-10">
-              {isFetchingNextPage && <LoaderCircleIcon className="animate-spin" />}
+              {isFetchingNextPage && (
+                <LoaderCircleIcon className="animate-spin" />
+              )}
             </div>
           </>
         )}

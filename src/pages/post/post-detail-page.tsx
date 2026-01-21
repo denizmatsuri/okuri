@@ -7,7 +7,10 @@ import { useNavigate, useParams } from "react-router";
 export default function PostDetailPage() {
   const { postId } = useParams();
 
-  const { data: post } = usePostById(Number(postId));
+  const { data: post } = usePostById({
+    postId: Number(postId),
+    type: "DETAIL",
+  });
 
   const navigate = useNavigate();
 
@@ -24,7 +27,7 @@ export default function PostDetailPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
-      {post && <PostItem postId={post.id} />}
+      {post && <PostItem postId={post.id} type="DETAIL" />}
     </div>
   );
 }

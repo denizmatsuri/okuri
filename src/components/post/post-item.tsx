@@ -21,13 +21,18 @@ import { usePostById } from "@/hooks/queries/use-post-by-id-data";
 import { toast } from "sonner";
 import { useDeletePost } from "@/hooks/mutations/post/use-delete-post";
 
-type PostItemProps = {
+export default function PostItem({
+  postId,
+  type,
+}: {
   postId: number;
-};
-
-export default function PostItem({ postId }: PostItemProps) {
+  type: "FEED" | "DETAIL";
+}) {
   const navigate = useNavigate();
-  const { data: post, isLoading: isLoadingPost } = usePostById(postId);
+  const { data: post, isLoading: isLoadingPost } = usePostById({
+    postId,
+    type,
+  });
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const openEditPostEditorModal = useOpenEditPostEditorModal();
