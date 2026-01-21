@@ -14,11 +14,13 @@ import { STORAGE_PATHS } from "@/lib/constants";
  * - cursor 기반 페이지네이션으로 데이터 일관성 보장
  */
 export async function fetchPosts({
+  userId,
   familyId,
   category,
   cursor,
   limit = PAGE_SIZE,
 }: {
+  userId: string;
   familyId: string;
   category?: PostCategory;
   cursor?: number;
@@ -29,6 +31,7 @@ export async function fetchPosts({
     .from("posts")
     .select("*, myLiked: post_likes!post_id (*)")
     .eq("family_id", familyId)
+    .eq("post_likes.user_id", userId) // 현재 사용자의 좋아요만
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -74,12 +77,19 @@ export async function fetchPosts({
 /**
  * 단일 게시글 상세 조회
  */
-export async function fetchPostById(postId: number) {
+export async function fetchPostById({
+  postId,
+  userId,
+}: {
+  postId: number;
+  userId: string;
+}) {
   // 1. 게시글 조회
   const { data: post, error } = await supabase
     .from("posts")
-    .select("*")
+    .select("*, myLiked: post_likes!post_id (*)")
     .eq("id", postId)
+    .eq("post_likes.user_id", userId) // 현재 사용자의 좋아요만
     .single();
 
   if (error) throw error;
@@ -101,6 +111,7 @@ export async function fetchPostById(postId: number) {
   return {
     ...post,
     familyMember: familyMember as FamilyMember,
+    isLiked: post.myLiked && post.myLiked.length > 0,
   } as Post;
 }
 

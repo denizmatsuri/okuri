@@ -1,18 +1,14 @@
 import PostItem from "@/components/post/post-item";
 import { Button } from "@/components/ui/button";
-import { usePostById } from "@/hooks/queries/use-post-by-id-data";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate, useParams } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router";
 
 export default function PostDetailPage() {
-  const { postId } = useParams();
-
-  const { data: post } = usePostById({
-    postId: Number(postId),
-    type: "DETAIL",
-  });
+  const params = useParams();
+  const postId = params.postId;
 
   const navigate = useNavigate();
+  if (!postId) return <Navigate to="/" replace={true} />;
 
   return (
     <div>
@@ -27,7 +23,7 @@ export default function PostDetailPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
-      {post && <PostItem postId={post.id} type="DETAIL" />}
+      <PostItem postId={Number(postId)} type="DETAIL" />
     </div>
   );
 }

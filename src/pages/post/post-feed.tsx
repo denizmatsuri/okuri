@@ -10,8 +10,11 @@ import { extractFamilyMemberships } from "@/lib/utils";
 import { useInfinitePosts } from "@/hooks/queries/use-infinite-posts";
 import { useInView } from "react-intersection-observer";
 import { LoaderCircleIcon } from "lucide-react";
+import { useSession } from "@/store/session";
 
 export default function PostFeed() {
+  const session = useSession();
+  const userId = session!.user.id;
   const currentFamilyId = useCurrentFamilyId();
   const setCurrentFamilyId = useSetCurrentFamilyId();
 
@@ -25,7 +28,7 @@ export default function PostFeed() {
 
   // const { data: posts = [] } = usePostsData(currentFamilyId!);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfinitePosts(currentFamilyId!, category);
+    useInfinitePosts(userId!, currentFamilyId!, category);
 
   // ID 배열 평탄화
   const postIds = data?.pages.flatMap((page) => page.ids) ?? [];

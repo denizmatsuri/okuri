@@ -9,16 +9,18 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 export const PAGE_SIZE = 10;
 
 export function useInfinitePosts(
-  familyId: string, 
-  category?: PostCategory
+  userId: string,
+  familyId: string,
+  category?: PostCategory,
 ) {
   const queryClient = useQueryClient();
 
   return useInfiniteQuery({
     queryKey: QUERY_KEYS.post.list(familyId, category),
-    
+
     queryFn: async ({ pageParam }) => {
       const posts = await fetchPosts({
+        userId,
         familyId,
         category,
         cursor: pageParam,
@@ -35,14 +37,13 @@ export function useInfinitePosts(
 
       return {
         ids: posts.map((p) => p.id),
-        nextCursor: posts.length === PAGE_SIZE 
-          ? posts[posts.length - 1].id 
-          : undefined,
+        nextCursor:
+          posts.length === PAGE_SIZE ? posts[posts.length - 1].id : undefined,
       };
     },
 
     initialPageParam: undefined as number | undefined,
-    
+
     getNextPageParam: (lastPage) => lastPage.nextCursor,
 
     staleTime: 1000 * 60 * 5, // 5분 (또는 Infinity + invalidate 전략)
