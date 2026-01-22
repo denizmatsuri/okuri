@@ -2,6 +2,8 @@ import PostItem from "@/components/post/post-item";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Navigate, useNavigate, useParams } from "react-router";
+import CommentEditor from "@/components/comment/comment-editor";
+import CommentList from "@/components/comment/comment-list";
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -24,6 +26,10 @@ export default function PostDetailPage() {
         </Button>
       </div>
       <PostItem postId={Number(postId)} type="DETAIL" />
+
+      {/* 댓글 섹션 */}
+      <CommentEditor type="CREATE" postId={Number(postId)} />
+      <CommentList postId={Number(postId)} />
     </div>
   );
 }

@@ -92,6 +92,65 @@ export type Database = {
           },
         ]
       }
+      post_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: number
+          parent_comment_id: number | null
+          post_id: number
+          root_comment_id: number | null
+        }
+        Insert: {
+          author_id?: string
+          content: string
+          created_at?: string
+          id?: number
+          parent_comment_id?: number | null
+          post_id: number
+          root_comment_id?: number | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: number
+          parent_comment_id?: number | null
+          post_id?: number
+          root_comment_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_root_comment_id_fkey"
+            columns: ["root_comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_likes: {
         Row: {
           created_at: string

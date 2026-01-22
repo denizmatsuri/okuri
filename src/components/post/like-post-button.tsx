@@ -33,7 +33,7 @@ export default function LikePostButton({
   return (
     <div
       onClick={handleTogglePostLike}
-      className="hover:bg-muted relative z-10 flex cursor-pointer items-center gap-2 rounded-xl border p-2 px-4 text-sm"
+      className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-xl border p-2 px-4 text-sm"
     >
       <HeartIcon
         className={`h-4 w-4 ${isLiked && "fill-foreground border-foreground"}`}

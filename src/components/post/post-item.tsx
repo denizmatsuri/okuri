@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal, MessageCircle } from "lucide-react";
 
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import { formatRelativeTime } from "@/lib/utils";
@@ -175,15 +175,27 @@ export default function PostItem({
       )}
 
       {/* 3. 좋아요, 댓글 버튼 */}
-      <div className="flex gap-2">
-        {/* 3-1. 좋아요 버튼 */}
-        {
-          <LikePostButton
-            id={postId}
-            likeCount={post.like_count}
-            isLiked={post.isLiked}
-          />
-        }
+      <div className="relative z-10">
+        <div className="flex gap-2">
+          {/* 3-1. 좋아요 버튼 */}
+          {
+            <LikePostButton
+              id={postId}
+              likeCount={post.like_count}
+              isLiked={post.isLiked}
+            />
+          }
+
+          {/* 3-2. 댓글 버튼 */}
+          {type === "FEED" && (
+            <Link to={`/post/${post.id}`}>
+              <div className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-xl border p-2 px-4 text-sm">
+                <MessageCircle className="h-4 w-4" />
+                <span>댓글 달기</span>
+              </div>
+            </Link>
+          )}
+        </div>
       </div>
     </article>
   );
