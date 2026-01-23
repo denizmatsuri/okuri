@@ -3,7 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { useCurrentFamilyId } from "@/store/family";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 type CreateMode = {

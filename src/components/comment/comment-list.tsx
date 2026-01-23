@@ -32,7 +32,7 @@ function toNestedComments(comments: Comment[]): NestedComment[] {
       );
 
       const parentComment = comments.find(
-        (item) => item.id === comment.root_comment_id,
+        (item) => item.id === comment.parent_comment_id,
       );
 
       if (rootCommentIndex === -1) return; // 루트 댓글 미발견 시 스킵
