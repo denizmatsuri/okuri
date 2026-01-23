@@ -1,3 +1,4 @@
+import AlertModal from "@/components/modal/alert-modal";
 import PostEditorModal from "@/components/modal/post-editor-modal";
 import { createPortal } from "react-dom";
 
@@ -11,7 +12,7 @@ export default function ModalProvider({
       {createPortal(
         <>
           <PostEditorModal />
-          {/* 모달 추가 시 여기에 추가 */}
+          <AlertModal />
         </>,
         document.getElementById("modal-root")!, // index.html에 있는 modal-root 요소
       )}
