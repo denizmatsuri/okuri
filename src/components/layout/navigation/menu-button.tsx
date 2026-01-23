@@ -4,6 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useOpenAlertModal } from "@/store/alert-modal";
 import { PopoverClose } from "@radix-ui/react-popover";
 import type { ReactNode } from "react";
 
@@ -11,13 +12,27 @@ type Props = {
   children: ReactNode;
 };
 export default function MenuButton({ children }: Props) {
+  const openAlertModal = useOpenAlertModal();
+
+  const handleSignOut = () => {
+    // alert-dialog 사용
+    openAlertModal({
+      title: "로그아웃",
+      description: "정말 로그아웃하시겠습니까?",
+      onPositive: () => {
+        signOut();
+      },
+    });
+
+    // navigate("/");
+  };
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="m-2 flex w-40 flex-col p-0">
         <PopoverClose>
           <div
-            onClick={signOut}
+            onClick={handleSignOut}
             className="hover:bg-muted text-destructive cursor-pointer px-4 py-3 text-sm"
           >
             로그아웃

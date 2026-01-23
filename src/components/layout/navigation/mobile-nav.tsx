@@ -2,10 +2,12 @@ import { Home, Calendar, Image, User, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useSession } from "@/store/session";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
+import { useOpenAlertModal } from "@/store/alert-modal";
 
 export default function MobileNav() {
   const session = useSession();
   const navigate = useNavigate();
+  const openAlertModal = useOpenAlertModal();
 
   const openCreatePostEditorModal = useOpenCreatePostEditorModal();
 
@@ -13,7 +15,13 @@ export default function MobileNav() {
     if (session?.user.id) {
       navigate(`/profile/${session.user.id}`);
     } else {
-      alert("로그인 후 이용해주세요.");
+      openAlertModal({
+        title: "로그인 후 이용해주세요.",
+        description: "프로필 페이지에 접근하려면 로그인이 필요합니다.",
+        onPositive: () => {
+          navigate("/sign-in");
+        },
+      });
     }
   };
 

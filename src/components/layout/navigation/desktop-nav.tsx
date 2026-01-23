@@ -5,10 +5,12 @@ import logo from "@/assets/react.svg";
 import MenuButton from "./menu-button";
 import { useSession } from "@/store/session";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
+import { useOpenAlertModal } from "@/store/alert-modal";
 
 export default function DesktopNav() {
   const session = useSession();
   const navigate = useNavigate();
+  const openAlertModal = useOpenAlertModal();
 
   const openCreatePostEditorModal = useOpenCreatePostEditorModal();
 
@@ -16,7 +18,13 @@ export default function DesktopNav() {
     if (session?.user.id) {
       navigate(`/profile/${session.user.id}`);
     } else {
-      alert("로그인 후 이용해주세요.");
+      openAlertModal({
+        title: "로그인 후 이용해주세요.",
+        description: "프로필 페이지에 접근하려면 로그인이 필요합니다.",
+        onPositive: () => {
+          navigate("/sign-in");
+        },
+      });
     }
   };
 

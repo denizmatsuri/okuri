@@ -11,27 +11,18 @@ import { useUpdateFamily } from "@/hooks/mutations/family/use-update-family";
 import { useRemoveFamilyMember } from "@/hooks/mutations/family/use-remove-family-member";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import Loader from "@/components/loader";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import type { FamilyMember } from "@/types";
 import { useGrantAdmin } from "@/hooks/mutations/family/use-grant-admin";
 import { useDeleteFamily } from "@/hooks/mutations/family/use-delete-family";
 import { useLeaveFamily } from "@/hooks/mutations/family/use-leave-family";
+import { useOpenAlertModal } from "@/store/alert-modal";
 
 export default function FamilySettingPage() {
   const { familyId } = useParams();
   const navigate = useNavigate();
   const session = useSession();
   const userId = session?.user.id;
+  const openAlertModal = useOpenAlertModal();
 
   const { data: families = [], isLoading } = useFamiliesWithMembers(userId);
   const family = families.find((f) => f.id === familyId);
@@ -117,36 +108,73 @@ export default function FamilySettingPage() {
   const handleRemoveMember = (member: FamilyMember) => {
     if (!familyId) return;
 
-    removeMemberMutation.mutate({
-      memberId: member.id,
-      familyId,
+    openAlertModal({
+      title: "멤버 추방",
+      description: "정말 멤버를 추방하시겠습니까?",
+      onPositive: () => {
+        removeMemberMutation.mutate({ memberId: member.id, familyId });
+      },
+      onNegative: () => {
+        console.log("취소");
+      },
     });
   };
 
   // 관리자 권한 부여
   const handleGrantAdmin = (member: FamilyMember) => {
     if (!familyId) return;
-    grantAdminMutation.mutate({
-      memberId: member.id,
-      familyId,
+    openAlertModal({
+      title: "관리자 권한 부여",
+      description: "정말 관리자 권한을 부여하시겠습니까?",
+      onPositive: () => {
+        grantAdminMutation.mutate({ memberId: member.id, familyId });
+      },
+      onNegative: () => {
+        console.log("취소");
+      },
     });
   };
 
   // 가족 삭제
   const handleDeleteFamily = () => {
     if (!familyId || !userId) return;
-    deleteFamilyMutation.mutate({ familyId, userId });
+    openAlertModal({
+      title: "정말 가족을 삭제하시겠습니까?",
+      description: `${family?.name}을(를) 가족 삭제시 모든 멤버가 자동으로 제거되고, 관련된 모든 데이터(게시물, 사진 등)가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`,
+      onPositive: () => {
+        deleteFamilyMutation.mutate({ familyId, userId });
+      },
+      onNegative: () => {
+        console.log("취소");
+      },
+    });
   };
 
   // 가족 나가기 핸들러 추가
   const handleLeaveFamily = () => {
     if (!familyId || !userId) return;
-    leaveFamilyMutation.mutate({ familyId, userId });
+    openAlertModal({
+      title: "정말 가족을 나가시겠습니까?",
+      description: `${family?.name}을(를) 나가면 더 이상 이 가족의 게시물과 사진에 접근할 수 없습니다. 다시 참여하려면 초대 코드가 필요합니다.`,
+      onPositive: () => {
+        leaveFamilyMutation.mutate({ familyId, userId });
+      },
+      onNegative: () => {
+        console.log("취소");
+      },
+    });
   };
 
   if (isLoading) {
     return <Loader />;
   }
+
+  const isPending =
+    updateFamilyMutation.isPending ||
+    removeMemberMutation.isPending ||
+    grantAdminMutation.isPending ||
+    deleteFamilyMutation.isPending ||
+    leaveFamilyMutation.isPending;
 
   if (!family) {
     return (
@@ -210,10 +238,10 @@ export default function FamilySettingPage() {
           {isAdmin && (
             <Button
               type="submit"
-              disabled={updateFamilyMutation.isPending || !name.trim()}
+              disabled={isPending || !name.trim()}
               className="w-full"
             >
-              {updateFamilyMutation.isPending ? "저장 중..." : "저장"}
+              저장
             </Button>
           )}
         </form>
@@ -251,67 +279,21 @@ export default function FamilySettingPage() {
                 {/* 자기 자신 제외, Admin이 아닌 멤버만 액션 가능 */}
                 {member.user_id !== userId && !member.is_admin && (
                   <div className="flex items-center gap-2">
-                    {/* 관리자 권한 부여 */}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          관리자 지정
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>관리자 권한 부여</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {member.display_name ?? member.user.display_name}
-                            님에게 관리자 권한을 부여하시겠습니까?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleGrantAdmin(member)}
-                            disabled={grantAdminMutation.isPending}
-                          >
-                            {grantAdminMutation.isPending
-                              ? "처리 중..."
-                              : "권한 부여"}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-
-                    {/* 멤버 추방 */}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          내보내기
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>멤버 내보내기</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {member.display_name ?? member.user.display_name}
-                            님을 가족에서 내보내시겠습니까? 이 작업은 되돌릴 수
-                            없습니다.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleRemoveMember(member)}
-                            className="bg-destructive hover:bg-destructive/90"
-                            disabled={removeMemberMutation.isPending}
-                          >
-                            내보내기
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGrantAdmin(member)}
+                    >
+                      관리자 지정
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleRemoveMember(member)}
+                    >
+                      내보내기
+                    </Button>
                   </div>
                 )}
               </div>
@@ -330,33 +312,14 @@ export default function FamilySettingPage() {
             다시 참여하려면 초대 코드가 필요합니다.
           </p>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="w-full">
-                가족 나가기
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>정말 가족을 나가시겠습니까?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  <strong>{family.name}</strong>을(를) 나가면 더 이상 이 가족의
-                  게시물과 사진에 접근할 수 없습니다. 다시 참여하려면 초대
-                  코드가 필요합니다.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>취소</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleLeaveFamily}
-                  className="bg-destructive hover:bg-destructive/90"
-                  disabled={leaveFamilyMutation.isPending}
-                >
-                  {leaveFamilyMutation.isPending ? "나가는 중..." : "나가기"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={handleLeaveFamily}
+            disabled={isPending}
+          >
+            가족 나가기
+          </Button>
         </div>
         <hr />
 
@@ -369,35 +332,14 @@ export default function FamilySettingPage() {
               데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
             </p>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full">
-                  가족 삭제
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    정말 가족을 삭제하시겠습니까?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    <strong>{family.name}</strong>을(를) 삭제하면 모든 멤버가
-                    자동으로 제거되고, 관련된 모든 데이터(게시물, 사진 등)가
-                    영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteFamily}
-                    className="bg-destructive hover:bg-destructive/90"
-                    disabled={deleteFamilyMutation.isPending}
-                  >
-                    {deleteFamilyMutation.isPending ? "삭제 중..." : "삭제"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={handleDeleteFamily}
+              disabled={isPending}
+            >
+              가족 삭제
+            </Button>
           </div>
         )}
       </div>

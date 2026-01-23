@@ -7,9 +7,11 @@ import { useState } from "react";
 import CommentEditor from "./comment-editor";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import { toast } from "sonner";
+import { useOpenAlertModal } from "@/store/alert-modal";
 
 export default function CommentItem(props: NestedComment) {
   const session = useSession();
+  const openAlertModal = useOpenAlertModal();
 
   const { mutate: deleteComment } = useDeleteComment({
     onError: (_) => {
@@ -31,12 +33,17 @@ export default function CommentItem(props: NestedComment) {
   };
 
   const handleDeleteClick = () => {
-    if (confirm("정말 삭제하시겠습니까?")) {
-      deleteComment({ id: props.id });
-      toast.success("댓글이 삭제되었습니다.", {
-        position: "top-center",
-      });
-    }
+    openAlertModal({
+      title: "댓글 삭제",
+      description: "정말 삭제하시겠습니까?",
+      onPositive: () => {
+        // 포스트 삭제 요청
+        deleteComment({ id: props.id });
+      },
+      onNegative: () => {
+        console.log("취소");
+      },
+    });
   };
 
   const isMine = session?.user.id === props.author_id;

@@ -21,6 +21,7 @@ import { usePostById } from "@/hooks/queries/use-post-by-id-data";
 import { toast } from "sonner";
 import { useDeletePost } from "@/hooks/mutations/post/use-delete-post";
 import LikePostButton from "@/components/post/like-post-button";
+import { useOpenAlertModal } from "@/store/alert-modal";
 
 export default function PostItem({
   postId,
@@ -29,6 +30,7 @@ export default function PostItem({
   postId: number;
   type: "FEED" | "DETAIL";
 }) {
+  const openAlertModal = useOpenAlertModal();
   const navigate = useNavigate();
   const { data: post, isLoading: isLoadingPost } = usePostById({
     postId,
@@ -87,7 +89,16 @@ export default function PostItem({
   // 삭제 핸들러
   const handleDelete = () => {
     setIsPopoverOpen(false);
-    deletePost(post);
+    openAlertModal({
+      title: "게시글 삭제",
+      description: "정말 삭제하시겠습니까?",
+      onPositive: () => {
+        deletePost(post);
+      },
+      onNegative: () => {
+        console.log("취소");
+      },
+    });
   };
 
   return (
