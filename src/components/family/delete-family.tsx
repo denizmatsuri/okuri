@@ -2,6 +2,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useDeleteFamily } from "@/hooks/mutations/family/use-delete-family";
 import { useOpenAlertModal } from "@/store/alert-modal";
+import { useNavigate } from "react-router";
 
 export default function DeleteFamily({
   familyId,
@@ -13,10 +14,12 @@ export default function DeleteFamily({
   userId: string;
 }) {
   const openAlertModal = useOpenAlertModal();
+  const navigate = useNavigate();
 
   const deleteFamilyMutation = useDeleteFamily({
     onSuccess: () => {
       toast.success("가족이 삭제되었습니다", { position: "top-center" });
+      navigate(`/profile/${userId}`);
     },
     onError: (error) => {
       toast.error(error.message || "가족 삭제에 실패했습니다", {
