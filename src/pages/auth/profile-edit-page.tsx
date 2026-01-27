@@ -23,16 +23,27 @@ export default function ProfileEditPage() {
 
   const isMine = session?.user.id === profile?.id;
 
-  if (!isMine) {
-    navigate("/");
-  }
+  useEffect(() => {
+    if (profile && !isMine) {
+      navigate("/");
+    }
+  }, [profile, isMine, navigate]);
 
   // 폼 상태 (프로필 데이터로 초기화)
-  const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
-  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number ?? "");
-  const [birthDate, setBirthDate] = useState(profile?.birth_date ?? "");
+  const [displayName, setDisplayName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<ImagePreview | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  // 프로필 데이터 로드 시 폼 상태 초기화
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.display_name ?? "");
+      setPhoneNumber(profile.phone_number ?? "");
+      setBirthDate(profile.birth_date ?? "");
+    }
+  }, [profile]);
 
   // 컴포넌트 언마운트 시 Object URL 정리
   useEffect(() => {
@@ -102,8 +113,6 @@ export default function ProfileEditPage() {
   // 폼 제출 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // TODO: 유효성 검사
 
     updateUserProfile({
       userId: profile.id,
