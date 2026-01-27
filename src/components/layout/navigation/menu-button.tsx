@@ -7,20 +7,23 @@ import {
 import { useOpenAlertModal } from "@/store/alert-modal";
 import { PopoverClose } from "@radix-ui/react-popover";
 import type { ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   children: ReactNode;
 };
 export default function MenuButton({ children }: Props) {
   const openAlertModal = useOpenAlertModal();
+  const queryClient = useQueryClient();
 
   const handleSignOut = () => {
     // alert-dialog 사용
     openAlertModal({
       title: "로그아웃",
       description: "정말 로그아웃하시겠습니까?",
-      onPositive: () => {
-        signOut();
+      onPositive: async () => {
+        await signOut();
+        queryClient.clear();
       },
     });
 
