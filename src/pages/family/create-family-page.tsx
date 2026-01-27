@@ -75,7 +75,7 @@ export default function CreateFamilyPage() {
     if (step === 2) {
       setStep(1);
     } else {
-      navigate("/no-family");
+      navigate(-1); // 이전 페이지로 이동
     }
   };
 

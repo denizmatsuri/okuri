@@ -1,5 +1,5 @@
-import { Link, useParams } from "react-router";
-import { ArrowLeft, Copy, RefreshCw, Share2, Users } from "lucide-react";
+import { useParams } from "react-router";
+import { Copy, RefreshCw, Share2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -87,24 +87,6 @@ export default function FamilyInvitePage() {
   const handleRegenerate = async () => {
     if (!familyId) return;
     regenerateInviteCode(familyId as string);
-
-    // setIsRegenerating(true);
-    // try {
-    //   await regenerateInviteCode(familyId as string);
-
-    //   // 캐시 무효화 → useFamilyById가 자동으로 refetch
-    //   await queryClient.invalidateQueries({
-    //     queryKey: QUERY_KEYS.family.byId(familyId as string),
-    //   });
-
-    //   toast.success("새 초대 코드가 생성되었습니다", {
-    //     position: "top-center",
-    //   });
-    // } catch {
-    //   toast.error("코드 재생성에 실패했습니다");
-    // } finally {
-    //   setIsRegenerating(false);
-    // }
   };
 
   // 로딩 상태
@@ -129,11 +111,6 @@ export default function FamilyInvitePage() {
         {/* 헤더 */}
         <CardHeader>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/">
-                <ArrowLeft className="size-5" />
-              </Link>
-            </Button>
             <div>
               <CardTitle className="text-xl">가족 초대</CardTitle>
               <CardDescription>{family.name}</CardDescription>
