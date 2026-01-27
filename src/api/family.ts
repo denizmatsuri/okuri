@@ -1,4 +1,4 @@
-import supabase from "@/utils/supabase";
+import supabase from "@/lib/supabase";
 import type { FamilyEntity, FamilyMember, FamilyWithMembers } from "@/types";
 import { generateInviteCode } from "@/lib/utils";
 

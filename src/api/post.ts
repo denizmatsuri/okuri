@@ -1,6 +1,6 @@
 import { deleteAllImagesInFolder, deleteImage, uploadImage } from "@/api/image";
 import type { FamilyMember, Post, PostCategory, PostEntity } from "@/types";
-import supabase from "@/utils/supabase";
+import supabase from "@/lib/supabase";
 import { PAGE_SIZE } from "@/hooks/queries/use-infinite-posts";
 import { STORAGE_PATHS } from "@/lib/constants";
 

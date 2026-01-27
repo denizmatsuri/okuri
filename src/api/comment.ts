@@ -1,4 +1,4 @@
-import supabase from "@/utils/supabase";
+import supabase from "@/lib/supabase";
 import type { Comment } from "@/types";
 
 export async function fetchComments({
