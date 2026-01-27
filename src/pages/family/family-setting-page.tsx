@@ -71,13 +71,16 @@ export default function FamilySettingPage() {
 
         <hr />
 
-        <LeaveFamily
-          familyId={family.id}
-          familyName={family.name}
-          userId={userId}
-        />
-
-        <hr />
+        {isAdmin && family.members.length > 1 && (
+          <>
+            <LeaveFamily
+              familyId={family.id}
+              familyName={family.name}
+              userId={userId}
+            />
+            <hr />
+          </>
+        )}
 
         {isAdmin && (
           <DeleteFamily

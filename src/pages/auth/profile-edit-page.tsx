@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { ArrowLeft, Camera } from "lucide-react";
 import { toast } from "sonner";
 
@@ -132,10 +132,13 @@ export default function ProfileEditPage() {
     <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) w-full flex-1 border-x md:m-0">
       {/* 헤더 */}
       <div className="flex items-center gap-4 border-b p-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/profile">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold">프로필 수정</h1>
       </div>
@@ -230,9 +233,9 @@ export default function ProfileEditPage() {
             type="button"
             variant="outline"
             className="flex-1 cursor-pointer"
-            asChild
+            onClick={() => navigate(-1)}
           >
-            <Link to="/profile">취소</Link>
+            취소
           </Button>
           <Button
             type="submit"
