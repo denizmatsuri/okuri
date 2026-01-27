@@ -9,8 +9,7 @@ export function useCreateFamily(callbacks?: MutationCallbacks) {
   return useMutation({
     mutationFn: createFamilyWithMember,
     onSuccess: async () => {
-      // 캐시 무효화 후 refetch 완료까지 대기
-      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.family.list });
+      await queryClient.resetQueries({ queryKey: QUERY_KEYS.family.list });
       // 그 다음 콜백 호출
       callbacks?.onSuccess?.();
     },
