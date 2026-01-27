@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { ArrowLeft, ArrowRight, Check, Home, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -71,16 +71,22 @@ export default function CreateFamilyPage() {
     });
   };
 
+  const handleBack = () => {
+    if (step === 2) {
+      setStep(1);
+    } else {
+      navigate("/no-family");
+    }
+  };
+
   return (
     <div className="flex h-full items-center justify-center px-4">
       <Card className="w-full max-w-md">
         {/* 헤더 */}
         <CardHeader>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/no-family">
-                <ArrowLeft className="size-5" />
-              </Link>
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ArrowLeft className="size-5" />
             </Button>
             <div>
               <CardTitle className="text-xl">새 가족 만들기</CardTitle>

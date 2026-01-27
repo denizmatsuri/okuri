@@ -113,6 +113,9 @@ export default function ProfileEditPage() {
   // 폼 제출 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (displayName.trim() === "") return;
+    if (phoneNumber.trim() === "") return;
+    if (birthDate.trim() === "") return;
 
     updateUserProfile({
       userId: profile.id,
@@ -177,6 +180,7 @@ export default function ProfileEditPage() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="이름을 입력하세요"
+            required
           />
         </div>
 
@@ -204,6 +208,7 @@ export default function ProfileEditPage() {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="010-0000-0000"
+            required
           />
         </div>
 
@@ -215,6 +220,7 @@ export default function ProfileEditPage() {
             type="date"
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
+            required
           />
         </div>
 
