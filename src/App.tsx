@@ -6,11 +6,11 @@ import RootRoute from "@/root-route";
 function App() {
   return (
     <SessionProvider>
-      <ModalProvider>
-        <FamilyProvider>
+      <FamilyProvider>
+        <ModalProvider>
           <RootRoute />
-        </FamilyProvider>
-      </ModalProvider>
+        </ModalProvider>
+      </FamilyProvider>
     </SessionProvider>
   );
 }

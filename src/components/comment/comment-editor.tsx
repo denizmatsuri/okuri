@@ -1,10 +1,10 @@
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { useCurrentFamilyId } from "@/store/family";
-import { useState } from "react";
-import { toast } from "sonner";
 
 type CreateMode = {
   type: "CREATE";
@@ -29,40 +29,43 @@ type ReplyMode = {
 type Props = CreateMode | EditMode | ReplyMode;
 
 export default function CommentEditor(props: Props) {
-  const currentFamilyId = useCurrentFamilyId();
-
   const [content, setContent] = useState(
     props.type === "EDIT" ? props.initialContent : "",
   );
 
-  // 댓글 생성 훅
+  const currentFamilyId = useCurrentFamilyId();
+
   const { mutate: createComment, isPending: isCreatingPending } =
     useCreateComment({
       onSuccess: () => {
-        // toast.success("댓글이 작성되었습니다");
         setContent("");
         if (props.type === "REPLY") props.onClose();
       },
-      onError: (error) => {
-        console.error(error);
-        toast.error("댓글 작성에 실패했습니다");
+      onError: () => {
+        toast.error("댓글 작성에 실패했습니다", { position: "top-center" });
       },
     });
 
-  // 댓글 수정 훅
   const { mutate: updateComment, isPending: isUpdatingPending } =
     useUpdateComment({
       onSuccess: () => {
-        // toast.success("댓글이 수정되었습니다");
-        (props as EditMode).onClose();
+        if (props.type === "EDIT") {
+          props.onClose();
+        }
       },
       onError: () => {
-        toast.error("댓글 수정에 실패했습니다");
+        toast.error("댓글 수정에 실패했습니다", { position: "top-center" });
       },
     });
 
+  const isPending = isCreatingPending || isUpdatingPending;
+
   const handleSubmitClick = () => {
-    // 댓글 생성 요청
+    if (!content.trim()) {
+      toast.error("댓글을 입력해주세요", { position: "top-center" });
+      return;
+    }
+
     if (props.type === "CREATE") {
       createComment({
         postId: props.postId,
@@ -85,11 +88,10 @@ export default function CommentEditor(props: Props) {
     }
   };
 
-  const isPending = isCreatingPending || isUpdatingPending;
-
   return (
     <div className="flex flex-col gap-2">
       <Textarea
+        placeholder="댓글을 입력하세요"
         disabled={isPending}
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -105,7 +107,7 @@ export default function CommentEditor(props: Props) {
           </Button>
         )}
         <Button disabled={isPending} onClick={handleSubmitClick}>
-          작성
+          {props.type === "EDIT" ? "수정" : "작성"}
         </Button>
       </div>
     </div>

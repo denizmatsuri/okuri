@@ -1,65 +1,50 @@
-import { Link } from "react-router";
-import defaultAvatar from "@/assets/default-avatar.jpg";
-import type { NestedComment } from "@/types";
-import { formatRelativeTime } from "@/lib/utils";
-import { useSession } from "@/store/session";
 import { useState } from "react";
+import { Link } from "react-router";
+import { toast } from "sonner";
+import defaultAvatar from "@/assets/default-avatar.jpg";
 import CommentEditor from "./comment-editor";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
-import { toast } from "sonner";
+import { useSession } from "@/store/session";
 import { useOpenAlertModal } from "@/store/alert-modal";
+import { formatRelativeTime } from "@/lib/utils";
+import type { NestedComment } from "@/types";
 
 export default function CommentItem(props: NestedComment) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isReply, setIsReply] = useState(false);
+
   const session = useSession();
   const openAlertModal = useOpenAlertModal();
 
   const { mutate: deleteComment } = useDeleteComment({
-    onError: (_) => {
-      toast.error("댓글 삭제에 실패했습니다.", {
-        position: "top-center",
-      });
+    onError: () => {
+      toast.error("댓글 삭제에 실패했습니다.", { position: "top-center" });
     },
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [isReply, setIsReply] = useState(false);
+  const isMine = session?.user.id === props.author_id;
+  const isRootComment = props.parentComment === undefined;
+  const isOverTwoLevels = props.parent_comment_id !== props.root_comment_id;
 
-  const toggleIsEditing = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const toggleIsReply = () => {
-    setIsReply(!isReply);
-  };
+  const toggleIsEditing = () => setIsEditing(!isEditing);
+  const toggleIsReply = () => setIsReply(!isReply);
 
   const handleDeleteClick = () => {
     openAlertModal({
       title: "댓글 삭제",
       description: "정말 삭제하시겠습니까?",
       onPositive: () => {
-        // 포스트 삭제 요청
         deleteComment({ id: props.id });
-      },
-      onNegative: () => {
-        console.log("취소");
       },
     });
   };
-
-  const isMine = session?.user.id === props.author_id;
-
-  // 루트 댓글인지 확인
-  const isRootComment = props.parentComment === undefined;
-
-  // 대댓글이 2번 이상 달린 경우
-  const isOverTwoLevels = props.parent_comment_id !== props.root_comment_id;
 
   return (
     <div
       className={`flex flex-col ${isRootComment ? "border-b py-5" : "ml-6 pt-5"}`}
     >
       <div className="flex items-start gap-4">
-        <Link to={"#"}>
+        <Link to={`/profile/${props.author_id}`}>
           <div className="flex h-full flex-col">
             <img
               className="h-10 w-10 rounded-full object-cover"
@@ -68,6 +53,7 @@ export default function CommentItem(props: NestedComment) {
                 props.familyMember?.user?.avatar_url ||
                 defaultAvatar
               }
+              alt="프로필"
             />
           </div>
         </Link>

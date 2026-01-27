@@ -1,8 +1,9 @@
-import { useCommentsData } from "@/hooks/queries/use-comments-data";
-import { Loader } from "lucide-react";
-import type { Comment, NestedComment } from "@/types";
-import { useCurrentFamilyId } from "@/store/family";
 import CommentItem from "./comment-item";
+import Fallback from "@/components/fallback";
+import Loader from "@/components/loader";
+import { useCommentsData } from "@/hooks/queries/use-comments-data";
+import { useCurrentFamilyId } from "@/store/family";
+import type { Comment, NestedComment } from "@/types";
 
 /**
  * 평탄한 댓글 배열을 계층 구조로 변환
@@ -24,9 +25,8 @@ function toNestedComments(comments: Comment[]): NestedComment[] {
     // 루트 댓글 처리
     if (!comment.root_comment_id) {
       result.push({ ...comment, children: [] });
-    }
-    // 대댓글 처리
-    else {
+    } else {
+      // 대댓글 처리
       const rootCommentIndex = result.findIndex(
         (item) => item.id === comment.root_comment_id,
       );
@@ -55,16 +55,14 @@ export default function CommentList({ postId }: { postId: number }) {
 
   const {
     data: comments,
-    isPending: isFetchingCommentsPending,
+    isPending,
     error: fetchCommentsError,
   } = useCommentsData(postId, currentFamilyId!);
 
-  // if (fetchCommentsError) return <Fallback />;
   if (fetchCommentsError)
-    return <div>댓글 목록을 불러오는데 실패했습니다.</div>;
-  if (isFetchingCommentsPending) return <Loader />;
+    return <Fallback message="댓글 목록을 불러오는데 실패했습니다." />;
+  if (isPending) return <Loader />;
 
-  // 계층형 댓글 구조로 변환
   const nestedComments = toNestedComments(comments);
 
   return (
