@@ -37,11 +37,9 @@ export function useUpdatePost(callbacks?: MutationCallbacks) {
       );
 
       // 2. is_notice 변경 시 해당 가족의 리스트만 무효화
-      // - prefix matching으로 모든 카테고리 포함
-      // - invalidate 사용: 기존 스크롤 위치 유지
       if (context?.prevIsNotice !== updatedPost.is_notice) {
         await queryClient.invalidateQueries({
-          queryKey: ["post", "list", updatedPost.family_id],
+          queryKey: QUERY_KEYS.post.listByFamily(updatedPost.family_id),
         });
       }
 

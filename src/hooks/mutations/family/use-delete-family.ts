@@ -9,8 +9,7 @@ export function useDeleteFamily(callbacks?: MutationCallbacks) {
   return useMutation({
     mutationFn: deleteFamily,
     onSuccess: async () => {
-      // family 관련 모든 쿼리 무효화
-      await queryClient.invalidateQueries({
+      await queryClient.resetQueries({
         queryKey: QUERY_KEYS.family.all,
       });
       callbacks?.onSuccess?.();

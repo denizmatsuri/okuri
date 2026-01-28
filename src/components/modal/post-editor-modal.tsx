@@ -5,7 +5,7 @@ import defaultAvatar from "@/assets/default-avatar.jpg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useFamilyById } from "@/hooks/queries/use-family-data";
+import { useFamilyById } from "@/hooks/queries/use-family-by-id";
 import { useUserProfileData } from "@/hooks/queries/use-profile-data";
 import { useCreatePost } from "@/hooks/mutations/post/use-create-post";
 import { useUpdatePost } from "@/hooks/mutations/post/use-update-post";
@@ -27,7 +27,7 @@ export default function PostEditorModal() {
   const currentFamilyId = useCurrentFamilyId();
   const postEditorModal = usePostEditorModal();
 
-  const { data: family } = useFamilyById(currentFamilyId!);
+  const { data: family } = useFamilyById(currentFamilyId!, session?.user.id);
   const { data: profile } = useUserProfileData(session?.user.id);
 
   const isEditMode = postEditorModal.type === "EDIT";

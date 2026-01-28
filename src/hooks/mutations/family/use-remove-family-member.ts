@@ -12,9 +12,8 @@ export function useRemoveFamilyMember(
   return useMutation({
     mutationFn: removeFamilyMember,
     onSuccess: async () => {
-      // 멤버 목록 캐시 무효화
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.family.members(userId),
+        queryKey: QUERY_KEYS.family.familiesWithMembersByUserId(userId),
       });
       callbacks?.onSuccess?.();
     },

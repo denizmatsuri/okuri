@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useSession } from "@/store/session";
-import { useFamiliesWithMembers } from "@/hooks/queries/use-family-data";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import Loader from "@/components/loader";
 import FamilyInfo from "@/components/family/family-info";
 import MemberList from "@/components/family/member-list";

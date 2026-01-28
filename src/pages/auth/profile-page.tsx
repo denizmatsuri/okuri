@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Plus, Settings } from "lucide-react";
 import Loader from "@/components/loader";
-import { useFamiliesWithMembers } from "@/hooks/queries/use-family-data";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import type { FamilyMember } from "@/types";
 import FamilyMemberProfileModal from "@/components/modal/family-member-profile-modal";
 

@@ -6,12 +6,11 @@ import FamilyTabs from "@/components/post/family-tabs";
 import CategoryFilter from "@/components/post/category-filter";
 import Loader from "@/components/loader";
 import Fallback from "@/components/fallback";
-import { useMyFamiliesWithMembers } from "@/hooks/queries/use-family-data";
+import { useMyFamilies } from "@/hooks/queries/use-my-families";
 import { useInfinitePosts } from "@/hooks/queries/use-infinite-posts";
 import { useSession } from "@/store/session";
 import { useCurrentFamilyId, useSetCurrentFamilyId } from "@/store/family";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
-import { extractFamilyMemberships } from "@/lib/utils";
 import type { PostCategory } from "@/types";
 
 export default function PostFeed() {
@@ -22,8 +21,7 @@ export default function PostFeed() {
   const setCurrentFamilyId = useSetCurrentFamilyId();
   const openCreatePostEditorModal = useOpenCreatePostEditorModal();
 
-  const { data: familiesWithMembers = [], error: familiesError } =
-    useMyFamiliesWithMembers();
+  const { data: families = [], error: familiesError } = useMyFamilies();
   const {
     data,
     error: postsError,
@@ -48,7 +46,10 @@ export default function PostFeed() {
     return <Fallback message="게시글을 불러오는데 실패했습니다." />;
   }
 
-  const familyTabs = extractFamilyMemberships(familiesWithMembers);
+  const familyTabs = families.map((f) => ({
+    id: f.family.id,
+    name: f.family.name,
+  }));
   const postIds = data?.pages.flatMap((page) => page.ids) ?? [];
 
   return (

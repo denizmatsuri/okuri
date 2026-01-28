@@ -21,10 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  useFamilyById,
-  useMyFamiliesWithMembers,
-} from "@/hooks/queries/use-family-data";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import { useSession } from "@/store/session";
 import { useRegenerateInviteCode } from "@/hooks/mutations/family/use-regenerate-invite-code";
 import Loader from "@/components/loader";
@@ -33,13 +30,16 @@ export default function FamilyInvitePage() {
   const { familyId } = useParams();
   const session = useSession();
 
-  // 가족 정보 조회
-  const { data: family, isLoading: isFamilyLoading } = useFamilyById(familyId);
+  const { data: familiesWithMembers, isLoading } = useFamiliesWithMembers(
+    session?.user.id,
+  );
 
-  // 현재 사용자의 멤버십 정보 (관리자 여부 확인용)
-  const { data: families } = useMyFamiliesWithMembers(session?.user.id);
-  const membership = families?.find((f) => f.family?.id === familyId);
-  const isAdmin = membership?.is_admin ?? false;
+  // 현재 가족 정보 추출
+  const currentFamily = familiesWithMembers?.find((f) => f.id === familyId);
+  const isAdmin =
+    currentFamily?.members.some(
+      (m) => m.user_id === session?.user.id && m.is_admin,
+    ) ?? false;
 
   // 초대 코드 재생성 mutation
   const { mutate: regenerateInviteCode, isPending: isRegenerating } =
@@ -56,10 +56,10 @@ export default function FamilyInvitePage() {
 
   // 클립보드 복사
   const handleCopy = async () => {
-    if (!family?.invite_code) return;
+    if (!currentFamily?.invite_code) return;
 
     try {
-      await navigator.clipboard.writeText(family.invite_code);
+      await navigator.clipboard.writeText(currentFamily.invite_code);
       toast.success("초대 코드가 복사되었습니다", { position: "top-center" });
     } catch {
       toast.error("복사에 실패했습니다");
@@ -68,13 +68,13 @@ export default function FamilyInvitePage() {
 
   // Web Share API (모바일 대응)
   const handleShare = async () => {
-    if (!family?.invite_code || !navigator.share) return;
+    if (!currentFamily?.invite_code || !navigator.share) return;
 
     try {
       // TODO: 공유 전용 URL 구현(현재는 초대 코드만 공유)
       await navigator.share({
-        title: `${family.name} 가족 초대`,
-        text: `우리 가족에 함께해요!\n초대 코드: ${family.invite_code}`,
+        title: `${currentFamily.name} 가족 초대`,
+        text: `우리 가족에 함께해요!\n초대 코드: ${currentFamily.invite_code}`,
       });
     } catch (error) {
       // 사용자가 공유를 취소한 경우 무시
@@ -85,17 +85,17 @@ export default function FamilyInvitePage() {
   };
 
   const handleRegenerate = async () => {
-    if (!familyId) return;
-    regenerateInviteCode(familyId as string);
+    if (!familyId || !session?.user.id) return;
+    regenerateInviteCode({ familyId, userId: session.user.id });
   };
 
   // 로딩 상태
-  if (isFamilyLoading) {
+  if (isLoading) {
     return <Loader />;
   }
 
   // 가족 정보 없음
-  if (!family) {
+  if (!currentFamily) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-muted-foreground">
@@ -113,7 +113,7 @@ export default function FamilyInvitePage() {
           <div className="flex items-center gap-3">
             <div>
               <CardTitle className="text-xl">가족 초대</CardTitle>
-              <CardDescription>{family.name}</CardDescription>
+              <CardDescription>{currentFamily.name}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -137,7 +137,7 @@ export default function FamilyInvitePage() {
               초대 코드
             </p>
             <p className="font-mono text-3xl font-bold tracking-[0.3em]">
-              {family.invite_code ?? "코드 없음"}
+              {currentFamily.invite_code ?? "코드 없음"}
             </p>
           </div>
 
@@ -148,7 +148,7 @@ export default function FamilyInvitePage() {
               size="lg"
               className="flex-1 cursor-pointer"
               onClick={handleCopy}
-              disabled={!family.invite_code}
+              disabled={!currentFamily.invite_code}
             >
               <Copy className="size-4" />
               복사하기
@@ -160,7 +160,7 @@ export default function FamilyInvitePage() {
                 size="lg"
                 className="flex-1 cursor-pointer"
                 onClick={handleShare}
-                disabled={!family.invite_code}
+                disabled={!currentFamily.invite_code}
               >
                 <Share2 className="size-4" />
                 공유하기

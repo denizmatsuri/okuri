@@ -9,8 +9,7 @@ export function useCreateFamily(callbacks?: MutationCallbacks) {
   return useMutation({
     mutationFn: createFamilyWithMember,
     onSuccess: async () => {
-      await queryClient.resetQueries({ queryKey: QUERY_KEYS.family.list });
-      // 그 다음 콜백 호출
+      await queryClient.resetQueries({ queryKey: QUERY_KEYS.family.all });
       callbacks?.onSuccess?.();
     },
     onError: (error) => {

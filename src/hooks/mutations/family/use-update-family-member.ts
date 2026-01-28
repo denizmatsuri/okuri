@@ -4,14 +4,17 @@ import { updateFamilyMember } from "@/api/family";
 import { QUERY_KEYS } from "@/lib/constants";
 import type { MutationCallbacks } from "@/types";
 
-export function useUpdateFamilyMember(callbacks?: MutationCallbacks) {
+export function useUpdateFamilyMember(
+  userId: string,
+  callbacks?: MutationCallbacks,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateFamilyMember,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.family.all,
+        queryKey: QUERY_KEYS.family.familiesWithMembersByUserId(userId),
       });
       callbacks?.onSuccess?.();
     },
