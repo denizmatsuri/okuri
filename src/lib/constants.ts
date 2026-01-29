@@ -48,6 +48,7 @@ export const STORAGE_PATHS = {
   userAvatar: (userId: string) => `users/${userId}/avatars`,
   // familyCover: (familyId: string) => `families/${familyId}/cover`,
   // familyMemberAvatar: (familyId: string, userId: string) => `families/${familyId}/members/${userId}`,
+  familyPosts: (familyId: string) => `families/${familyId}/posts`,
   postImages: (familyId: string, userId: string, postId: string) =>
     `families/${familyId}/posts/${userId}/${postId}`,
   // galleryAlbum: (familyId: string, albumId: string) => `families/${familyId}/gallery/${albumId}`,

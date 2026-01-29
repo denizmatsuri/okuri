@@ -71,7 +71,7 @@ export default function FamilySettingPage() {
 
         <hr />
 
-        {isAdmin && family.members.length > 1 && (
+        {family.members.length > 1 && (
           <>
             <LeaveFamily
               familyId={family.id}

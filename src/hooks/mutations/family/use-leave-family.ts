@@ -12,6 +12,12 @@ export function useLeaveFamily(callbacks?: MutationCallbacks) {
       await queryClient.resetQueries({
         queryKey: QUERY_KEYS.family.all,
       });
+      await queryClient.resetQueries({
+        queryKey: QUERY_KEYS.post.all,
+      });
+      await queryClient.resetQueries({
+        queryKey: QUERY_KEYS.postComment.all,
+      });
       callbacks?.onSuccess?.();
     },
     onError: (error) => {

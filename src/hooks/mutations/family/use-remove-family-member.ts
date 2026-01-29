@@ -15,6 +15,12 @@ export function useRemoveFamilyMember(
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.family.familiesWithMembersByUserId(userId),
       });
+      await queryClient.resetQueries({
+        queryKey: QUERY_KEYS.post.all,
+      });
+      await queryClient.resetQueries({
+        queryKey: QUERY_KEYS.postComment.all,
+      });
       callbacks?.onSuccess?.();
     },
     onError: (error) => {
