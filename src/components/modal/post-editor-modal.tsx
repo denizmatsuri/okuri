@@ -5,8 +5,7 @@ import defaultAvatar from "@/assets/default-avatar.jpg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useFamilyById } from "@/hooks/queries/use-family-by-id";
-import { useUserProfileData } from "@/hooks/queries/use-profile-data";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import { useCreatePost } from "@/hooks/mutations/post/use-create-post";
 import { useUpdatePost } from "@/hooks/mutations/post/use-update-post";
 import { useSession } from "@/store/session";
@@ -27,8 +26,15 @@ export default function PostEditorModal() {
   const currentFamilyId = useCurrentFamilyId();
   const postEditorModal = usePostEditorModal();
 
-  const { data: family } = useFamilyById(currentFamilyId!, session?.user.id);
-  const { data: profile } = useUserProfileData(session?.user.id);
+  const { data: familiesWithMembers } = useFamiliesWithMembers(session?.user.id);
+
+  // 현재 가족 정보 및 내 멤버십 추출
+  const currentFamily = familiesWithMembers?.find(
+    (f) => f.id === currentFamilyId,
+  );
+  const myMembership = currentFamily?.members.find(
+    (m) => m.user_id === session?.user.id,
+  );
 
   const isEditMode = postEditorModal.type === "EDIT";
 
@@ -124,7 +130,13 @@ export default function PostEditorModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !currentFamilyId || !session?.user?.id) return;
+    if (
+      !content.trim() ||
+      !currentFamilyId ||
+      !session?.user?.id ||
+      !myMembership
+    )
+      return;
 
     if (isEditMode) {
       updatePost({
@@ -141,6 +153,7 @@ export default function PostEditorModal() {
       createPost({
         familyId: currentFamilyId,
         userId: session.user.id,
+        familyMemberId: myMembership.id,
         content: content.trim(),
         images: newImages,
         isNotice,
@@ -162,8 +175,8 @@ export default function PostEditorModal() {
           <DialogTitle>
             {isEditMode ? "게시글 수정" : "새 게시글 작성"}
           </DialogTitle>
-          {family && (
-            <p className="text-muted-foreground text-sm">{family.name}</p>
+          {currentFamily && (
+            <p className="text-muted-foreground text-sm">{currentFamily.name}</p>
           )}
         </DialogHeader>
 
@@ -171,7 +184,11 @@ export default function PostEditorModal() {
           {/* 작성 영역 */}
           <div className="flex gap-3">
             <img
-              src={profile?.avatar_url ?? defaultAvatar}
+              src={
+                myMembership?.avatar_url ??
+                myMembership?.user?.avatar_url ??
+                defaultAvatar
+              }
               alt="내 프로필"
               className="h-10 w-10 shrink-0 rounded-full border object-cover"
             />

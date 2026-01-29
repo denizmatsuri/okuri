@@ -16,7 +16,7 @@ export default function LeaveFamily({
   const navigate = useNavigate();
   const openAlertModal = useOpenAlertModal();
 
-  const leaveFamilyMutation = useLeaveFamily({
+  const { mutate: leaveFamily, isPending } = useLeaveFamily({
     onSuccess: () => {
       toast.success("가족을 나갔습니다", { position: "top-center" });
       navigate("/");
@@ -31,7 +31,7 @@ export default function LeaveFamily({
       title: "정말 가족을 나가시겠습니까?",
       description: `${familyName}을(를) 나가면 더 이상 이 가족의 게시물과 사진에 접근할 수 없습니다. 다시 참여하려면 초대 코드가 필요합니다.`,
       onPositive: () => {
-        leaveFamilyMutation.mutate({ familyId, userId });
+        leaveFamily({ familyId, userId });
       },
     });
   };
@@ -48,7 +48,7 @@ export default function LeaveFamily({
         variant="destructive"
         className="w-full"
         onClick={handleLeaveFamily}
-        disabled={leaveFamilyMutation.isPending}
+        disabled={isPending}
       >
         가족 나가기
       </Button>

@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import { useCurrentFamilyId } from "@/store/family";
+import { useSession } from "@/store/session";
 
 type CreateMode = {
   type: "CREATE";
@@ -33,7 +35,18 @@ export default function CommentEditor(props: Props) {
     props.type === "EDIT" ? props.initialContent : "",
   );
 
+  const session = useSession();
   const currentFamilyId = useCurrentFamilyId();
+
+  const { data: familiesWithMembers } = useFamiliesWithMembers(session?.user.id);
+
+  // 현재 가족에서 내 멤버십 추출
+  const currentFamily = familiesWithMembers?.find(
+    (f) => f.id === currentFamilyId,
+  );
+  const myMembership = currentFamily?.members.find(
+    (m) => m.user_id === session?.user.id,
+  );
 
   const { mutate: createComment, isPending: isCreatingPending } =
     useCreateComment({
@@ -67,9 +80,10 @@ export default function CommentEditor(props: Props) {
     }
 
     if (props.type === "CREATE") {
+      if (!myMembership) return;
       createComment({
         postId: props.postId,
-        familyId: currentFamilyId!,
+        familyMemberId: myMembership.id,
         content,
       });
     } else if (props.type === "EDIT") {
@@ -78,9 +92,10 @@ export default function CommentEditor(props: Props) {
         content,
       });
     } else if (props.type === "REPLY") {
+      if (!myMembership) return;
       createComment({
         postId: props.postId,
-        familyId: currentFamilyId!,
+        familyMemberId: myMembership.id,
         content,
         parentCommentId: props.parentCommentId,
         rootCommentId: props.rootCommentId,

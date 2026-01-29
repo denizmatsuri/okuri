@@ -97,6 +97,7 @@ export type Database = {
           author_id: string
           content: string
           created_at: string
+          family_member_id: string
           id: number
           parent_comment_id: number | null
           post_id: number
@@ -106,6 +107,7 @@ export type Database = {
           author_id?: string
           content: string
           created_at?: string
+          family_member_id: string
           id?: number
           parent_comment_id?: number | null
           post_id: number
@@ -115,6 +117,7 @@ export type Database = {
           author_id?: string
           content?: string
           created_at?: string
+          family_member_id?: string
           id?: number
           parent_comment_id?: number | null
           post_id?: number
@@ -126,6 +129,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
             referencedColumns: ["id"]
           },
           {
@@ -193,6 +203,7 @@ export type Database = {
           content: string
           created_at: string
           family_id: string
+          family_member_id: string
           id: number
           image_urls: string[] | null
           is_notice: boolean
@@ -203,6 +214,7 @@ export type Database = {
           content: string
           created_at?: string
           family_id: string
+          family_member_id: string
           id?: number
           image_urls?: string[] | null
           is_notice?: boolean
@@ -213,6 +225,7 @@ export type Database = {
           content?: string
           created_at?: string
           family_id?: string
+          family_member_id?: string
           id?: number
           image_urls?: string[] | null
           is_notice?: boolean
@@ -224,6 +237,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
             referencedColumns: ["id"]
           },
         ]

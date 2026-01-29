@@ -94,6 +94,8 @@ export async function createFamilyWithMember({
 export async function fetchFamiliesWithMembers(
   userId: string,
 ): Promise<FamilyWithMembers[]> {
+  console.log("fetchFamiliesWithMembers");
+
   // 1. 사용자가 속한 가족 ID 목록 가져오기
   const { data: memberships, error: membershipError } = await supabase
     .from("family_members")
