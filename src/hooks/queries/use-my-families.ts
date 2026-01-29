@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
  */
 export function useMyFamilies(userId?: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.family.list,
+    queryKey: QUERY_KEYS.family.list(userId!),
     queryFn: () => fetchMyFamilies(userId!),
     enabled: !!userId,
     staleTime: STALE_TIME.SEMI_STATIC,

@@ -8,7 +8,7 @@ export const QUERY_KEYS = {
   },
   family: {
     all: ["family"],
-    list: ["family", "list"], // 내가 속한 가족 목록
+    list: (userId: string) => ["family", "list", userId], // 내가 속한 가족 목록
     byId: (familyId: string) => ["family", "byId", familyId], // 현재 내가 선택한 가족 상세 정보
     familiesWithMembersByUserId: (userId: string) => [
       "family",

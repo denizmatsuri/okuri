@@ -21,7 +21,9 @@ export default function PostFeed() {
   const setCurrentFamilyId = useSetCurrentFamilyId();
   const openCreatePostEditorModal = useOpenCreatePostEditorModal();
 
-  const { data: families = [], error: familiesError } = useMyFamilies();
+  const { data: families = [], error: familiesError } = useMyFamilies(
+    session?.user.id,
+  );
   const {
     data,
     error: postsError,
