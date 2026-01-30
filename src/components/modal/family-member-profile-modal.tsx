@@ -28,14 +28,15 @@ export default function FamilyMemberProfileModal({
   onOpenChange,
 }: Props) {
   const session = useSession();
+  const userId = session?.user.id;
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [familyRole, setFamilyRole] = useState("");
 
-  const isMine = member?.user_id === session?.user.id;
+  const isMine = member?.user_id === userId;
 
   const { mutate: updateFamilyMember, isPending: isUpdating } =
-    useUpdateFamilyMember({
+    useUpdateFamilyMember(userId!, {
       onSuccess: () => {
         toast.success("프로필이 수정되었습니다", { position: "top-center" });
         setIsEditing(false);

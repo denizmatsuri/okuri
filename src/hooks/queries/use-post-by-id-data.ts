@@ -1,5 +1,5 @@
 import { fetchPostById } from "@/api/post";
-import { QUERY_KEYS } from "@/lib/constants";
+import { QUERY_KEYS, STALE_TIME } from "@/lib/constants";
 import { useSession } from "@/store/session";
 import { useQuery } from "@tanstack/react-query";
 
@@ -17,5 +17,6 @@ export function usePostById({
     queryKey: QUERY_KEYS.post.byId(postId),
     queryFn: () => fetchPostById({ postId, userId }),
     enabled: type === "DETAIL" && !!postId,
+    staleTime: STALE_TIME.DYNAMIC,
   });
 }

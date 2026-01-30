@@ -1,13 +1,12 @@
 import { useSession } from "@/store/session";
 import { useUserProfileData } from "@/hooks/queries/use-profile-data";
-// import PostItem from "@/components/post/post-item";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Plus, Settings } from "lucide-react";
 import Loader from "@/components/loader";
-import { useFamiliesWithMembers } from "@/hooks/queries/use-family-data";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import type { FamilyMember } from "@/types";
 import FamilyMemberProfileModal from "@/components/modal/family-member-profile-modal";
 
@@ -184,17 +183,18 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* 내가 작성한 포스트 리스트 */}
-      {/* <div className="border-t border-t-black">
+      {/* TODO: 내 게시글 리스트 - 추후 구현 예정
+      <div className="border-t border-t-black">
         <div className="border-b p-4">
           <h2 className="font-medium">내 게시글</h2>
         </div>
         <div className="flex flex-col">
-          {mockPosts.map((post, index) => (
+          {posts.map((post) => (
             <PostItem key={post.id} post={post} />
           ))}
         </div>
-      </div> */}
+      </div>
+      */}
 
       {/* 가족 멤버 프로필 모달 */}
       <FamilyMemberProfileModal

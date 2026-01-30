@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useDeletePost } from "@/hooks/mutations/post/use-delete-post";
 import LikePostButton from "@/components/post/like-post-button";
 import { useOpenAlertModal } from "@/store/alert-modal";
+import Loader from "@/components/loader";
 
 export default function PostItem({
   postId,
@@ -30,16 +31,14 @@ export default function PostItem({
   postId: number;
   type: "FEED" | "DETAIL";
 }) {
-  const openAlertModal = useOpenAlertModal();
-  const navigate = useNavigate();
-  const { data: post, isLoading: isLoadingPost } = usePostById({
-    postId,
-    type,
-  });
-
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const openEditPostEditorModal = useOpenEditPostEditorModal();
+
+  const navigate = useNavigate();
   const session = useSession();
+  const openAlertModal = useOpenAlertModal();
+  const openEditPostEditorModal = useOpenEditPostEditorModal();
+
+  const { data: post, isPending } = usePostById({ postId, type });
 
   const { mutate: deletePost } = useDeletePost({
     onSuccess: () => {
@@ -56,15 +55,10 @@ export default function PostItem({
     },
   });
 
-  // 로딩 상태 (스켈레톤 또는 null)
-  // FIXME: 스켈레톤 추가
-  // if (isLoadingPost) return <PostItemSkeleton className="h-20 w-full" />;
+  if (isPending) return <Loader />;
   if (!post) return null;
 
-  // 현재 사용자가 작성자인지 확인
   const isMine = session?.user.id === post.author_id;
-
-  // author 정보 추출
   const authorName =
     post.familyMember?.display_name ??
     post.familyMember?.user?.display_name ??
@@ -75,7 +69,6 @@ export default function PostItem({
     post.familyMember?.user?.avatar_url ??
     defaultAvatar;
 
-  // 수정 핸들러
   const handleEdit = () => {
     setIsPopoverOpen(false);
     openEditPostEditorModal({
@@ -86,7 +79,6 @@ export default function PostItem({
     });
   };
 
-  // 삭제 핸들러
   const handleDelete = () => {
     setIsPopoverOpen(false);
     openAlertModal({
@@ -94,9 +86,6 @@ export default function PostItem({
       description: "정말 삭제하시겠습니까?",
       onPositive: () => {
         deletePost(post);
-      },
-      onNegative: () => {
-        console.log("취소");
       },
     });
   };
@@ -107,7 +96,7 @@ export default function PostItem({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <img
-            src={authorAvatar || defaultAvatar}
+            src={authorAvatar}
             alt="프로필"
             className="h-12 w-12 rounded-full border object-cover"
           />
@@ -121,7 +110,6 @@ export default function PostItem({
           </div>
         </div>
 
-        {/* 본인 게시물인 경우에만 표시 */}
         {isMine && (
           <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
@@ -159,7 +147,7 @@ export default function PostItem({
         )}
       </div>
 
-      {/* 게시글 내용 */}
+      {/* 게시글 본문 */}
       <Link
         to={`/post/${post.id}`}
         className="whitespace-pre-wrap after:absolute after:inset-0"
@@ -172,11 +160,12 @@ export default function PostItem({
         <Carousel className="relative z-10">
           <CarouselContent>
             {post.image_urls.map((url, index) => (
-              <CarouselItem className="basis-3/5" key={index}>
+              <CarouselItem className="basis-3/5" key={url}>
                 <div className="overflow-hidden rounded-xl">
                   <img
                     src={url}
                     className="h-full max-h-[350px] w-full object-cover"
+                    alt={`게시글 이미지 ${index + 1}`}
                   />
                 </div>
               </CarouselItem>
@@ -185,19 +174,15 @@ export default function PostItem({
         </Carousel>
       )}
 
-      {/* 3. 좋아요, 댓글 버튼 */}
+      {/* 좋아요, 댓글 버튼 (Link의 after:inset-0 위에 표시) */}
       <div className="relative z-10">
         <div className="flex gap-2">
-          {/* 3-1. 좋아요 버튼 */}
-          {
-            <LikePostButton
-              id={postId}
-              likeCount={post.like_count}
-              isLiked={post.isLiked}
-            />
-          }
+          <LikePostButton
+            id={postId}
+            likeCount={post.like_count}
+            isLiked={post.isLiked}
+          />
 
-          {/* 3-2. 댓글 버튼 */}
           {type === "FEED" && (
             <Link to={`/post/${post.id}`}>
               <div className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-xl border p-2 px-4 text-sm">

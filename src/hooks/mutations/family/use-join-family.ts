@@ -9,7 +9,7 @@ export function useJoinFamily(callbacks?: MutationCallbacks) {
   return useMutation({
     mutationFn: joinFamilyByInviteCode,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.family.list });
+      await queryClient.resetQueries({ queryKey: QUERY_KEYS.family.all });
       callbacks?.onSuccess?.();
     },
     onError: (error) => {

@@ -1,5 +1,5 @@
 import { fetchPosts } from "@/api/post";
-import { QUERY_KEYS } from "@/lib/constants";
+import { QUERY_KEYS, STALE_TIME } from "@/lib/constants";
 import type { PostCategory } from "@/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -46,7 +46,7 @@ export function useInfinitePosts(
 
     getNextPageParam: (lastPage) => lastPage.nextCursor,
 
-    staleTime: 1000 * 60 * 5, // 5분 (또는 Infinity + invalidate 전략)
+    staleTime: STALE_TIME.STATIC,
     enabled: !!familyId,
   });
 }

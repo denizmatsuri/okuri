@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { ArrowLeft, Camera } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,16 +23,27 @@ export default function ProfileEditPage() {
 
   const isMine = session?.user.id === profile?.id;
 
-  if (!isMine) {
-    navigate("/");
-  }
+  useEffect(() => {
+    if (profile && !isMine) {
+      navigate("/");
+    }
+  }, [profile, isMine, navigate]);
 
   // 폼 상태 (프로필 데이터로 초기화)
-  const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
-  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number ?? "");
-  const [birthDate, setBirthDate] = useState(profile?.birth_date ?? "");
+  const [displayName, setDisplayName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<ImagePreview | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  // 프로필 데이터 로드 시 폼 상태 초기화
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.display_name ?? "");
+      setPhoneNumber(profile.phone_number ?? "");
+      setBirthDate(profile.birth_date ?? "");
+    }
+  }, [profile]);
 
   // 컴포넌트 언마운트 시 Object URL 정리
   useEffect(() => {
@@ -102,8 +113,9 @@ export default function ProfileEditPage() {
   // 폼 제출 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // TODO: 유효성 검사
+    if (displayName.trim() === "") return;
+    if (phoneNumber.trim() === "") return;
+    if (birthDate.trim() === "") return;
 
     updateUserProfile({
       userId: profile.id,
@@ -120,10 +132,13 @@ export default function ProfileEditPage() {
     <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) w-full flex-1 border-x md:m-0">
       {/* 헤더 */}
       <div className="flex items-center gap-4 border-b p-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/profile">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold">프로필 수정</h1>
       </div>
@@ -168,6 +183,7 @@ export default function ProfileEditPage() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="이름을 입력하세요"
+            required
           />
         </div>
 
@@ -195,6 +211,7 @@ export default function ProfileEditPage() {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="010-0000-0000"
+            required
           />
         </div>
 
@@ -206,6 +223,7 @@ export default function ProfileEditPage() {
             type="date"
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
+            required
           />
         </div>
 
@@ -215,9 +233,9 @@ export default function ProfileEditPage() {
             type="button"
             variant="outline"
             className="flex-1 cursor-pointer"
-            asChild
+            onClick={() => navigate(-1)}
           >
-            <Link to="/profile">취소</Link>
+            취소
           </Button>
           <Button
             type="submit"

@@ -1,43 +1,43 @@
 import { useEffect, useState } from "react";
 import { ImagePlus, Loader2, Megaphone, X } from "lucide-react";
-
-import { useCreatePost } from "@/hooks/mutations/post/use-create-post";
+import { toast } from "sonner";
+import defaultAvatar from "@/assets/default-avatar.jpg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import defaultAvatar from "@/assets/default-avatar.jpg";
-import { toast } from "sonner";
+import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
+import { useCreatePost } from "@/hooks/mutations/post/use-create-post";
+import { useUpdatePost } from "@/hooks/mutations/post/use-update-post";
 import { useSession } from "@/store/session";
-import { useFamilyById } from "@/hooks/queries/use-family-data";
 import { useCurrentFamilyId } from "@/store/family";
 import { usePostEditorModal } from "@/store/post-editor-modal";
-import { useUserProfileData } from "@/hooks/queries/use-profile-data";
 import { compressImageIfNeeded } from "@/lib/image";
-import { useUpdatePost } from "@/hooks/mutations/post/use-update-post";
 
 export default function PostEditorModal() {
-  const session = useSession();
-  const currentFamilyId = useCurrentFamilyId();
-  const { data: family } = useFamilyById(currentFamilyId!);
-  const { data: profile } = useUserProfileData(session?.user.id);
-
-  const postEditorModal = usePostEditorModal();
-  const isEditMode = postEditorModal.type === "EDIT";
-
-  // 폼 상태
   const [content, setContent] = useState("");
   const [isNotice, setIsNotice] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
-
-  // 이미지 상태 (수정 모드용)
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [deletedImageUrls, setDeletedImageUrls] = useState<string[]>([]);
-
-  // 이미지 상태 (공통 - 새 이미지)
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
-  // 폼 초기화 함수
+  const session = useSession();
+  const currentFamilyId = useCurrentFamilyId();
+  const postEditorModal = usePostEditorModal();
+
+  const { data: familiesWithMembers } = useFamiliesWithMembers(session?.user.id);
+
+  // 현재 가족 정보 및 내 멤버십 추출
+  const currentFamily = familiesWithMembers?.find(
+    (f) => f.id === currentFamilyId,
+  );
+  const myMembership = currentFamily?.members.find(
+    (m) => m.user_id === session?.user.id,
+  );
+
+  const isEditMode = postEditorModal.type === "EDIT";
+
   const resetForm = () => {
     setContent("");
     setIsNotice(false);
@@ -47,7 +47,6 @@ export default function PostEditorModal() {
     setNewImagePreviews([]);
   };
 
-  // 포스트 생성 훅
   const { mutate: createPost, isPending: isCreatingPostPending } =
     useCreatePost({
       onSuccess: () => {
@@ -59,7 +58,6 @@ export default function PostEditorModal() {
       },
     });
 
-  // 포스트 수정 훅
   const { mutate: updatePost, isPending: isUpdatingPostPending } =
     useUpdatePost({
       onSuccess: () => {
@@ -68,14 +66,14 @@ export default function PostEditorModal() {
         toast.success("게시글이 수정되었습니다", { position: "top-center" });
       },
       onError: () => {
-        toast.error("게시글 수정에 실패했습니다");
+        toast.error("게시글 수정에 실패했습니다", { position: "top-center" });
       },
     });
 
-  // 모달이 열릴 때
+  // 모달이 열릴 때 폼 상태 초기화
   useEffect(() => {
     if (isEditMode && postEditorModal.postData) {
-      const { content, imageUrls, isNotice } = postEditorModal.postData!;
+      const { content, imageUrls, isNotice } = postEditorModal.postData;
       setContent(content);
       setExistingImageUrls(imageUrls ?? []);
       setNewImages([]);
@@ -87,7 +85,6 @@ export default function PostEditorModal() {
     }
   }, [isEditMode, postEditorModal.postData, postEditorModal.isOpen]);
 
-  // 이미지 선택 핸들러
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -119,14 +116,12 @@ export default function PostEditorModal() {
     }
   };
 
-  // 기존 이미지 삭제 (URL)
   const handleRemoveExistingImage = (index: number) => {
     const urlToDelete = existingImageUrls[index];
     setDeletedImageUrls((prev) => [...prev, urlToDelete]);
     setExistingImageUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // 새 이미지 삭제 (File)
   const handleRemoveNewImage = (index: number) => {
     URL.revokeObjectURL(newImagePreviews[index]);
     setNewImages((prev) => prev.filter((_, i) => i !== index));
@@ -135,10 +130,15 @@ export default function PostEditorModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !currentFamilyId || !session?.user?.id) return;
+    if (
+      !content.trim() ||
+      !currentFamilyId ||
+      !session?.user?.id ||
+      !myMembership
+    )
+      return;
 
     if (isEditMode) {
-      // 수정 모드
       updatePost({
         postId: postEditorModal.postData!.postId,
         familyId: currentFamilyId,
@@ -150,10 +150,10 @@ export default function PostEditorModal() {
         newImages,
       });
     } else {
-      // 생성 모드
       createPost({
         familyId: currentFamilyId,
         userId: session.user.id,
+        familyMemberId: myMembership.id,
         content: content.trim(),
         images: newImages,
         isNotice,
@@ -161,7 +161,6 @@ export default function PostEditorModal() {
     }
   };
 
-  // 전체 이미지 개수
   const totalImageCount = existingImageUrls.length + newImages.length;
   const isValid = content.trim().length > 0;
   const isPending = isCreatingPostPending || isUpdatingPostPending;
@@ -176,8 +175,8 @@ export default function PostEditorModal() {
           <DialogTitle>
             {isEditMode ? "게시글 수정" : "새 게시글 작성"}
           </DialogTitle>
-          {family && (
-            <p className="text-muted-foreground text-sm">{family.name}</p>
+          {currentFamily && (
+            <p className="text-muted-foreground text-sm">{currentFamily.name}</p>
           )}
         </DialogHeader>
 
@@ -185,7 +184,11 @@ export default function PostEditorModal() {
           {/* 작성 영역 */}
           <div className="flex gap-3">
             <img
-              src={profile?.avatar_url ?? defaultAvatar}
+              src={
+                myMembership?.avatar_url ??
+                myMembership?.user?.avatar_url ??
+                defaultAvatar
+              }
               alt="내 프로필"
               className="h-10 w-10 shrink-0 rounded-full border object-cover"
             />
@@ -201,9 +204,8 @@ export default function PostEditorModal() {
           {/* 이미지 미리보기 */}
           {(existingImageUrls.length > 0 || newImagePreviews.length > 0) && (
             <div className="flex gap-2 overflow-x-auto py-2">
-              {/* 기존 이미지 */}
               {existingImageUrls.map((url, index) => (
-                <div key={`existing-${index}`} className="relative shrink-0">
+                <div key={url} className="relative shrink-0">
                   <img
                     src={url}
                     alt={`기존 이미지 ${index + 1}`}
@@ -218,9 +220,8 @@ export default function PostEditorModal() {
                   </button>
                 </div>
               ))}
-              {/* 새 이미지 */}
               {newImagePreviews.map((preview, index) => (
-                <div key={`new-${index}`} className="relative shrink-0">
+                <div key={preview} className="relative shrink-0">
                   <img
                     src={preview}
                     alt={`새 이미지 ${index + 1}`}

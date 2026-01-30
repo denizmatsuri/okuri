@@ -18,30 +18,29 @@ import NoFamilyOnlyLayout from "@/components/layout/no-family-only-layout";
 import FamilyInvitePage from "@/pages/family/family-invite-page";
 import JoinFamilyPage from "@/pages/family/join-family-page";
 import FamilySettingPage from "@/pages/family/family-setting-page";
-import PostDetailPage from "./pages/post/post-detail-page";
+import PostDetailPage from "@/pages/post/post-detail-page";
 
 export default function RootRoute() {
   return (
     <Routes>
       <Route element={<GlobalLayout />}>
+        {/* 로그인 사용자만 접근 가능 */}
         <Route element={<MemberOnlyLayout />}>
-          {/* 가족 없이도 접근 가능한 페이지 */}
-          <Route path="/family/create" element={<CreateFamilyPage />} />
-          <Route path="/family/join" element={<JoinFamilyPage />} />
-          <Route
-            path="/family/:familyId/setting"
-            element={<FamilySettingPage />}
-          />
+          {/* 프로필 관련 페이지 */}
           <Route path="/profile/edit" element={<ProfileEditPage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+          {/* 가족 생성 및 가입 페이지 */}
+          <Route path="/family/create" element={<CreateFamilyPage />} />
+          <Route path="/family/join" element={<JoinFamilyPage />} />
 
           {/* 가족이 없는 사용자만 접근 가능 */}
           <Route element={<NoFamilyOnlyLayout />}>
             <Route path="/no-family" element={<NoFamilyPage />} />
           </Route>
 
-          {/* 가족이 필요한 페이지 */}
+          {/* 가족이 있는 사용자만 접근 가능 */}
           <Route element={<FamilyRequiredLayout />}>
             <Route path="/" element={<IndexPage />} />
             <Route path="/post/:postId" element={<PostDetailPage />} />
@@ -50,6 +49,10 @@ export default function RootRoute() {
             <Route
               path="/family/:familyId/invite"
               element={<FamilyInvitePage />}
+            />
+            <Route
+              path="/family/:familyId/setting"
+              element={<FamilySettingPage />}
             />
           </Route>
         </Route>
