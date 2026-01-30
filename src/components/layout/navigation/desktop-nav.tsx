@@ -29,7 +29,7 @@ export default function DesktopNav() {
   };
 
   return (
-    <nav className="bg-background fixed top-0 left-0 z-50 hidden h-full w-(--layout-narrow-width) flex-col justify-center gap-4 border-r md:flex">
+    <nav className="fixed top-0 left-0 z-50 hidden h-full w-(--layout-narrow-width) flex-col justify-center gap-4 md:flex">
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
         {/* 로고 */}
         <Link to="/" className="flex items-center justify-center py-3">

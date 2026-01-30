@@ -66,10 +66,16 @@ export default function CommentList({ postId }: { postId: number }) {
   const nestedComments = toNestedComments(comments);
 
   return (
-    <div className="flex flex-col">
-      {nestedComments.map((comment) => (
-        <CommentItem key={comment.id} {...comment} />
-      ))}
+    <div className="flex flex-col divide-y px-4">
+      {nestedComments.length === 0 ? (
+        <div className="text-muted-foreground py-8 text-center text-sm">
+          첫 댓글을 남겨보세요
+        </div>
+      ) : (
+        nestedComments.map((comment) => (
+          <CommentItem key={comment.id} {...comment} />
+        ))
+      )}
     </div>
   );
 }

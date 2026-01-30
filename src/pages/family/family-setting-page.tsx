@@ -23,72 +23,84 @@ export default function FamilySettingPage() {
   const isAdmin = currentMember?.is_admin ?? false;
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 items-center justify-center md:m-0 md:bg-transparent">
+        <Loader />
+      </main>
+    );
   }
 
   if (!family || !userId) {
     return (
-      <div className="flex flex-col items-center justify-center p-8">
-        <p className="text-muted-foreground">접근 권한이 없습니다</p>
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mt-4">
-          돌아가기
-        </Button>
-      </div>
+      <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 items-center justify-center md:m-0 md:bg-transparent">
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-muted-foreground">접근 권한이 없습니다</p>
+          <Button variant="ghost" onClick={() => navigate(-1)}>
+            돌아가기
+          </Button>
+        </div>
+      </main>
     );
   }
 
   return (
-    <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) w-full flex-1 border-x md:m-0">
+    <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 flex-col md:m-0 md:bg-transparent">
       {/* 헤더 */}
-      <div className="flex items-center gap-2 border-b p-4">
+      <div className="flex h-15 items-center gap-3 px-4">
         <Button
           variant="ghost"
           size="icon"
+          className="h-8 w-8"
           onClick={() => navigate(-1)}
-          className="shrink-0"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-lg font-semibold">가족 관리</h1>
+        <h1 className="font-medium">가족 관리</h1>
       </div>
 
-      <div className="flex flex-col gap-6 p-4">
-        <FamilyInfo
-          familyId={family.id}
-          initialName={family.name}
-          initialDescription={family.description}
-          isAdmin={isAdmin}
-        />
-
-        <hr />
-
-        <MemberList
-          familyId={family.id}
-          members={family.members}
-          currentUserId={userId}
-          isAdmin={isAdmin}
-        />
-
-        <hr />
-
-        {family.members.length > 1 && (
-          <>
-            <LeaveFamily
-              familyId={family.id}
-              familyName={family.name}
-              userId={userId}
-            />
-            <hr />
-          </>
-        )}
-
-        {isAdmin && (
-          <DeleteFamily
+      <div className="md:bg-background flex flex-1 flex-col gap-8 border-b-0 p-4 md:rounded-t-4xl md:border">
+        <section>
+          <FamilyInfo
             familyId={family.id}
-            familyName={family.name}
-            userId={userId}
+            initialName={family.name}
+            initialDescription={family.description}
+            isAdmin={isAdmin}
           />
-        )}
+        </section>
+
+        <section>
+          <MemberList
+            familyId={family.id}
+            members={family.members}
+            currentUserId={userId}
+            isAdmin={isAdmin}
+          />
+        </section>
+
+        <section className="mt-auto pt-8">
+          <div className="bg-destructive/5 rounded-2xl border border-destructive/20 p-4">
+            <h2 className="mb-4 text-sm font-semibold text-destructive">
+              위험 구역
+            </h2>
+            <div className="flex flex-col gap-6">
+              {family.members.length > 1 && (
+                <LeaveFamily
+                  familyId={family.id}
+                  familyName={family.name}
+                  userId={userId}
+                />
+              )}
+
+              {isAdmin && (
+                <DeleteFamily
+                  familyId={family.id}
+                  familyName={family.name}
+                  userId={userId}
+                />
+              )}
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );

@@ -38,19 +38,21 @@ export default function LeaveFamily({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-destructive font-medium">가족 나가기</h2>
-      <p className="text-muted-foreground text-sm">
-        가족을 나가면 더 이상 이 가족의 게시물과 사진에 접근할 수 없습니다. 다시
-        참여하려면 초대 코드가 필요합니다.
-      </p>
+      <div className="flex flex-col gap-1">
+        <h2 className="font-semibold text-destructive">가족 나가기</h2>
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          가족을 나가면 더 이상 이 가족의 게시물과 사진에 접근할 수 없습니다. 다시
+          참여하려면 초대 코드가 필요합니다.
+        </p>
+      </div>
 
       <Button
         variant="destructive"
-        className="w-full"
+        className="w-full rounded-xl"
         onClick={handleLeaveFamily}
         disabled={isPending}
       >
-        가족 나가기
+        {isPending ? "처리 중..." : "가족 나가기"}
       </Button>
     </div>
   );

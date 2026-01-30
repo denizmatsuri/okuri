@@ -4,6 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { useOpenAlertModal } from "@/store/alert-modal";
 import { PopoverClose } from "@radix-ui/react-popover";
 import type { ReactNode } from "react";
@@ -32,14 +33,15 @@ export default function MenuButton({ children }: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="m-2 flex w-40 flex-col p-0">
-        <PopoverClose>
-          <div
+      <PopoverContent className="ml-2 w-40 p-2">
+        <PopoverClose asChild>
+          <Button
+            variant="ghost"
             onClick={handleSignOut}
-            className="hover:bg-muted text-destructive cursor-pointer px-4 py-3 text-sm"
+            className="text-destructive hover:text-destructive h-auto w-full justify-start rounded-xl py-3"
           >
             로그아웃
-          </div>
+          </Button>
         </PopoverClose>
       </PopoverContent>
     </Popover>

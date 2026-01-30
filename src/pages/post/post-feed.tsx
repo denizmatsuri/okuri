@@ -55,45 +55,48 @@ export default function PostFeed() {
   const postIds = data?.pages.flatMap((page) => page.ids) ?? [];
 
   return (
-    <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) flex w-full flex-1 flex-col border-x md:m-0">
+    <main className="bg-background relative mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 flex-col pt-15 md:m-0 md:bg-transparent">
       {/* 가족 탭 */}
-      <FamilyTabs
-        families={familyTabs}
-        currentFamilyId={currentFamilyId!}
-        onFamilyChange={setCurrentFamilyId}
-      />
+      <div className="absolute top-0 right-0 left-0 z-10 border-b md:border-transparent">
+        <FamilyTabs
+          families={familyTabs}
+          currentFamilyId={currentFamilyId!}
+          onFamilyChange={setCurrentFamilyId}
+        />
+      </div>
 
-      {/* 카테고리 필터 */}
-      <CategoryFilter category={category} onCategoryChange={setCategory} />
+      {/* <div className="flex min-h-[calc(100vh-1.5rem)] flex-1 flex-col rounded-4xl border"> */}
+      <div className="md:bg-background flex flex-1 flex-col border-b-0 md:rounded-t-4xl md:border">
+        {/* 카테고리 필터 */}
+        <CategoryFilter category={category} onCategoryChange={setCategory} />
 
-      {/* 게시글 목록 */}
-      <div className="flex flex-1 flex-col">
-        {isLoading ? (
-          <div className="py-10">
-            <Loader />
-          </div>
-        ) : postIds.length === 0 ? (
-          <button
-            onClick={openCreatePostEditorModal}
-            className="bg-muted/50 hover:bg-muted mx-4 mt-4 flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed p-8 transition-colors"
-          >
-            <PenLine className="text-muted-foreground h-6 w-6" />
-            <p className="text-muted-foreground text-sm">
-              소소한 일상을 공유해보세요
-            </p>
-          </button>
-        ) : (
-          <>
-            {postIds.map((id) => (
-              <PostItem key={id} postId={id} type="FEED" />
-            ))}
-
-            {/* 무한스크롤 트리거 */}
-            <div ref={loadMoreRef} className="h-10">
-              {isFetchingNextPage && <Loader />}
+        {/* 게시글 목록 */}
+        <div className="flex flex-1 flex-col">
+          {isLoading ? (
+            <div className="py-10">
+              <Loader />
             </div>
-          </>
-        )}
+          ) : postIds.length === 0 ? (
+            <button
+              onClick={openCreatePostEditorModal}
+              className="bg-muted/50 hover:bg-muted mx-4 mt-4 flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed p-8 transition-colors"
+            >
+              <PenLine className="text-muted-foreground h-6 w-6" />
+              <p className="text-muted-foreground text-sm">
+                소소한 일상을 공유해보세요
+              </p>
+            </button>
+          ) : (
+            <>
+              {postIds.map((id) => (
+                <PostItem key={id} postId={id} type="FEED" />
+              ))}
+
+              {/* 무한스크롤 트리거 */}
+              <div ref={loadMoreRef}>{isFetchingNextPage && <Loader />}</div>
+            </>
+          )}
+        </div>
       </div>
     </main>
   );
