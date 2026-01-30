@@ -93,7 +93,7 @@ export const STORAGE_PATHS = {
 #### Users 관련
 
 ```sql
--- SELECT (읽기)
+-- ✅ SELECT (읽기)
 CREATE POLICY "Anyone can view user avatars"
 ON storage.objects FOR SELECT
 TO public
@@ -102,7 +102,7 @@ USING (
   AND (storage.foldername(name))[1] = 'users'
 );
 
--- INSERT (업로드)
+-- ✅ INSERT (업로드)
 CREATE POLICY "Users can upload own avatar"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -111,7 +111,7 @@ WITH CHECK (
   AND (storage.foldername(name))[2] = auth.uid()::text
 );
 
--- UPDATE (수정)
+-- ✅ UPDATE (수정)
 CREATE POLICY "Users can update own avatar"
 ON storage.objects FOR UPDATE
 USING (
@@ -125,7 +125,7 @@ WITH CHECK (
   AND (storage.foldername(name))[2] = auth.uid()::text
 );
 
--- DELETE (삭제)
+-- ✅ DELETE (삭제)
 CREATE POLICY "Users can delete own avatar"
 ON storage.objects FOR DELETE
 USING (
