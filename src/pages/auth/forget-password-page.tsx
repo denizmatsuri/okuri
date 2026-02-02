@@ -45,7 +45,7 @@ export default function ForgetPasswordPage() {
   };
   return (
     <div className="flex h-full items-center justify-center">
-      <Card className="my-(--footer-height) flex w-full max-w-md">
+      <Card className="m-4 my-(--footer-height) flex w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">비밀번호 재설정</CardTitle>
           <CardDescription>

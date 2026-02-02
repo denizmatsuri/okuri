@@ -37,7 +37,7 @@ export default function SignInPage() {
 
   return (
     <div className="flex h-full items-center justify-center">
-      <Card className="my-(--footer-height) flex w-full max-w-md">
+      <Card className="m-4 my-(--footer-height) flex w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">로그인</CardTitle>
           <CardDescription>

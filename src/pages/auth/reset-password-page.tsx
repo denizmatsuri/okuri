@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="flex h-full items-center justify-center">
-      <Card className="my-(--footer-height) flex w-full max-w-md">
+      <Card className="m-4 my-(--footer-height) flex w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">새 비밀번호 설정</CardTitle>
           <CardDescription>새로운 비밀번호를 입력해주세요</CardDescription>

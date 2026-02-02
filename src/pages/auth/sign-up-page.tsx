@@ -41,7 +41,7 @@ export default function SignUpPage() {
 
   return (
     <div className="flex h-full items-center justify-center">
-      <Card className="my-(--footer-height) flex w-full max-w-md">
+      <Card className="m-4 my-(--footer-height) flex w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">회원가입</CardTitle>
           <CardDescription>
