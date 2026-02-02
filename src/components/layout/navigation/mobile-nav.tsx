@@ -33,18 +33,40 @@ export default function MobileNav() {
       >
         <Home className="text-muted-foreground h-5 w-5" />
       </Link>
-      <Link to="/" className="flex h-10 w-10 items-center justify-center">
+      {/* <Link to="/" className="flex h-10 w-10 items-center justify-center">
         <Calendar className="text-muted-foreground h-5 w-5" />
-      </Link>
+      </Link> */}
+      <div
+        onClick={() => {
+          openAlertModal({
+            title: "캘린더 페이지는 준비중입니다.",
+            description: "캘린더 페이지는 준비중입니다.",
+          });
+        }}
+        className="hover:bg-muted flex h-10 w-10 items-center justify-center rounded-xl"
+      >
+        <Calendar className="text-muted-foreground h-5 w-5" />
+      </div>
       <button
         onClick={openCreatePostEditorModal}
         className="bg-muted flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl"
       >
         <Plus className="text-muted-foreground h-5 w-5" />
       </button>
-      <Link to="/" className="flex h-10 w-10 items-center justify-center">
+      {/* <Link to="/" className="flex h-10 w-10 items-center justify-center">
         <Image className="text-muted-foreground h-5 w-5" />
-      </Link>
+      </Link> */}
+      <div
+        onClick={() => {
+          openAlertModal({
+            title: "갤러리 페이지는 준비중입니다.",
+            description: "갤러리 페이지는 준비중입니다.",
+          });
+        }}
+        className="hover:bg-muted flex h-10 w-10 items-center justify-center rounded-xl"
+      >
+        <Image className="text-muted-foreground h-5 w-5" />
+      </div>
       <button
         onClick={handleProfileClick}
         className="flex h-10 w-10 cursor-pointer items-center justify-center"
