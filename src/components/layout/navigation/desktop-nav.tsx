@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { Home, Calendar, Image, User, Plus } from "lucide-react";
 
-import logo from "@/assets/react.svg";
+import logo from "@/assets/logo.svg";
 import MenuButton from "./menu-button";
 import { useSession } from "@/store/session";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
@@ -34,7 +34,7 @@ export default function DesktopNav() {
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
         {/* 로고 */}
         <Link to="/" className="flex items-center justify-center py-3">
-          <img src={logo} alt="logo" className="h-10 w-10" />
+          <img src={logo} alt="logo" className="h-12 w-12" />
         </Link>
 
         {/* 메인 네비게이션 */}
