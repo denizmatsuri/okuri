@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router";
-import { Home, Calendar, Image, Moon, User, Plus, Menu } from "lucide-react";
+import { Home, Calendar, Image, User, Plus } from "lucide-react";
 
 import logo from "@/assets/react.svg";
 import MenuButton from "./menu-button";
 import { useSession } from "@/store/session";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
 import { useOpenAlertModal } from "@/store/alert-modal";
+import ThemeButton from "./theme-button";
 
 export default function DesktopNav() {
   const session = useSession();
@@ -73,15 +74,8 @@ export default function DesktopNav() {
 
         {/* 설정 영역 */}
         <div className="mb-3 flex flex-col items-center justify-center gap-2">
-          <button className="hover:bg-muted flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl">
-            <Moon className="text-muted-foreground h-7 w-7" />
-          </button>
-          {/* 메뉴 버튼 */}
-          <MenuButton>
-            <button className="hover:bg-muted flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl">
-              <Menu className="text-muted-foreground h-7 w-7" />
-            </button>
-          </MenuButton>
+          <ThemeButton />
+          <MenuButton />
         </div>
       </div>
     </nav>

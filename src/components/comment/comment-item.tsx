@@ -90,7 +90,7 @@ export default function CommentItem(props: NestedComment) {
                   <div className="flex flex-col gap-1">
                     <Button
                       variant="ghost"
-                      className="h-auto justify-start rounded-xl py-3"
+                      className="h-auto justify-start rounded-2xl py-3"
                       onClick={toggleIsEditing}
                     >
                       <Pencil className="h-4 w-4" />
@@ -98,7 +98,7 @@ export default function CommentItem(props: NestedComment) {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="text-destructive hover:text-destructive h-auto justify-start rounded-xl py-3"
+                      className="text-destructive hover:text-destructive h-auto justify-start rounded-2xl py-3"
                       onClick={handleDeleteClick}
                     >
                       <Trash2 className="h-4 w-4" />
