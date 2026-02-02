@@ -5,7 +5,7 @@ import Navigation from "@/components/layout/navigation";
 export default function GlobalLayout() {
   return (
     <div className="flex min-h-screen w-full flex-col justify-center md:flex-row">
-      <div className="w-full flex-col md:ml-(--layout-narrow-width) md:max-w-(--layout-width)">
+      <div className="min-h-screen w-full flex-col md:ml-(--layout-narrow-width) md:max-w-(--layout-width)">
         <Header />
         <Outlet />
       </div>

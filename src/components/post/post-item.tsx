@@ -121,12 +121,11 @@ export default function PostItem({
                 <MoreHorizontal className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-40 p-1" align="end">
-              <div className="flex flex-col gap-0.5">
+            <PopoverContent className="w-40 p-2" align="end">
+              <div className="flex flex-col gap-1">
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="justify-start"
+                  className="h-auto justify-start rounded-2xl py-3"
                   onClick={handleEdit}
                 >
                   <Pencil className="h-4 w-4" />
@@ -134,8 +133,7 @@ export default function PostItem({
                 </Button>
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive justify-start"
+                  className="text-destructive hover:text-destructive h-auto justify-start rounded-2xl py-3"
                   onClick={handleDelete}
                 >
                   <Trash2 className="h-4 w-4" />

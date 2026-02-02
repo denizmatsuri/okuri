@@ -13,23 +13,28 @@ export default function PostDetailPage() {
   if (!postId) return <Navigate to="/" replace={true} />;
 
   return (
-    <div>
-      {/* 뒤로가기 버튼 공간 */}
-      <div className="flex items-center gap-2 overflow-x-auto border-b px-4 py-3">
+    <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 flex-col md:m-0 md:bg-transparent">
+      {/* 헤더 - 뒤로가기 */}
+      <div className="flex h-15 items-center gap-2 px-4">
         <Button
           variant="ghost"
           size="icon"
-          className="relative z-10 h-8 w-8"
+          className="h-8 w-8"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
+        <span className="font-medium">게시글</span>
       </div>
-      <PostItem postId={Number(postId)} type="DETAIL" />
 
-      {/* 댓글 섹션 */}
-      <CommentEditor type="CREATE" postId={Number(postId)} />
-      <CommentList postId={Number(postId)} />
-    </div>
+      {/* 게시글 + 댓글 섹션 */}
+      <div className="md:bg-background flex flex-1 flex-col border-b-0 md:rounded-t-4xl md:border">
+        <PostItem postId={Number(postId)} type="DETAIL" />
+
+        {/* 댓글 섹션 */}
+        <CommentEditor type="CREATE" postId={Number(postId)} />
+        <CommentList postId={Number(postId)} />
+      </div>
+    </main>
   );
 }

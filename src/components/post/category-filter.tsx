@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import type { PostCategory } from "@/types";
+import { Button } from "../ui/button";
 
 type CategoryFilterProps = {
   category: PostCategory;
@@ -19,29 +19,21 @@ export default function CategoryFilter({
   // noticeCount,
 }: CategoryFilterProps) {
   return (
-    <div className="flex items-center gap-4 border-b px-4 py-2">
+    <div className="flex items-center gap-1 p-4">
       {categories.map(({ value, label }) => {
         const isActive = category === value;
         // const showBadge = value === "notice" && noticeCount > 0;
 
         return (
-          <button
+          <Button
             key={value}
+            variant={isActive ? "default" : "ghost"}
+            size="sm"
+            className="rounded-4xl border"
             onClick={() => onCategoryChange(value)}
-            className={cn(
-              "flex items-center gap-1.5 py-1 text-sm font-medium transition-colors",
-              isActive
-                ? "border-primary text-foreground border-b-2"
-                : "text-muted-foreground hover:text-foreground",
-            )}
           >
             {label}
-            {/* {showBadge && (
-              <span className="bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5 text-xs">
-                {noticeCount}
-              </span>
-            )} */}
-          </button>
+          </Button>
         );
       })}
     </div>

@@ -32,7 +32,9 @@ export default function MemberList({
       toast.success("관리자 권한이 부여되었습니다", { position: "top-center" });
     },
     onError: () => {
-      toast.error("관리자 권한 부여에 실패했습니다", { position: "top-center" });
+      toast.error("관리자 권한 부여에 실패했습니다", {
+        position: "top-center",
+      });
     },
   });
 
@@ -58,18 +60,24 @@ export default function MemberList({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-medium">가족 구성원</h2>
+      <div className="flex flex-col gap-1">
+        <h2 className="text-lg font-semibold">가족 구성원</h2>
+        <p className="text-muted-foreground text-sm">
+          가족에 소속된 멤버들을 관리합니다.
+        </p>
+      </div>
 
-      <div className="flex flex-col divide-y">
+      <div className="bg-muted/30 flex flex-col divide-y rounded-2xl border">
         {members.map((member) => (
-          <MemberItem
-            key={member.id}
-            member={member}
-            isCurrentUser={member.user_id === currentUserId}
-            isAdmin={isAdmin}
-            onRemove={handleRemoveMember}
-            onGrantAdmin={handleGrantAdmin}
-          />
+          <div key={member.id} className="p-4">
+            <MemberItem
+              member={member}
+              isCurrentUser={member.user_id === currentUserId}
+              isAdmin={isAdmin}
+              onRemove={handleRemoveMember}
+              onGrantAdmin={handleGrantAdmin}
+            />
+          </div>
         ))}
       </div>
     </div>

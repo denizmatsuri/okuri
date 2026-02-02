@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,9 +34,17 @@ export default function CommentEditor(props: Props) {
   const [content, setContent] = useState(
     props.type === "EDIT" ? props.initialContent : "",
   );
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const session = useSession();
   const currentFamilyId = useCurrentFamilyId();
+
+  // REPLY, EDIT 모드일 때 자동 포커스
+  useEffect(() => {
+    if ((props.type === "REPLY" || props.type === "EDIT") && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [props.type]);
 
   const { data: familiesWithMembers } = useFamiliesWithMembers(session?.user.id);
 
@@ -104,24 +112,33 @@ export default function CommentEditor(props: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3 p-4">
       <Textarea
+        ref={textareaRef}
         placeholder="댓글을 입력하세요"
         disabled={isPending}
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        className="min-h-20 resize-none rounded-xl"
       />
       <div className="flex justify-end gap-2">
         {(props.type === "EDIT" || props.type === "REPLY") && (
           <Button
             disabled={isPending}
             variant="outline"
+            size="sm"
             onClick={props.onClose}
+            className="rounded-xl"
           >
             취소
           </Button>
         )}
-        <Button disabled={isPending} onClick={handleSubmitClick}>
+        <Button
+          disabled={isPending}
+          size="sm"
+          onClick={handleSubmitClick}
+          className="rounded-xl"
+        >
           {props.type === "EDIT" ? "수정" : "작성"}
         </Button>
       </div>

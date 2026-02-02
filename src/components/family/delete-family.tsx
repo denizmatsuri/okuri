@@ -40,19 +40,21 @@ export default function DeleteFamily({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-destructive font-medium">가족 삭제</h2>
-      <p className="text-muted-foreground text-sm">
-        가족을 삭제하면 모든 멤버가 가족에서 제거되고, 관련된 모든 데이터가
-        영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
-      </p>
+      <div className="flex flex-col gap-1">
+        <h2 className="font-semibold text-destructive">가족 삭제</h2>
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          가족을 삭제하면 모든 멤버가 가족에서 제거되고, 관련된 모든 데이터가
+          영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+        </p>
+      </div>
 
       <Button
         variant="destructive"
-        className="w-full"
+        className="w-full rounded-xl"
         onClick={handleDeleteFamily}
         disabled={deleteFamilyMutation.isPending}
       >
-        가족 삭제
+        {deleteFamilyMutation.isPending ? "삭제 중..." : "가족 삭제"}
       </Button>
     </div>
   );

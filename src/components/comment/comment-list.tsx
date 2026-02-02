@@ -51,13 +51,11 @@ function toNestedComments(comments: Comment[]): NestedComment[] {
 }
 
 export default function CommentList({ postId }: { postId: number }) {
-  const currentFamilyId = useCurrentFamilyId();
-
   const {
     data: comments,
     isPending,
     error: fetchCommentsError,
-  } = useCommentsData(postId, currentFamilyId!);
+  } = useCommentsData(postId);
 
   if (fetchCommentsError)
     return <Fallback message="댓글 목록을 불러오는데 실패했습니다." />;
@@ -66,10 +64,16 @@ export default function CommentList({ postId }: { postId: number }) {
   const nestedComments = toNestedComments(comments);
 
   return (
-    <div className="flex flex-col">
-      {nestedComments.map((comment) => (
-        <CommentItem key={comment.id} {...comment} />
-      ))}
+    <div className="flex flex-col divide-y px-4">
+      {nestedComments.length === 0 ? (
+        <div className="text-muted-foreground py-8 text-center text-sm">
+          첫 댓글을 남겨보세요
+        </div>
+      ) : (
+        nestedComments.map((comment) => (
+          <CommentItem key={comment.id} {...comment} />
+        ))
+      )}
     </div>
   );
 }
