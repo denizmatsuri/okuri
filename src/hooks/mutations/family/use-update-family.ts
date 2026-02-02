@@ -9,7 +9,6 @@ export function useUpdateFamily(callbacks?: MutationCallbacks) {
   return useMutation({
     mutationFn: updateFamily,
     onSuccess: async () => {
-      // 멤버 목록 캐시 무효화
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.family.all });
       callbacks?.onSuccess?.();
     },

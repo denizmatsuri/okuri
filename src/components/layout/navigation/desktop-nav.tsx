@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router";
-import { Home, Calendar, Image, Moon, User, Plus, Menu } from "lucide-react";
+import { Home, Calendar, Image, User, Plus } from "lucide-react";
 
-import logo from "@/assets/react.svg";
+import logo from "@/assets/logo.svg";
 import MenuButton from "./menu-button";
 import { useSession } from "@/store/session";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
 import { useOpenAlertModal } from "@/store/alert-modal";
+import ThemeButton from "./theme-button";
 
 export default function DesktopNav() {
   const session = useSession();
@@ -29,11 +30,11 @@ export default function DesktopNav() {
   };
 
   return (
-    <nav className="bg-background fixed top-0 left-0 z-50 hidden h-full w-(--layout-narrow-width) flex-col justify-center gap-4 border-r md:flex">
+    <nav className="fixed top-0 left-0 z-50 hidden h-full w-(--layout-narrow-width) flex-col justify-center gap-4 md:flex">
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
         {/* 로고 */}
         <Link to="/" className="flex items-center justify-center py-3">
-          <img src={logo} alt="logo" className="h-10 w-10" />
+          <img src={logo} alt="logo" className="h-12 w-12" />
         </Link>
 
         {/* 메인 네비게이션 */}
@@ -44,12 +45,24 @@ export default function DesktopNav() {
           >
             <Home className="text-muted-foreground h-7 w-7" />
           </Link>
-          <Link
+          {/* <Link
             to="/calendar"
             className="hover:bg-muted flex h-14 w-12 items-center justify-center rounded-xl"
           >
             <Calendar className="text-muted-foreground h-7 w-7" />
-          </Link>
+          </Link> */}
+          <div
+            // alert="캘린더 페이지는 준비중입니다."
+            onClick={() => {
+              openAlertModal({
+                title: "캘린더 페이지는 준비중입니다.",
+                description: "캘린더 페이지는 준비중입니다.",
+              });
+            }}
+            className="hover:bg-muted flex h-14 w-12 items-center justify-center rounded-xl"
+          >
+            <Calendar className="text-muted-foreground h-7 w-7" />
+          </div>
           {/* 피드 추가 버튼 */}
           <button
             onClick={openCreatePostEditorModal}
@@ -57,12 +70,23 @@ export default function DesktopNav() {
           >
             <Plus className="text-muted-foreground group-hover:text-foreground h-7 w-7" />
           </button>
-          <Link
+          {/* <Link
             to="/gallery"
             className="hover:bg-muted flex h-14 w-12 items-center justify-center rounded-xl"
           >
             <Image className="text-muted-foreground h-7 w-7" />
-          </Link>
+          </Link> */}
+          <div
+            onClick={() => {
+              openAlertModal({
+                title: "갤러리 페이지는 준비중입니다.",
+                description: "갤러리 페이지는 준비중입니다.",
+              });
+            }}
+            className="hover:bg-muted flex h-14 w-12 items-center justify-center rounded-xl"
+          >
+            <Image className="text-muted-foreground h-7 w-7" />
+          </div>
           <button
             onClick={handleProfileClick}
             className="hover:bg-muted flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl"
@@ -73,15 +97,8 @@ export default function DesktopNav() {
 
         {/* 설정 영역 */}
         <div className="mb-3 flex flex-col items-center justify-center gap-2">
-          <button className="hover:bg-muted flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl">
-            <Moon className="text-muted-foreground h-7 w-7" />
-          </button>
-          {/* 메뉴 버튼 */}
-          <MenuButton>
-            <button className="hover:bg-muted flex h-14 w-12 cursor-pointer items-center justify-center rounded-xl">
-              <Menu className="text-muted-foreground h-7 w-7" />
-            </button>
-          </MenuButton>
+          <ThemeButton />
+          <MenuButton />
         </div>
       </div>
     </nav>

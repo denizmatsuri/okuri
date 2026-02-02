@@ -1,5 +1,5 @@
 import { STORAGE_PATHS } from "@/lib/constants";
-import supabase from "@/utils/supabase";
+import supabase from "@/lib/supabase";
 import { deleteAllImagesInFolder, uploadImage } from "./image";
 
 // FIXME: fetchProfile 함수명으로 변경

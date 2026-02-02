@@ -12,7 +12,7 @@ export default function FamilyTabs({
   onFamilyChange,
 }: FamilyTabsProps) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto border-b px-4 py-3">
+    <div className="flex items-center gap-2 overflow-x-auto px-4 py-3">
       {families.map((family) => {
         const isActive = family.id === currentFamilyId;
 

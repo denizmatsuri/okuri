@@ -7,10 +7,11 @@ export function useRegenerateInviteCode(callbacks?: MutationCallbacks) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: regenerateInviteCode,
-    onSuccess: async (_, familyId) => {
+    mutationFn: ({ familyId }: { familyId: string; userId: string }) =>
+      regenerateInviteCode(familyId),
+    onSuccess: async (_, { userId }) => {
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.family.byId(familyId),
+        queryKey: QUERY_KEYS.family.familiesWithMembersByUserId(userId),
       });
       callbacks?.onSuccess?.();
     },

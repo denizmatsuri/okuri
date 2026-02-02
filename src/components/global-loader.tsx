@@ -1,4 +1,4 @@
-import logo from "@/assets/react.svg";
+import logo from "@/assets/logo.svg";
 
 export default function GlobalLoader() {
   return (

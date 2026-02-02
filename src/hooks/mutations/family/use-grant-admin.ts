@@ -11,7 +11,7 @@ export function useGrantAdmin(userId: string, callbacks?: MutationCallbacks) {
     onSuccess: async () => {
       // 해당 유저의 가족 멤버 목록만 무효화
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.family.members(userId),
+        queryKey: QUERY_KEYS.family.familiesWithMembersByUserId(userId),
       });
       callbacks?.onSuccess?.();
     },

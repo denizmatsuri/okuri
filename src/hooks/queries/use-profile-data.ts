@@ -1,5 +1,5 @@
 import { getUserProfileData } from "@/api/profile";
-import { QUERY_KEYS } from "@/lib/constants";
+import { QUERY_KEYS, STALE_TIME } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 
 export function useUserProfileData(userId?: string) {
@@ -12,5 +12,6 @@ export function useUserProfileData(userId?: string) {
       return userProfileData;
     },
     enabled: !!userId,
+    staleTime: STALE_TIME.STATIC,
   });
 }

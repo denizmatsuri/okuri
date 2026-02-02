@@ -1,5 +1,5 @@
 import { useIsSessionLoaded, useSession, useSetSession } from "@/store/session";
-import supabase from "@/utils/supabase";
+import supabase from "@/lib/supabase";
 import { useEffect } from "react";
 import GlobalLoader from "@/components/global-loader";
 import { useUserProfileData } from "@/hooks/queries/use-profile-data";

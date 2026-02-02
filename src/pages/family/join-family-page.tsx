@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { ArrowLeft, ArrowRight, Check, Search, Users } from "lucide-react";
 import { toast } from "sonner";
 
@@ -58,7 +58,7 @@ export default function JoinFamilyPage() {
       setFoundFamily(family);
       setStep(2);
     } catch {
-      toast.error("유효하지 않은 초대 코드입니다");
+      toast.error("유효하지 않은 초대 코드입니다", { position: "top-center" });
       setFoundFamily(null);
     } finally {
       setIsSearching(false);
@@ -84,6 +84,13 @@ export default function JoinFamilyPage() {
       familyRole,
     });
   };
+  const handleBack = () => {
+    if (step === 2) {
+      setStep(1);
+    } else {
+      navigate(-1); // 이전 페이지로 이동
+    }
+  };
 
   return (
     <div className="flex h-full items-center justify-center px-4">
@@ -91,10 +98,8 @@ export default function JoinFamilyPage() {
         {/* 헤더 */}
         <CardHeader>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/no-family">
-                <ArrowLeft className="size-5" />
-              </Link>
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ArrowLeft className="size-5" />
             </Button>
             <div>
               <CardTitle className="text-xl">초대 코드로 가입</CardTitle>

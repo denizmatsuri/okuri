@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { ArrowLeft, Camera } from "lucide-react";
+import { useNavigate } from "react-router";
+import { ArrowLeft, Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,16 +23,27 @@ export default function ProfileEditPage() {
 
   const isMine = session?.user.id === profile?.id;
 
-  if (!isMine) {
-    navigate("/");
-  }
+  useEffect(() => {
+    if (profile && !isMine) {
+      navigate("/");
+    }
+  }, [profile, isMine, navigate]);
 
   // 폼 상태 (프로필 데이터로 초기화)
-  const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
-  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number ?? "");
-  const [birthDate, setBirthDate] = useState(profile?.birth_date ?? "");
+  const [displayName, setDisplayName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<ImagePreview | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  // 프로필 데이터 로드 시 폼 상태 초기화
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.display_name ?? "");
+      setPhoneNumber(profile.phone_number ?? "");
+      setBirthDate(profile.birth_date ?? "");
+    }
+  }, [profile]);
 
   // 컴포넌트 언마운트 시 Object URL 정리
   useEffect(() => {
@@ -57,7 +68,7 @@ export default function ProfileEditPage() {
   // 로딩 상태
   if (isFetchingProfilePending) {
     return (
-      <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) flex w-full flex-1 items-center justify-center border-x md:m-0">
+      <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 items-center justify-center md:m-0 md:bg-transparent">
         <p className="text-muted-foreground">프로필을 불러오는 중...</p>
       </main>
     );
@@ -66,7 +77,7 @@ export default function ProfileEditPage() {
   // 본인 프로필이 아니거나 프로필이 없는 경우
   if (!profile || !isMine) {
     return (
-      <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) flex w-full flex-1 items-center justify-center border-x md:m-0">
+      <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 items-center justify-center md:m-0 md:bg-transparent">
         <p className="text-muted-foreground">접근 권한이 없습니다.</p>
       </main>
     );
@@ -99,11 +110,20 @@ export default function ProfileEditPage() {
     });
   };
 
+  // 이미지 삭제 핸들러
+  const handleAvatarRemove = () => {
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview.previewUrl);
+      setAvatarPreview(null);
+    }
+  };
+
   // 폼 제출 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // TODO: 유효성 검사
+    if (displayName.trim() === "") return;
+    if (phoneNumber.trim() === "") return;
+    if (birthDate.trim() === "") return;
 
     updateUserProfile({
       userId: profile.id,
@@ -117,46 +137,68 @@ export default function ProfileEditPage() {
   const isDisabled = isUpdatingUserProfilePending || isCompressing;
 
   return (
-    <main className="mt-(--mobile-header-height) mb-(--mobile-nav-height) w-full flex-1 border-x md:m-0">
+    <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 flex-col md:m-0 md:bg-transparent">
       {/* 헤더 */}
-      <div className="flex items-center gap-4 border-b p-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/profile">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+      <div className="flex h-15 items-center gap-3 px-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-lg font-semibold">프로필 수정</h1>
+        <h1 className="font-medium">프로필 수정</h1>
       </div>
 
       {/* 폼 */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="md:bg-background flex flex-1 flex-col gap-6 border-b-0 p-4 md:rounded-t-4xl md:border"
+      >
         {/* 프로필 이미지 */}
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
-            <img
-              src={
-                avatarPreview?.previewUrl || profile.avatar_url || defaultAvatar
-              }
-              alt="프로필 이미지"
-              className="h-24 w-24 rounded-full border object-cover"
-            />
-            <label
-              htmlFor="avatar-upload"
-              className="bg-primary text-primary-foreground absolute right-0 bottom-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-white"
-            >
-              <Camera className="h-4 w-4" />
+            <label htmlFor="avatar-upload" className="cursor-pointer">
+              <img
+                src={
+                  avatarPreview?.previewUrl ||
+                  profile.avatar_url ||
+                  defaultAvatar
+                }
+                alt="프로필 이미지"
+                className="h-24 w-24 rounded-full border object-cover"
+              />
+              {isCompressing && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                  <Loader2 className="h-6 w-6 animate-spin text-white" />
+                </div>
+              )}
               <input
                 id="avatar-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handleAvatarChange}
+                disabled={isCompressing}
               />
             </label>
+            {avatarPreview ? (
+              <button
+                type="button"
+                onClick={handleAvatarRemove}
+                disabled={isCompressing}
+                className="absolute right-0 bottom-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-red-500 text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : (
+              <div className="bg-primary text-primary-foreground pointer-events-none absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white">
+                <Camera className="h-4 w-4" />
+              </div>
+            )}
           </div>
-          <p className="text-muted-foreground text-sm">
-            프로필 사진을 변경하려면 클릭하세요
-          </p>
+          <p className="text-muted-foreground text-sm">프로필 사진</p>
         </div>
 
         {/* 이름 */}
@@ -168,6 +210,7 @@ export default function ProfileEditPage() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="이름을 입력하세요"
+            required
           />
         </div>
 
@@ -195,6 +238,7 @@ export default function ProfileEditPage() {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="010-0000-0000"
+            required
           />
         </div>
 
@@ -206,6 +250,7 @@ export default function ProfileEditPage() {
             type="date"
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
+            required
           />
         </div>
 
@@ -215,9 +260,9 @@ export default function ProfileEditPage() {
             type="button"
             variant="outline"
             className="flex-1 cursor-pointer"
-            asChild
+            onClick={() => navigate(-1)}
           >
-            <Link to="/profile">취소</Link>
+            취소
           </Button>
           <Button
             type="submit"

@@ -95,3 +95,6 @@ export type MutationCallbacks = {
   onMutate?: () => void;
   onSettled?: () => void;
 };
+
+// 테마 타입(다크모드, 라이트모드, 시스템 모드)
+export type Theme = "light" | "dark" | "system";

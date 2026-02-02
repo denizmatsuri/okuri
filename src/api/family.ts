@@ -1,33 +1,24 @@
-import supabase from "@/utils/supabase";
+import supabase from "@/lib/supabase";
 import type { FamilyEntity, FamilyMember, FamilyWithMembers } from "@/types";
 import { generateInviteCode } from "@/lib/utils";
+import { deleteAllImagesInFolder } from "./image";
+import { STORAGE_PATHS } from "@/lib/constants";
 
 /**
  * 현재 로그인한 사용자가 속한 가족 목록 조회
- * family_members 테이블에서 user_id로 필터링 후 families 조인
  */
-export async function fetchMyFamiliesWithMembers(userId: string) {
+export async function fetchMyFamilies(userId: string) {
   const { data, error } = await supabase
     .from("family_members")
     .select(
       `
-      id,
-      display_name,
-      family_role,
-      avatar_url,
-      is_admin,
-      joined_at,
-      family:families (
-        id,
-        name,
-        description,
-        created_at
-      )
+      family:families (*)
     `,
     )
     .eq("user_id", userId);
 
   if (error) throw error;
+
   return data;
 }
 
@@ -315,6 +306,7 @@ export async function updateFamilyMember({
 /**
  * 가족 멤버 추방 (Admin 전용)
  * 자기 자신은 추방 불가
+ * 이미지 삭제 후 멤버 삭제 (RLS 정책상 멤버여야 삭제 가능)
  */
 export async function removeFamilyMember({
   memberId,
@@ -323,6 +315,37 @@ export async function removeFamilyMember({
   memberId: string;
   familyId: string;
 }) {
+  // 1. 멤버의 userId 및 posts 목록 조회
+  const { data: member } = await supabase
+    .from("family_members")
+    .select("user_id")
+    .eq("id", memberId)
+    .eq("family_id", familyId)
+    .single();
+
+  if (!member) throw new Error("멤버를 찾을 수 없습니다");
+
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("id")
+    .eq("family_id", familyId)
+    .eq("author_id", member.user_id);
+
+  // 2. 이미지 삭제 먼저 (아직 family_member이므로 RLS 통과)
+  if (posts && posts.length > 0) {
+    await Promise.allSettled(
+      posts.map((post) => {
+        const basePath = STORAGE_PATHS.postImages(
+          familyId,
+          member.user_id,
+          post.id.toString(),
+        );
+        return deleteAllImagesInFolder(basePath);
+      }),
+    );
+  }
+
+  // 3. 멤버 삭제 (CASCADE로 posts 삭제)
   const { error } = await supabase
     .from("family_members")
     .delete()
@@ -330,6 +353,7 @@ export async function removeFamilyMember({
     .eq("family_id", familyId);
 
   if (error) throw error;
+
   return { success: true };
 }
 
@@ -337,6 +361,7 @@ export async function removeFamilyMember({
  * 가족에서 본인 탈퇴
  * - Admin이 탈퇴할 경우 다른 Admin이 있어야 함
  * - 마지막 멤버(본인)가 탈퇴하면 가족도 삭제
+ * - 멤버 삭제 후 해당 멤버의 posts 이미지도 삭제 (best-effort)
  */
 export async function leaveFamily({
   familyId,
@@ -365,6 +390,10 @@ export async function leaveFamily({
 
   // 3. 마지막 멤버인 경우 가족 삭제 (FK CASCADE로 멤버 자동 삭제됨)
   if (memberCount === 1) {
+    // 가족의 모든 이미지 삭제 (fire-and-forget)
+    const basePath = STORAGE_PATHS.familyPosts(familyId);
+    deleteAllImagesInFolder(basePath).catch(() => {});
+
     await supabase.from("families").delete().eq("id", familyId);
     return { deleted: true };
   }
@@ -384,19 +413,43 @@ export async function leaveFamily({
     }
   }
 
-  // 5. 멤버 삭제
+  // 5. 삭제할 posts 목록 조회 (이미지 삭제용)
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("id")
+    .eq("family_id", familyId)
+    .eq("author_id", userId);
+
+  // 6. 이미지 삭제 먼저 (아직 family_member이므로 RLS 통과)
+  if (posts && posts.length > 0) {
+    await Promise.allSettled(
+      posts.map((post) => {
+        const basePath = STORAGE_PATHS.postImages(
+          familyId,
+          userId,
+          post.id.toString(),
+        );
+        return deleteAllImagesInFolder(basePath);
+      }),
+    );
+  }
+
+  // 7. 멤버 삭제 (CASCADE로 posts 삭제)
   const { error: deleteError } = await supabase
     .from("family_members")
     .delete()
-    .eq("id", currentMember.id);
+    .eq("id", currentMember.id)
+    .eq("family_id", familyId);
 
   if (deleteError) throw deleteError;
+
   return { deleted: false };
 }
 
 /**
  * 가족 삭제 (Admin 전용)
  * families 테이블에서 삭제하면 FK CASCADE로 family_members도 자동 삭제됨
+ * 삭제 후 해당 가족의 모든 이미지도 삭제 (best-effort)
  */
 export async function deleteFamily({
   familyId,
@@ -428,6 +481,11 @@ export async function deleteFamily({
     .eq("id", familyId);
 
   if (deleteError) throw deleteError;
+
+  // 3. 가족의 모든 이미지 삭제 (fire-and-forget)
+  const basePath = STORAGE_PATHS.familyPosts(familyId);
+  deleteAllImagesInFolder(basePath).catch(() => {});
+
   return { success: true };
 }
 
