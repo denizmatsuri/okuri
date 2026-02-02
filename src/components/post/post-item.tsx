@@ -121,7 +121,7 @@ export default function PostItem({
                 <MoreHorizontal className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-40 p-1" align="end">
+            <PopoverContent className="w-40 p-2" align="end">
               <div className="flex flex-col gap-1">
                 <Button
                   variant="ghost"
