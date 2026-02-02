@@ -51,13 +51,11 @@ function toNestedComments(comments: Comment[]): NestedComment[] {
 }
 
 export default function CommentList({ postId }: { postId: number }) {
-  const currentFamilyId = useCurrentFamilyId();
-
   const {
     data: comments,
     isPending,
     error: fetchCommentsError,
-  } = useCommentsData(postId, currentFamilyId!);
+  } = useCommentsData(postId);
 
   if (fetchCommentsError)
     return <Fallback message="댓글 목록을 불러오는데 실패했습니다." />;
