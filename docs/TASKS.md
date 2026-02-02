@@ -85,7 +85,6 @@
     - [x] 로그인, 회원가입, 비밀번호 재설정 리다이렉션 확인
 
 - [x] **Milestone 6: 가족 그룹 시스템 (Core)**
-- [x] **Milestone 6: 가족 그룹 시스템 (Core)**
   - [x] 가족 그룹 DB 스키마 설계 및 생성
     - [x] families 테이블 (그룹 정보)
     - [x] family_members 테이블 (구성원-역할 매핑)
@@ -99,53 +98,6 @@
     - [x] 이미지 업로드 (Supabase Storage)
       - [x] Supabase Storage 버킷 생성 (avatars)
       - [x] `api/image.ts` - 버킷 Image 업로드 및 삭제 함수
-    - [x] 프로필 + 아바타 이미지 수정 기능 - [x] `api/profile.ts`
-  - [x] 페이지 라우트 & 온보딩
-    - [x] 초기값 세팅: 가족관련 추가
-    - [x] 가족 페이지 라우트 구조 추가
-    - [x] no-family-page.tsx UI 구현
-    - [x] index-page 리다이렉트 로직 (가족 유무)
-  - [x] 가족 생성 (Page + API + Hook)
-    - [x] `create-family-page.tsx` UI 구현
-    - [x] `api/family.ts` - createFamily 함수
-    - [x] `use-create-family.ts` mutation 훅
-    - [x] ⚠️Family Provider로 가족 관련 데이터를 전역관리
-      - [x] Tanstack Query로 가족 데이터 캐싱 (families, members 등)
-        - [x] `use-my-families.ts` query 훅
-      - [x] Zustand로 currentFamilyId persist 저장
-        - [x] `store/family.ts` 현재 가족 상태
-      - [x] FamilyProvider를 이용해 가족 목록 프리페칭 + currentFamilyId 유효성 검증/설정
-  - [x] 가족 가입 (Page + API + Hook)
-    - [x] `join-family-page.tsx` UI 구현
-    - [x] `api/family.ts` - joinFamily, validateCode
-    - [x] `use-join-family.ts` mutation 훅
-  - [x] 초대 관리
-    - [x] `family-invite-page.tsx` UI 구현
-    - [x] 초대코드 복사/공유 기능
-    - [x] `use-regenerate-invite-code.ts` 초대코드 재생성 기능 추가
-  - [x] 가족 정보 & 전환 UI
-    - [x] `profile-page.tsx` 내 가족 UI 구현
-      1. API 함수 구현 `src/api/family.ts`
-      2. QUERY_KEYS 추가 (`src/lib/constants.ts`)
-      3. Query 훅 추가 (`src/hooks/queries/use-family-data.ts`)
-      4. 프로필 페이지 수정 (`src/pages/auth/profile-page.tsx`)
-  - [x] 초대 코드로 가입하기 구현 (26/01/12)
-  - [x] 가족방 설정 기능 (관리자전용)
-  - [x] 멤버 관리 (관리자전용)
-    - [x] 멤버 내보내기 기능
-    - [x] families테이블 created_by 컬럼삭제 및 동기화 -> admins로 관리하기 위해 무의미해짐.
-    - [x] 가족 멤버 탈퇴 기능 + 확인 다이얼로그
-    - [x] 관리자 권한 부여기능, 가족 멤버에게
-    - [x] 가족 삭제 (관리자) + 경고
-    - [x] 관리자 회원 탈퇴시 경고 (생성한 모든 가족방 삭제됨)
-  - [x] 수정작업 (26/01/13)
-    - [x] admin이 아닌 사용자도 family setting페이지에서 정보보기 가능 (input들 비활성화)
-    - [x] 가족 멤버 나가기 및 탈퇴는 수정버튼을 눌러서 family setting 페이지에서 진행하기
-  - [x] 마무리 (26/01/14)
-    - [x] ⚠️ 가족멤버 프로필 수정기능
-      - [x] 가족리스트에서 avatar를 클릭할시 popup으로 띄워서 본인일 경우 수정
-    - [x] RLS (Row Level Security) 정책 추가, storage 포함
-    - [x] 통합 테스트 및 버그 수정
     - [x] 프로필 + 아바타 이미지 수정 기능 - [x] `api/profile.ts`
   - [x] 페이지 라우트 & 온보딩
     - [x] 초기값 세팅: 가족관련 추가
@@ -520,7 +472,6 @@
 
 ### 2. 원자적 커밋 (Atomic Commits)
 
-하나의 커밋에는 **딱 한 가지 변화**만 담는다. "로그인 기능 구현 및 배경색 변경"처럼 두 가지 일을 최대한 섞지 않는다. 나중에 에러가 났을 때 특정 시점으로 되돌리기 훨씬 쉬움.
 하나의 커밋에는 **딱 한 가지 변화**만 담는다. "로그인 기능 구현 및 배경색 변경"처럼 두 가지 일을 최대한 섞지 않는다. 나중에 에러가 났을 때 특정 시점으로 되돌리기 훨씬 쉬움.
 
 예시:
