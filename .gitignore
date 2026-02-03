@@ -5,6 +5,7 @@
 docs/DEVLOG.md
 docs/IDEAS.md
 docs/NOTES.md
+docs/*/archive
 
 # ================================
 # Dependencies
@@ -60,6 +61,11 @@ lerna-debug.log*
 # ================================
 .cursor/*
 !.cursor/rules
+
+# ================================
+# Antigravity IDE
+# ================================
+.agent/*
 
 # ================================
 # OS generated files
