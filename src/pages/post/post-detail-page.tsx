@@ -4,10 +4,12 @@ import { ArrowLeft } from "lucide-react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import CommentEditor from "@/components/comment/comment-editor";
 import CommentList from "@/components/comment/comment-list";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 export default function PostDetailPage() {
   const params = useParams();
   const postId = params.postId;
+  useScrollToTop();
 
   const navigate = useNavigate();
   if (!postId) return <Navigate to="/" replace={true} />;
