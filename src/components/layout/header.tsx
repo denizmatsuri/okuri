@@ -13,7 +13,7 @@ export default function Header() {
         {/* 로고 버튼 */}
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="logo" className="h-12" />
+            <img src={logo} alt="logo" className="h-8" />
           </Link>
         </div>
 

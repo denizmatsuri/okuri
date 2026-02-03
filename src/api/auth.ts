@@ -1,4 +1,5 @@
 import supabase from "@/lib/supabase";
+import type { Provider } from "@supabase/supabase-js";
 
 export async function signUp({
   email,
@@ -59,4 +60,29 @@ export async function sendResetPasswordEmail({ email }: { email: string }) {
 export async function updatePassword({ password }: { password: string }) {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) throw error;
+}
+export async function signInWithOAuth({
+  provider,
+  redirectTo,
+  queryParams,
+}: {
+  provider: Provider;
+  redirectTo?: string;
+  queryParams?: { [key: string]: string };
+}
+) {
+  // redirectTo가 제공되지 않았을 경우, window.location.origin을 사용합니다.
+  // 주의: Supabase Console의 Redirect URLs에 해당 URL이 등록되어 있어야 합니다.
+  const finalRedirectTo = redirectTo ?? window.location.origin;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: finalRedirectTo,
+      queryParams,
+    },
+  });
+
+  if (error) throw error;
+  return data;
 }

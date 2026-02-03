@@ -34,7 +34,7 @@ export default function DesktopNav() {
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
         {/* 로고 */}
         <Link to="/" className="flex items-center justify-center py-3">
-          <img src={logo} alt="logo" className="h-12 w-12" />
+          <img src={logo} alt="logo" className="h-8 w-8" />
         </Link>
 
         {/* 메인 네비게이션 */}

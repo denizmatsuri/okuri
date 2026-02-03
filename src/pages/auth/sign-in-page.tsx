@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useSignInWithPassword } from "@/hooks/mutations/auth/use-sign-in-with-password";
 import { toast } from "sonner";
 import { generateErrorMessage } from "@/lib/error-messages";
+import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -88,6 +89,7 @@ export default function SignInPage() {
               >
                 {isSigningInPending ? "로그인 중..." : "로그인"}
               </Button>
+              <SocialLoginButtons />
             </div>
             <div className="mt-4 text-center text-sm">
               계정이 없으신가요?{" "}
