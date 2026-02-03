@@ -11,7 +11,7 @@ import {
 
 export default function NoFamilyPage() {
   return (
-    <div className="flex h-full items-center justify-center px-4">
+    <div className="flex h-full min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           {/* 아이콘 영역 */}

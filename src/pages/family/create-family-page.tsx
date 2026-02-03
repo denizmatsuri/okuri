@@ -161,7 +161,7 @@ export default function CreateFamilyPage() {
   };
 
   return (
-    <div className="mt-(--mobile-header-height) flex h-full flex-col items-center justify-center px-4 md:mt-0">
+    <div className="flex h-full min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-3">
