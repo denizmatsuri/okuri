@@ -13,6 +13,8 @@ import { useCurrentFamilyId } from "@/store/family";
 import { usePostEditorModal } from "@/store/post-editor-modal";
 import { compressImageIfNeeded } from "@/lib/image";
 
+const maxSlots = 10;
+
 export default function PostEditorModal() {
   const [content, setContent] = useState("");
   const [isNotice, setIsNotice] = useState(false);
@@ -89,9 +91,9 @@ export default function PostEditorModal() {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // 최대 4장 제한 (기존 + 새 이미지 합산)
+    // 최대 maxSlots장 제한 (기존 + 새 이미지 합산)
     const currentTotal = existingImageUrls.length + newImages.length;
-    const remainingSlots = 4 - currentTotal;
+    const remainingSlots = maxSlots - currentTotal;
     const filesToProcess = files.slice(0, remainingSlots);
 
     if (filesToProcess.length === 0) return;
@@ -170,7 +172,7 @@ export default function PostEditorModal() {
       open={postEditorModal.isOpen}
       onOpenChange={postEditorModal.actions.close}
     >
-      <DialogContent className="max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>
             {isEditMode ? "게시글 수정" : "새 게시글 작성"}
@@ -214,9 +216,9 @@ export default function PostEditorModal() {
                   <button
                     type="button"
                     onClick={() => handleRemoveExistingImage(index)}
-                    className="bg-destructive text-destructive-foreground absolute -top-2 -right-2 rounded-full p-1"
+                    className="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}
@@ -230,9 +232,9 @@ export default function PostEditorModal() {
                   <button
                     type="button"
                     onClick={() => handleRemoveNewImage(index)}
-                    className="bg-destructive text-destructive-foreground absolute -top-2 -right-2 rounded-full p-1"
+                    className="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}
@@ -250,7 +252,7 @@ export default function PostEditorModal() {
                   multiple
                   onChange={handleImageSelect}
                   className="hidden"
-                  disabled={totalImageCount >= 4 || isCompressing}
+                  disabled={totalImageCount >= maxSlots || isCompressing}
                 />
                 <div className="text-muted-foreground hover:bg-muted flex items-center gap-1 rounded-md px-3 py-2 text-sm">
                   {isCompressing ? (
@@ -258,7 +260,7 @@ export default function PostEditorModal() {
                   ) : (
                     <>
                       <ImagePlus className="h-5 w-5" />
-                      <span>{`${totalImageCount}/4`}</span>
+                      <span>{`${totalImageCount}/${maxSlots}`}</span>
                     </>
                   )}
                 </div>
