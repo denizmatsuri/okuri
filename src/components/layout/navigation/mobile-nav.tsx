@@ -1,12 +1,14 @@
 import { Home, Calendar, Image, User, Plus } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { useSession } from "@/store/session";
+import { cn } from "@/lib/utils";
 import { useOpenCreatePostEditorModal } from "@/store/post-editor-modal";
 import { useOpenAlertModal } from "@/store/alert-modal";
 
 export default function MobileNav() {
   const session = useSession();
   const navigate = useNavigate();
+  const location = useLocation();
   const openAlertModal = useOpenAlertModal();
 
   const openCreatePostEditorModal = useOpenCreatePostEditorModal();
@@ -25,17 +27,22 @@ export default function MobileNav() {
     }
   };
 
+  const navItemClass =
+    "flex h-full items-center justify-center px-4 transition-colors relative";
+  const isHomeActive =
+    location.pathname === "/" || location.pathname.startsWith("/post");
+  const isProfileActive = location.pathname.startsWith("/profile");
+
   return (
-    <nav className="bg-background fixed bottom-0 left-0 z-50 flex h-(--mobile-nav-height) w-full items-center justify-around border-t md:hidden">
-      <Link
-        to="/"
-        className="bg-muted flex h-10 w-10 items-center justify-center rounded-xl"
-      >
-        <Home className="text-muted-foreground h-5 w-5" />
+    <nav className="bg-background fixed bottom-0 left-0 z-50 flex h-(--mobile-nav-height) w-full items-center justify-evenly border-t md:hidden">
+      <Link to="/" className={navItemClass}>
+        <Home
+          className={cn(
+            "text-muted-foreground h-7 w-7",
+            isHomeActive && "text-foreground",
+          )}
+        />
       </Link>
-      {/* <Link to="/" className="flex h-10 w-10 items-center justify-center">
-        <Calendar className="text-muted-foreground h-5 w-5" />
-      </Link> */}
       <div
         onClick={() => {
           openAlertModal({
@@ -43,19 +50,13 @@ export default function MobileNav() {
             description: "캘린더 페이지는 준비중입니다.",
           });
         }}
-        className="hover:bg-muted flex h-10 w-10 items-center justify-center rounded-xl"
+        className={navItemClass}
       >
-        <Calendar className="text-muted-foreground h-5 w-5" />
+        <Calendar className="text-muted-foreground h-7 w-7" />
       </div>
-      <button
-        onClick={openCreatePostEditorModal}
-        className="bg-muted flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl"
-      >
-        <Plus className="text-muted-foreground h-5 w-5" />
+      <button onClick={openCreatePostEditorModal} className={navItemClass}>
+        <Plus className="text-muted-foreground h-7 w-7" />
       </button>
-      {/* <Link to="/" className="flex h-10 w-10 items-center justify-center">
-        <Image className="text-muted-foreground h-5 w-5" />
-      </Link> */}
       <div
         onClick={() => {
           openAlertModal({
@@ -63,15 +64,17 @@ export default function MobileNav() {
             description: "갤러리 페이지는 준비중입니다.",
           });
         }}
-        className="hover:bg-muted flex h-10 w-10 items-center justify-center rounded-xl"
+        className={navItemClass}
       >
-        <Image className="text-muted-foreground h-5 w-5" />
+        <Image className="text-muted-foreground h-7 w-7" />
       </div>
-      <button
-        onClick={handleProfileClick}
-        className="flex h-10 w-10 cursor-pointer items-center justify-center"
-      >
-        <User className="text-muted-foreground h-5 w-5" />
+      <button onClick={handleProfileClick} className={navItemClass}>
+        <User
+          className={cn(
+            "text-muted-foreground h-7 w-7",
+            isProfileActive && "text-foreground",
+          )}
+        />
       </button>
     </nav>
   );
