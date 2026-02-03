@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowLeft, Camera, Loader2, X } from "lucide-react";
+import { Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import defaultAvatar from "@/assets/default-avatar.jpg";
 import { generateErrorMessage } from "@/lib/error-messages";
 import { useUpdateProfile } from "@/hooks/mutations/profile/use-update-profile";
 import { compressImageIfNeeded } from "@/lib/image";
+import { SubHeader } from "@/components/layout/sub-header";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 type ImagePreview = { file: File; previewUrl: string };
 
@@ -23,6 +25,7 @@ export default function ProfileEditPage() {
 
   const isMine = session?.user.id === profile?.id;
 
+  useScrollToTop();
   useEffect(() => {
     if (profile && !isMine) {
       navigate("/");
@@ -139,17 +142,7 @@ export default function ProfileEditPage() {
   return (
     <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 flex-col md:m-0 md:bg-transparent">
       {/* 헤더 */}
-      <div className="flex h-15 items-center gap-3 px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="font-medium">프로필 수정</h1>
-      </div>
+      <SubHeader title="프로필 수정" />
 
       {/* 폼 */}
       <form

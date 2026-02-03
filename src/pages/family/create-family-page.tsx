@@ -22,12 +22,14 @@ import { useSession } from "@/store/session";
 import { useCreateFamily } from "@/hooks/mutations/family/use-create-family";
 import { useUserProfileData } from "@/hooks/queries/use-profile-data";
 import { useUpdateProfile } from "@/hooks/mutations/profile/use-update-profile";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 type Step = 1 | 2 | 3;
 
 export default function CreateFamilyPage() {
   const session = useSession();
   const navigate = useNavigate();
+  useScrollToTop();
 
   // 프로필 데이터 조회
   const { data: profile, isLoading: isProfileLoading } = useUserProfileData(
@@ -159,7 +161,7 @@ export default function CreateFamilyPage() {
   };
 
   return (
-    <div className="flex h-full items-center justify-center px-4">
+    <div className="mt-(--mobile-header-height) flex h-full flex-col items-center justify-center px-4 md:mt-0">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-3">

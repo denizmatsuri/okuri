@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import Loader from "@/components/loader";
@@ -8,12 +7,15 @@ import FamilyInfo from "@/components/family/family-info";
 import MemberList from "@/components/family/member-list";
 import LeaveFamily from "@/components/family/leave-family";
 import DeleteFamily from "@/components/family/delete-family";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
+import { SubHeader } from "@/components/layout/sub-header";
 
 export default function FamilySettingPage() {
   const { familyId } = useParams();
   const navigate = useNavigate();
   const session = useSession();
   const userId = session?.user.id;
+  useScrollToTop();
 
   const { data: families = [], isLoading } = useFamiliesWithMembers(userId);
   const family = families.find((f) => f.id === familyId);
@@ -45,18 +47,7 @@ export default function FamilySettingPage() {
 
   return (
     <main className="bg-background mt-(--mobile-header-height) mb-(--mobile-nav-height) flex min-h-screen w-full flex-1 flex-col md:m-0 md:bg-transparent">
-      {/* 헤더 */}
-      <div className="flex h-15 items-center gap-3 px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="font-medium">가족 관리</h1>
-      </div>
+      <SubHeader title="가족 관리" />
 
       <div className="md:bg-background flex flex-1 flex-col gap-8 border-b-0 p-4 md:rounded-t-4xl md:border">
         <section>
@@ -78,8 +69,8 @@ export default function FamilySettingPage() {
         </section>
 
         <section className="mt-auto pt-8">
-          <div className="bg-destructive/5 rounded-2xl border border-destructive/20 p-4">
-            <h2 className="mb-4 text-sm font-semibold text-destructive">
+          <div className="bg-destructive/5 border-destructive/20 rounded-2xl border p-4">
+            <h2 className="text-destructive mb-4 text-sm font-semibold">
               위험 구역
             </h2>
             <div className="flex flex-col gap-6">

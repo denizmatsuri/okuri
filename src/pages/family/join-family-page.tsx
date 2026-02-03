@@ -17,6 +17,7 @@ import { useSession } from "@/store/session";
 import { useJoinFamily } from "@/hooks/mutations/family/use-join-family";
 import { fetchFamilyByInviteCode } from "@/api/family";
 import type { FamilyEntity } from "@/types";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 type Step = 1 | 2;
 
@@ -24,6 +25,7 @@ export default function JoinFamilyPage() {
   const session = useSession();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>(1);
+  useScrollToTop();
 
   // Step 1: 초대 코드
   const [inviteCode, setInviteCode] = useState("");
@@ -93,7 +95,7 @@ export default function JoinFamilyPage() {
   };
 
   return (
-    <div className="flex h-full items-center justify-center px-4">
+    <div className="mt-(--mobile-header-height) flex h-full flex-col items-center justify-center px-4 md:mt-0">
       <Card className="w-full max-w-md">
         {/* 헤더 */}
         <CardHeader>

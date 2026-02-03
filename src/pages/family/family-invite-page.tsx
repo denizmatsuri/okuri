@@ -1,5 +1,5 @@
-import { useParams } from "react-router";
-import { Copy, RefreshCw, Share2, Users } from "lucide-react";
+import { useNavigate, useParams } from "react-router";
+import { ArrowLeft, Copy, RefreshCw, Share2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,13 @@ import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-member
 import { useSession } from "@/store/session";
 import { useRegenerateInviteCode } from "@/hooks/mutations/family/use-regenerate-invite-code";
 import Loader from "@/components/loader";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 export default function FamilyInvitePage() {
   const { familyId } = useParams();
   const session = useSession();
+  const navigate = useNavigate();
+  useScrollToTop();
 
   const { data: familiesWithMembers, isLoading } = useFamiliesWithMembers(
     session?.user.id,
@@ -105,12 +108,19 @@ export default function FamilyInvitePage() {
     );
   }
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
-    <div className="flex h-full items-center justify-center px-4">
+    <div className="mt-(--mobile-header-height) flex h-full flex-col items-center justify-center px-4 md:mt-0">
       <Card className="w-full max-w-md">
         {/* 헤더 */}
         <CardHeader>
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ArrowLeft className="size-5" />
+            </Button>
             <div>
               <CardTitle className="text-xl">가족 초대</CardTitle>
               <CardDescription>{currentFamily.name}</CardDescription>
