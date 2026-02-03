@@ -2,7 +2,6 @@ import CommentItem from "./comment-item";
 import Fallback from "@/components/fallback";
 import Loader from "@/components/loader";
 import { useCommentsData } from "@/hooks/queries/use-comments-data";
-import { useCurrentFamilyId } from "@/store/family";
 import type { Comment, NestedComment } from "@/types";
 
 /**
