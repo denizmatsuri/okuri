@@ -221,5 +221,7 @@ export type UserEntity = Database["public"]["Tables"]["users"]["Row"];
 - [x] Session Store (Zustand)
 - [x] Auth API 함수
 - [x] Mutation 훅 (`use-sign-up`, `use-sign-in-with-password`, 등)
-- [ ] 소셜 로그인 (Google, Kakao) - 미구현
-- [ ] 이메일 인증 - 미구현
+- [x] 이메일 인증
+- [x] 소셜 로그인
+  - [x] Google
+  - [ ] Kakao

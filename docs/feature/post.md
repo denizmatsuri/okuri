@@ -3,7 +3,6 @@
 ## Status
 
 - 상태: 구현 완료
-- 최종 수정: 2026-01-21
 - 관련 코드: `src/types.ts`, `src/pages/`, `src/api/post.ts`, `src/hooks/`
 
 ---
@@ -42,7 +41,7 @@
 
 - `/` → `index-page.tsx`
   - 게시글 목록 (피드)
-- `/post/:postId` → `post-detail-page.tsx` (선택)
+- `/post/:postId` → `post-detail-page.tsx`
   - 게시글 상세 보기
 
 ---
@@ -79,11 +78,12 @@ CREATE TABLE public.posts (
   id bigint primary key generated always as identity,
   family_id uuid NOT NULL REFERENCES public.families(id) ON DELETE CASCADE,
   author_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  family_member_id uuid NOT NULL REFERENCES public.family_members(id) ON DELETE CASCADE,
   content text NOT NULL,
   image_urls text[],
   is_notice boolean DEFAULT false,
   like_count bigint DEFAULT 0,
-  created_at timestamptz DEFAULT now(),
+  created_at timestamptz DEFAULT now()
 );
 
 -- 📌 추후 성능 이슈 발생 시:
@@ -103,15 +103,16 @@ CREATE TABLE public.posts (
 
 ### 필드 설명
 
-| 필드         | 타입        | 설명                         |
-| ------------ | ----------- | ---------------------------- |
-| `id`         | number      | 게시글 고유 ID               |
-| `family_id`  | uuid (FK)   | 소속 가족 그룹 (families.id) |
-| `author_id`  | uuid (FK)   | 작성자 (users.id)            |
-| `content`    | text        | 게시글 내용                  |
-| `image_urls` | text[]      | 첨부 이미지 URL 배열         |
-| `is_notice`  | boolean     | 공지사항                     |
-| `created_at` | timestamptz | 작성일시                     |
+| 필드               | 타입        | 설명                                      |
+| ------------------ | ----------- | ----------------------------------------- |
+| `id`               | number      | 게시글 고유 ID                            |
+| `family_id`        | uuid (FK)   | 소속 가족 그룹 (families.id)              |
+| `family_member_id` | uuid (FK)   | 작성자의 가족 멤버 ID (family_members.id) |
+| `author_id`        | uuid (FK)   | 작성자 (users.id)                         |
+| `content`          | text        | 게시글 내용                               |
+| `image_urls`       | text[]      | 첨부 이미지 URL 배열                      |
+| `is_notice`        | boolean     | 공지사항                                  |
+| `created_at`       | timestamptz | 작성일시                                  |
 
 ---
 
@@ -154,10 +155,10 @@ USING (author_id = auth.uid());
 
 ---
 
-## TypeScript 타입 (예상)
+## TypeScript 타입
 
 ```typescript
-// src/types.ts에 추가 예정
+// src/types.ts
 
 // Entity 타입
 export type PostEntity = Database["public"]["Tables"]["posts"]["Row"];
@@ -165,6 +166,7 @@ export type PostEntity = Database["public"]["Tables"]["posts"]["Row"];
 // 확장 타입 (작성자 정보 포함)
 export type Post = PostEntity & {
   familyMember: FamilyMember;
+  isLiked: boolean;
 };
 ```
 
@@ -174,7 +176,7 @@ export type Post = PostEntity & {
 
 ### 이미지 저장
 
-- Storage bucket: `post-images`
+- Storage bucket: `okuri-storage`
 - 경로: `families/{familyId}/posts/{userId}/{postId}/{fileName}`
 
 ```
@@ -186,6 +188,7 @@ export type Post = PostEntity & {
 - [5] = {postId}
 ```
 
+- `{family_member_id}` 대신 `{userId}`를 사용한 이유는 RLS 정책에서 `auth.uid()`를 사용하기 위함.(간단하게 구현가능)
 - 이미지 URL은 posts.image_urls 배열에 저장
 
 ### Storage RLS Policy
@@ -220,26 +223,7 @@ WITH CHECK (
   AND is_family_member((storage.foldername(name))[2]::uuid)
 );
 
--- UPDATE (수정): 본인이 업로드한 이미지만 수정 가능
-CREATE POLICY "Users can update own post images"
-ON storage.objects FOR UPDATE
-TO authenticated
-USING (
-  bucket_id = 'okuri-storage'
-  AND (storage.foldername(name))[1] = 'families'
-  AND (storage.foldername(name))[3] = 'posts'
-  AND (storage.foldername(name))[4] = auth.uid()::text
-  AND is_family_member((storage.foldername(name))[2]::uuid)
-)
-WITH CHECK (
-  bucket_id = 'okuri-storage'
-  AND (storage.foldername(name))[1] = 'families'
-  AND (storage.foldername(name))[3] = 'posts'
-  AND (storage.foldername(name))[4] = auth.uid()::text
-  AND is_family_member((storage.foldername(name))[2]::uuid)
-);
-
--- DELETE (삭제): 본인 또는 가족 관리자만 삭제 가능
+-- ✅ DELETE (삭제): 본인 또는 가족 관리자만 삭제 가능
 CREATE POLICY "Users or admins can delete post images"
 ON storage.objects FOR DELETE
 TO authenticated
@@ -267,18 +251,5 @@ USING (
 ### CASCADE 삭제
 
 - 가족 삭제 시 → 해당 가족의 모든 게시글 자동 삭제
+- 가족 멤버 삭제 시 → 해당 가족 멤버의 모든 게시글 자동 삭제
 - 사용자 삭제 시 → 해당 사용자의 모든 게시글 자동 삭제
-
-### updated_at 트리거
-
-기존 `update_updated_at_column` 함수가 없다면 아래 추가 필요:
-
-```sql
-CREATE OR REPLACE FUNCTION public.update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-```

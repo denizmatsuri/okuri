@@ -51,6 +51,8 @@ SELECT * FROM posts ORDER BY created_at DESC LIMIT 10 OFFSET 20
 SELECT * FROM posts WHERE id < 100 ORDER BY created_at DESC LIMIT 10
 ```
 
+> 참고: 실제 구현 쿼리는 `post_likes`/`family_members`/`users`를 함께 조회하고, `post_likes.user_id = 현재 userId` 조건으로 `isLiked`를 계산합니다.
+
 **동작 방식:**
 ```
 페이지 1: cursor 없음 → 가장 최신 10개 (id: 100~91)
@@ -81,6 +83,7 @@ SELECT * FROM posts WHERE id < 100 ORDER BY created_at DESC LIMIT 10
 
 ```typescript
 export async function fetchPosts({
+  userId,       // 👈 현재 로그인 사용자 ID (좋아요 상태 계산용)
   familyId,
   category,
   cursor,      // 👈 마지막으로 본 post의 id
@@ -89,8 +92,18 @@ export async function fetchPosts({
   
   let query = supabase
     .from("posts")
-    .select("*")
+    .select(
+      `
+      *,
+      myLiked: post_likes!post_id (*),
+      familyMember: family_members!family_member_id (
+        *,
+        user: users (*)
+      )
+    `,
+    )
     .eq("family_id", familyId)
+    .eq("post_likes.user_id", userId)          // 👈 내 좋아요 여부 계산용
     .order("created_at", { ascending: false })  // 👈 최신순 정렬
     .limit(limit);                               // 👈 10개씩
 
@@ -108,7 +121,13 @@ export async function fetchPosts({
   // cursor가 없으면 (첫 페이지) 그냥 최신 10개
 
   const { data: posts, error } = await query;
-  // ... 수동 조인 로직
+  if (error) throw error;
+  if (!posts?.length) return [];
+
+  return posts.map((post) => ({
+    ...post,
+    isLiked: post.myLiked && post.myLiked.length > 0,
+  }));
 }
 ```
 
@@ -122,7 +141,11 @@ export async function fetchPosts({
 ### `useInfinitePosts` - Hook 레이어
 
 ```typescript
-export function useInfinitePosts(familyId: string, category?: PostCategory) {
+export function useInfinitePosts(
+  userId: string,
+  familyId: string,
+  category?: PostCategory,
+) {
   const queryClient = useQueryClient();
 
   return useInfiniteQuery({
@@ -139,6 +162,7 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
       // 3페이지: 81 (2페이지 마지막 id)
       
       const posts = await fetchPosts({
+        userId,
         familyId,
         category,
         cursor: pageParam,  // 👈 pageParam을 cursor로 전달
@@ -171,7 +195,7 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     // lastPage.nextCursor가 undefined면 hasNextPage = false
     
-    staleTime: 1000 * 60 * 5,
+    staleTime: STALE_TIME.STATIC,
     enabled: !!familyId,
   });
 }
@@ -187,7 +211,7 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
 [1페이지 요청]
   queryFn({ pageParam: undefined })  ← initialPageParam
        ↓
-  fetchPosts({ cursor: undefined }) → posts 10개 반환
+  fetchPosts({ userId, familyId, cursor: undefined }) → posts 10개 반환
        ↓
   return { ids: [...], nextCursor: 91 }  ← queryFn 반환값
        ↓
@@ -199,7 +223,7 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
 [2페이지 요청] fetchNextPage() 호출 시
   queryFn({ pageParam: 91 })  ← 저장해둔 값을 전달!
        ↓
-  fetchPosts({ cursor: 91 }) → posts 10개 반환
+  fetchPosts({ userId, familyId, cursor: 91 }) → posts 10개 반환
        ↓
   return { ids: [...], nextCursor: 81 }
        ↓
@@ -211,7 +235,7 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
 [마지막 페이지 요청]
   queryFn({ pageParam: 11 })
        ↓
-  fetchPosts({ cursor: 11 }) → posts 3개만 반환 (10개 미만)
+  fetchPosts({ userId, familyId, cursor: 11 }) → posts 3개만 반환 (10개 미만)
        ↓
   return { ids: [...], nextCursor: undefined }  ← 더 이상 없음
        ↓
@@ -229,13 +253,14 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
 ```
 [사용자 액션] 피드 페이지 진입
 
-[useInfinitePosts]
+[useInfinitePosts(session.user.id, currentFamilyId, category)]
   ↓ queryFn({ pageParam: undefined })
   
 [fetchPosts]
   ↓ cursor가 없으므로 최신 10개 조회
-  ↓ SELECT * FROM posts WHERE family_id = '...' 
-  ↓         ORDER BY created_at DESC LIMIT 10
+  ↓ posts + post_likes + family_members + users 조회
+  ↓ WHERE family_id = '...' AND post_likes.user_id = '...'
+  ↓ ORDER BY created_at DESC LIMIT 10
   
 [DB 응답]
   posts = [
@@ -268,16 +293,17 @@ export function useInfinitePosts(familyId: string, category?: PostCategory) {
 ```
 [사용자 액션] 스크롤하여 더 보기
 
-[useInfinitePosts]
+[useInfinitePosts(session.user.id, currentFamilyId, category)]
   ↓ fetchNextPage() 호출됨
   ↓ getNextPageParam(lastPage) → 91 반환
   ↓ queryFn({ pageParam: 91 })
 
 [fetchPosts]
   ↓ cursor = 91
-  ↓ SELECT * FROM posts WHERE family_id = '...' 
-  ↓         AND id < 91  ← 핵심!
-  ↓         ORDER BY created_at DESC LIMIT 10
+  ↓ posts + post_likes + family_members + users 조회
+  ↓ WHERE family_id = '...' AND post_likes.user_id = '...'
+  ↓   AND id < 91  ← 핵심!
+  ↓ ORDER BY created_at DESC LIMIT 10
 
 [DB 응답]
   posts = [
