@@ -8,9 +8,10 @@ alwaysApply: false
 
 ## 파일 구조
 
-각 도메인별로 파일 분리:
+각 도메인별로 파일 분리된 예시:
 
 - `src/api/auth.ts` - 인증 관련
+- `src/api/family.ts` - 가족 관련
 - `src/api/post.ts` - 게시글 관련
 - `src/api/profile.ts` - 프로필 관련
 - `src/api/comment.ts` - 댓글 관련
