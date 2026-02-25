@@ -28,7 +28,9 @@ export default function PostEditorModal() {
   const currentFamilyId = useCurrentFamilyId();
   const postEditorModal = usePostEditorModal();
 
-  const { data: familiesWithMembers } = useFamiliesWithMembers(session?.user.id);
+  const { data: familiesWithMembers } = useFamiliesWithMembers(
+    session?.user.id,
+  );
 
   // 현재 가족 정보 및 내 멤버십 추출
   const currentFamily = familiesWithMembers?.find(
@@ -178,7 +180,9 @@ export default function PostEditorModal() {
             {isEditMode ? "게시글 수정" : "새 게시글 작성"}
           </DialogTitle>
           {currentFamily && (
-            <p className="text-muted-foreground text-sm">{currentFamily.name}</p>
+            <p className="text-muted-foreground text-sm">
+              {currentFamily.name}
+            </p>
           )}
         </DialogHeader>
 
@@ -271,7 +275,8 @@ export default function PostEditorModal() {
               {/* 공지 안내 문구 */}
               {isNotice && (
                 <span className="text-muted-foreground animate-in fade-in slide-in-from-right-2 flex items-center gap-1.5 text-sm">
-                  상단에 고정되어 게시돼요
+                  {/* 상단에 고정되어 게시돼요 */}
+                  공지사항으로 게시돼요
                 </span>
               )}
 
