@@ -1,5 +1,24 @@
 import imageCompression from "browser-image-compression";
 
+/**
+ * Supabase Storage Transform을 활용하여 서버 측에서 리사이즈된 이미지 URL을 반환합니다.
+ * Retina 대응 시 표시 크기의 2배를 전달하세요.
+ *
+ * @example getOptimizedImageUrl(avatarUrl, { width: 96, height: 96 })
+ */
+export function getOptimizedImageUrl(
+  url: string | null,
+  options: { width: number; height: number },
+): string | null {
+  if (!url || !url.includes("/storage/v1/object/public/")) return url;
+
+  const transformed = url.replace(
+    "/storage/v1/object/public/",
+    "/storage/v1/render/image/public/",
+  );
+  return `${transformed}?width=${options.width}&height=${options.height}&resize=cover`;
+}
+
 export type ImagePreset = "avatar" | "post" | "gallery";
 
 /**

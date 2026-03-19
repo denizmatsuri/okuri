@@ -9,6 +9,7 @@ import Loader from "@/components/loader";
 import { useFamiliesWithMembers } from "@/hooks/queries/use-families-with-members";
 import type { FamilyMember } from "@/types";
 import FamilyMemberProfileModal from "@/components/modal/family-member-profile-modal";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -62,8 +63,14 @@ export default function ProfilePage() {
                 </p>
               </div>
               <img
-                src={profile?.avatar_url ?? defaultAvatar}
+                src={
+                  getOptimizedImageUrl(profile?.avatar_url ?? null, {
+                    width: 128,
+                    height: 128,
+                  }) ?? defaultAvatar
+                }
                 alt="프로필 이미지"
+                decoding="async"
                 className="h-16 w-16 rounded-full border object-cover"
               />
             </div>
@@ -167,8 +174,14 @@ export default function ProfilePage() {
                           className="group flex shrink-0 cursor-pointer flex-col items-center gap-1 focus:outline-none"
                         >
                           <img
-                            src={member.user.avatar_url ?? defaultAvatar}
+                            src={
+                              getOptimizedImageUrl(
+                                member.user.avatar_url ?? null,
+                                { width: 96, height: 96 },
+                              ) ?? defaultAvatar
+                            }
                             alt={member.display_name ?? "멤버"}
+                            decoding="async"
                             className="group-hover:border-primary size-12 rounded-full border object-cover transition-colors"
                           />
                           <span className="group-hover:text-primary text-xs font-medium">

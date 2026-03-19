@@ -15,6 +15,7 @@ import defaultAvatar from "@/assets/default-avatar.jpg";
 import { useSession } from "@/store/session";
 import { useUpdateFamilyMember } from "@/hooks/mutations/family/use-update-family-member";
 import type { FamilyMember } from "@/types";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 type Props = {
   member: FamilyMember | null;
@@ -95,8 +96,14 @@ export default function FamilyMemberProfileModal({
         <div className="flex flex-col items-center gap-4">
           {/* 프로필 이미지 */}
           <img
-            src={member.user.avatar_url ?? defaultAvatar}
+            src={
+              getOptimizedImageUrl(member.user.avatar_url ?? null, {
+                width: 192,
+                height: 192,
+              }) ?? defaultAvatar
+            }
             alt={member.display_name ?? "멤버"}
+            decoding="async"
             className="h-24 w-24 rounded-full border object-cover"
           />
 
