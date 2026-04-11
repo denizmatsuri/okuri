@@ -11,7 +11,7 @@ import { useUpdatePost } from "@/hooks/mutations/post/use-update-post";
 import { useSession } from "@/store/session";
 import { useCurrentFamilyId } from "@/store/family";
 import { usePostEditorModal } from "@/store/post-editor-modal";
-import { compressImageIfNeeded } from "@/lib/image";
+import { compressImageIfNeeded, getOptimizedImageUrl } from "@/lib/image";
 
 const maxSlots = 10;
 
@@ -41,6 +41,12 @@ export default function PostEditorModal() {
   );
 
   const isEditMode = postEditorModal.type === "EDIT";
+
+  const authorAvatar =
+    getOptimizedImageUrl(myMembership?.user.avatar_url ?? null, {
+      width: 96,
+      height: 96,
+    }) ?? defaultAvatar;
 
   const resetForm = () => {
     setContent("");
@@ -190,11 +196,7 @@ export default function PostEditorModal() {
           {/* 작성 영역 */}
           <div className="flex gap-3">
             <img
-              src={
-                myMembership?.avatar_url ??
-                myMembership?.user?.avatar_url ??
-                defaultAvatar
-              }
+              src={authorAvatar}
               alt="내 프로필"
               className="h-10 w-10 shrink-0 rounded-full border object-cover"
             />
@@ -202,7 +204,7 @@ export default function PostEditorModal() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="가족에게 공유하고 싶은 이야기를 적어보세요"
-              className="focus-visible:border-input min-h-[120px] resize-none focus-visible:ring-0"
+              className="focus-visible:border-input min-h-30 resize-none focus-visible:ring-0"
               maxLength={1000}
             />
           </div>

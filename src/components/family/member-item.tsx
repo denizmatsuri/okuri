@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import type { FamilyMember } from "@/types";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 export default function MemberItem({
   member,
@@ -17,11 +18,17 @@ export default function MemberItem({
 }) {
   const showActions = isAdmin && !isCurrentUser && !member.is_admin;
 
+  const authorAvatar =
+    getOptimizedImageUrl(member.user.avatar_url ?? null, {
+      width: 96,
+      height: 96,
+    }) ?? defaultAvatar;
+
   return (
     <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
       <div className="flex items-center gap-3">
         <img
-          src={member.user.avatar_url ?? defaultAvatar}
+          src={authorAvatar}
           alt={member.display_name ?? "멤버"}
           className="h-10 w-10 rounded-full object-cover"
         />

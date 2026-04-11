@@ -23,6 +23,7 @@ import { useDeletePost } from "@/hooks/mutations/post/use-delete-post";
 import LikePostButton from "@/components/post/like-post-button";
 import { useOpenAlertModal } from "@/store/alert-modal";
 import Loader from "@/components/loader";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 export default function PostItem({
   postId,
@@ -64,10 +65,20 @@ export default function PostItem({
     post.familyMember?.user?.display_name ??
     "알 수 없음";
   const authorRole = post.familyMember?.family_role ?? "";
+  // const authorAvatar =
+  //   post.familyMember?.avatar_url ??
+  //   post.familyMember?.user?.avatar_url ??
+  //   defaultAvatar;
   const authorAvatar =
-    post.familyMember?.avatar_url ??
-    post.familyMember?.user?.avatar_url ??
-    defaultAvatar;
+    getOptimizedImageUrl(
+      post.familyMember?.avatar_url ??
+        post.familyMember?.user?.avatar_url ??
+        null,
+      {
+        width: 96,
+        height: 96,
+      },
+    ) ?? defaultAvatar;
 
   const handleEdit = () => {
     setIsPopoverOpen(false);

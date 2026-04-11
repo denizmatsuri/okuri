@@ -15,11 +15,23 @@ import { useSession } from "@/store/session";
 import { useOpenAlertModal } from "@/store/alert-modal";
 import { formatRelativeTime } from "@/lib/utils";
 import type { NestedComment } from "@/types";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 export default function CommentItem(props: NestedComment) {
   const [isEditing, setIsEditing] = useState(false);
   const [isReply, setIsReply] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  const authorAvatar =
+    getOptimizedImageUrl(
+      props.familyMember?.avatar_url ??
+        props.familyMember?.user?.avatar_url ??
+        null,
+      {
+        width: 96,
+        height: 96,
+      },
+    ) ?? defaultAvatar;
 
   const session = useSession();
   const openAlertModal = useOpenAlertModal();
@@ -57,11 +69,7 @@ export default function CommentItem(props: NestedComment) {
         <Link to={`/profile/${props.author_id}`}>
           <img
             className="h-9 w-9 rounded-full object-cover"
-            src={
-              props.familyMember?.avatar_url ||
-              props.familyMember?.user?.avatar_url ||
-              defaultAvatar
-            }
+            src={authorAvatar}
             alt="프로필"
           />
         </Link>
